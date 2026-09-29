@@ -56,5 +56,7 @@ dependencies {
 
     //Implementacion de la dependencia de navegacion:
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    //Implementar dependencia para iconos de material
+    implementation("androidx.compose.material:material-icons-extended")
 
 }
