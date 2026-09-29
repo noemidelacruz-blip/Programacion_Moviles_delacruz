@@ -6,10 +6,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-// import com.delacruz.navlab.screens.DetailScreen
-// import com.delacruz.navlab.screens.HomeScreen
-// import com.delacruz.navlab.screens.ListScreen
-// import com.delacruz.navlab.screens.ProfileScreen
+import com.delacruz.navlab.screens.DetailScreen
+import com.delacruz.navlab.screens.HomeScreen
+import com.delacruz.navlab.screens.ListScreen
+import com.delacruz.navlab.screens.ProfileScreen
 
 @Composable
 fun AppNavigation() {
@@ -19,7 +19,6 @@ fun AppNavigation() {
         navController = navController,
         startDestination = Screen.Home.route
     ) {
-        /*
         composable(Screen.Home.route) {
             HomeScreen(navController)
         }
@@ -41,6 +40,5 @@ fun AppNavigation() {
             val itemId = backStackEntry.arguments?.getInt("itemId") ?: 0
             DetailScreen(navController, itemId)
         }
-        */
     }
 }
