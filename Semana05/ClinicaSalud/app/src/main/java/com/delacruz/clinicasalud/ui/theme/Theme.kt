@@ -37,7 +37,9 @@ private val LightColorScheme = lightColorScheme(
 fun ClinicaSaludTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+
+    //desactivamos aqui el  Material You (Color Dinámico), y le ponemos false para evita que el sistema operativo pinte la aplicación de azul basado en el fondo de pantalla
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

@@ -3,10 +3,6 @@ package com.delacruz.clinicasalud.navigation
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +14,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
+/**
+ * Menu lateral deslizable (Navigation Drawer) personalizado con indicadores circulares.
+ */
 @Composable
 fun AppDrawer(
     contenidoPantalla: @Composable (onClickAbrirDrawer: () -> Unit) -> Unit
@@ -31,6 +30,7 @@ fun AppDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
+                // Cabecera con avatar e informacion del paciente
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -47,12 +47,12 @@ fun AppDrawer(
                             color = Color(0xFFE8DEF8)
                         ) {
                             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                                Text("JP", fontWeight = FontWeight.Bold, color = Color(0xFF4A148C))
+                                Text("NC", fontWeight = FontWeight.Bold, color = Color(0xFF4A148C))
                             }
                         }
                     }
                     Text(
-                        text = "Juan Pérez",
+                        text = "Noemí de la Cruz",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -65,8 +65,14 @@ fun AppDrawer(
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
+                // Opcion 1: Inicio (con icono de RadioButton)
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                    icon = {
+                        RadioButton(
+                            selected = destinoSeleccionado == "Inicio",
+                            onClick = null
+                        )
+                    },
                     label = { Text("Inicio") },
                     selected = destinoSeleccionado == "Inicio",
                     onClick = {
@@ -76,8 +82,14 @@ fun AppDrawer(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
 
+                // Opcion 2: Mis citas
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = null) },
+                    icon = {
+                        RadioButton(
+                            selected = destinoSeleccionado == "Mis citas",
+                            onClick = null
+                        )
+                    },
                     label = { Text("Mis citas") },
                     selected = destinoSeleccionado == "Mis citas",
                     onClick = {
@@ -88,14 +100,38 @@ fun AppDrawer(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
 
+                // Opcion 3: Historial medico
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.ListAlt, contentDescription = null) },
+                    icon = {
+                        RadioButton(
+                            selected = destinoSeleccionado == "Historial médico",
+                            onClick = null
+                        )
+                    },
                     label = { Text("Historial médico") },
                     selected = destinoSeleccionado == "Historial médico",
                     onClick = {
                         destinoSeleccionado = "Historial médico"
                         coroutineScope.launch { drawerState.close() }
                         Toast.makeText(contexto, "Sección Historial Médico", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+
+                // Opcion 4: Perfil
+                NavigationDrawerItem(
+                    icon = {
+                        RadioButton(
+                            selected = destinoSeleccionado == "Perfil",
+                            onClick = null
+                        )
+                    },
+                    label = { Text("Perfil") },
+                    selected = destinoSeleccionado == "Perfil",
+                    onClick = {
+                        destinoSeleccionado = "Perfil"
+                        coroutineScope.launch { drawerState.close() }
+                        Toast.makeText(contexto, "Sección Perfil del usuario", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
