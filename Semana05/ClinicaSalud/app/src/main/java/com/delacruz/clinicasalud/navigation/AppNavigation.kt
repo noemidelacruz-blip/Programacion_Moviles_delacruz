@@ -12,6 +12,7 @@ import com.delacruz.clinicasalud.screens.ConfirmationScreen
 import com.delacruz.clinicasalud.screens.DoctorDetailScreen
 import com.delacruz.clinicasalud.screens.HomeScreen
 import com.delacruz.clinicasalud.screens.MedicalHistoryScreen
+import com.delacruz.clinicasalud.screens.ProfileScreen
 
 /**
  * Composable principal encargado de la orquestacion de rutas y navegacion de la app.
@@ -23,7 +24,15 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     // Envolvemos la navegacion principal dentro del AppDrawer (Menu Lateral)
-    AppDrawer { onClickAbrirDrawer ->
+    AppDrawer(
+        onNavegarA = { ruta ->
+            navController.navigate(ruta) {
+                popUpTo(Screen.Home.route) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    ) { onClickAbrirDrawer ->
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route // Ruta inicial: Pantalla de Inicio
@@ -48,16 +57,13 @@ fun AppNavigation() {
                 route = Screen.DoctorDetail.route,
                 arguments = listOf(navArgument("doctorId") { type = NavType.IntType })
             ) { backStackEntry ->
-                // Extraccion del argumento doctorId enviado en la ruta
                 val doctorId = backStackEntry.arguments?.getInt("doctorId") ?: 1
-                // Busqueda del doctor correspondiente en la lista de prueba
                 val doctor = listaMedicosPrueba.firstOrNull { it.id == doctorId } ?: listaMedicosPrueba.first()
 
                 DoctorDetailScreen(
                     doctor = doctor,
                     onVolverInicio = { navController.popBackStack() },
                     onAgendarCitaClick = {
-                        // Navegacion a la pantalla de agendamiento
                         navController.navigate(Screen.Appointment.createRoute(doctor.id))
                     }
                 )
@@ -77,7 +83,6 @@ fun AppNavigation() {
                     doctor = doctor,
                     onVolverPerfil = { navController.popBackStack() },
                     onConfirmarCita = { fecha, hora ->
-                        // Navegacion a la pantalla de confirmacion enviando parametros
                         navController.navigate(
                             Screen.Confirmation.createRoute(
                                 doctorNombre = doctor.nombre,
@@ -108,20 +113,18 @@ fun AppNavigation() {
                     doctorNombre = doctorNombre,
                     fecha = fecha,
                     hora = hora,
-                    // 1. Esto hace que la flecha retroceda a 'Agendar Cita'
                     onVolverAtras = { navController.popBackStack() },
                     onVerMisCitasClick = {
                         navController.navigate(Screen.Appointments.route)
                     },
-                    // 3. Esto hace que el botón 'Volver al inicio' regrese a Home y limpie el historial
                     onVolverInicioClick = {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
-
                         }
                     }
                 )
             }
+
             // -------------------------------------------------------------
             // 5. RUTA: MIS CITAS (APPOINTMENTS)
             // -------------------------------------------------------------
@@ -141,6 +144,15 @@ fun AppNavigation() {
                             popUpTo(Screen.Home.route) { inclusive = true }
                         }
                     }
+                )
+            }
+
+            // -------------------------------------------------------------
+            // 7. RUTA: PERFIL (PROFILE)
+            // -------------------------------------------------------------
+            composable(Screen.Profile.route) {
+                ProfileScreen(
+                    onMenuClick = onClickAbrirDrawer
                 )
             }
         }

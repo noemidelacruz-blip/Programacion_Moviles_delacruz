@@ -1,6 +1,5 @@
 package com.delacruz.clinicasalud.navigation
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -8,7 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,9 +17,9 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun AppDrawer(
+    onNavegarA: (String) -> Unit,
     contenidoPantalla: @Composable (onClickAbrirDrawer: () -> Unit) -> Unit
 ) {
-    val contexto = LocalContext.current
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     var destinoSeleccionado by remember { mutableStateOf("Inicio") }
@@ -65,7 +63,7 @@ fun AppDrawer(
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                // Opcion 1: Inicio (con icono de RadioButton)
+                // Opcion 1: Inicio
                 NavigationDrawerItem(
                     icon = {
                         RadioButton(
@@ -78,6 +76,7 @@ fun AppDrawer(
                     onClick = {
                         destinoSeleccionado = "Inicio"
                         coroutineScope.launch { drawerState.close() }
+                        onNavegarA(Screen.Home.route)
                     },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
@@ -95,7 +94,7 @@ fun AppDrawer(
                     onClick = {
                         destinoSeleccionado = "Mis citas"
                         coroutineScope.launch { drawerState.close() }
-                        Toast.makeText(contexto, "Navegando a Mis Citas", Toast.LENGTH_SHORT).show()
+                        onNavegarA(Screen.Appointments.route)
                     },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
@@ -113,7 +112,7 @@ fun AppDrawer(
                     onClick = {
                         destinoSeleccionado = "Historial médico"
                         coroutineScope.launch { drawerState.close() }
-                        Toast.makeText(contexto, "Sección Historial Médico", Toast.LENGTH_SHORT).show()
+                        onNavegarA(Screen.MedicalHistory.route)
                     },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
@@ -131,7 +130,7 @@ fun AppDrawer(
                     onClick = {
                         destinoSeleccionado = "Perfil"
                         coroutineScope.launch { drawerState.close() }
-                        Toast.makeText(contexto, "Sección Perfil del usuario", Toast.LENGTH_SHORT).show()
+                        onNavegarA(Screen.Profile.route)
                     },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
