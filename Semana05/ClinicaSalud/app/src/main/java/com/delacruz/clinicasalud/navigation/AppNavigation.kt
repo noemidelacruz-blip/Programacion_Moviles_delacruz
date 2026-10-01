@@ -108,25 +108,26 @@ fun AppNavigation() {
                     doctorNombre = doctorNombre,
                     fecha = fecha,
                     hora = hora,
+                    // 1. Esto hace que la flecha retroceda a 'Agendar Cita'
+                    onVolverAtras = { navController.popBackStack() },
                     onVerMisCitasClick = {
-                        // Limpiamos el stack y navegamos a "Mis Citas"
-                        navController.navigate(Screen.Appointments.route) {
-                            popUpTo(Screen.Home.route)
+                        navController.navigate(Screen.Appointments.route)
+                    },
+                    // 3. Esto hace que el botón 'Volver al inicio' regrese a Home y limpie el historial
+                    onVolverInicioClick = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+
                         }
                     }
                 )
             }
-
             // -------------------------------------------------------------
             // 5. RUTA: MIS CITAS (APPOINTMENTS)
             // -------------------------------------------------------------
             composable(Screen.Appointments.route) {
                 AppointmentsScreen(
-                    onVolverInicio = {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Home.route) { inclusive = true }
-                        }
-                    }
+                    onMenuClick = onClickAbrirDrawer
                 )
             }
 

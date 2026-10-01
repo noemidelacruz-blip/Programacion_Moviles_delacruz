@@ -36,7 +36,13 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Salud+", fontWeight = FontWeight.Bold) },
+                title = {
+                    Column {
+                        Text("Clínica Salud", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+
+                        //(poner mi nombre dando la bienvenida o saludo)Text("Hola, Emi", fontSize = 14.sp)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onAbrirDrawer) {
                         Icon(Icons.Default.Menu, contentDescription = "Abrir Menú")
