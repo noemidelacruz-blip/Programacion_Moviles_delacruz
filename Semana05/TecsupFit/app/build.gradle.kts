@@ -55,4 +55,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     // Importación necesaria para los íconos de Material
     implementation("androidx.compose.material:material-icons-extended:1.6.8")
+    // Librería oficial de navegación para Jetpack Compose
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 }
