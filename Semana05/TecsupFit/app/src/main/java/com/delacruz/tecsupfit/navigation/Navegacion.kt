@@ -84,7 +84,7 @@ fun NavegacionApp() {
                     if (!listaReservas.any { it.claseNombre == nuevaReserva.claseNombre }) {
                         listaReservas = listaReservas + nuevaReserva
                     }
-
+                    // Redirección hacia la pestaña de Reservas tras confirmar
                     tabInicial = 1
                     navController.popBackStack(Rutas.PANTALLA_INICIO, inclusive = false)
                 }
