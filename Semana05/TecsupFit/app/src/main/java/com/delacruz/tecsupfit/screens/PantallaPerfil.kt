@@ -1,15 +1,12 @@
 package com.delacruz.tecsupfit.screens
 
-// Importaciones de Jetpack Compose y Material 3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,122 +14,117 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.delacruz.tecsupfit.model.PerfilUsuario
 
 /**
- * Pantalla que muestra el perfil del usuario activo y sus opciones de cuenta.
+ * Pantalla que muestra el perfil de usuario activo para Noemi De La Cruz.
  */
 @Composable
 fun PantallaPerfil() {
-    // Instancia del perfil del usuario adaptada a la data class PerfilUsuario(nombre)
-    val usuario = PerfilUsuario(
-        nombre = "Diego De La Cruz"
-    )
-
-    // Contenedor principal vertical
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(16.dp),
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Título superior alineado a la izquierda
+        // Título alineado a la izquierda
         Text(
-            text = "Mi Perfil",
+            text = "Mi perfil",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp)
         )
 
-        // Avatar circular para la foto de perfil
+        // Círculo del avatar con las iniciales "ND"
         Box(
             modifier = Modifier
                 .size(90.dp)
-                .background(VerdeClaroBg, CircleShape),
+                .background(Color(0xFFE0F2E9), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = VerdeTecsup,
-                modifier = Modifier.size(50.dp)
+            Text(
+                text = "ND",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF006837)
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Nombre del usuario obtenido del modelo
+        // Nombre del usuario activo y su plan
         Text(
-            text = usuario.nombre,
+            text = "Noemi De La Cruz",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "diego.delacruz@tecsup.edu.pe",
+            text = "Plan Premium",
             fontSize = 14.sp,
-            color = Color.Gray
+            color = Color.Gray,
+            modifier = Modifier.padding(top = 4.dp)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Tarjeta con lista de opciones y configuraciones de cuenta
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = GrisTarjeta),
-            modifier = Modifier.fillMaxWidth()
+        // Tarjetas con estadísticas de clases y rachas
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                ItemOpcionPerfil("Historial de asistencias")
-                HorizontalDivider(color = Color.White, thickness = 1.dp)
-                ItemOpcionPerfil("Notificaciones y recordatorios")
-                HorizontalDivider(color = Color.White, thickness = 1.dp)
-                ItemOpcionPerfil("Términos y condiciones")
+            // Métrica de Clases
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(90.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "14",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Clases",
+                        fontSize = 13.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
+
+            // Métrica de Rachas
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(90.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "3",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Rachas",
+                        fontSize = 13.sp,
+                        color = Color.Gray
+                    )
+                }
             }
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Botón para cerrar sesión
-        OutlinedButton(
-            onClick = { /* Acción para cerrar sesión */ },
-            modifier = Modifier.fillMaxWidth().height(48.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Cerrar sesión", fontWeight = FontWeight.SemiBold)
-        }
-    }
-}
-
-/**
- * Composable auxiliar para renderizar cada fila de opción en el menú de perfil.
- */
-@Composable
-private fun ItemOpcionPerfil(titulo: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = titulo,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium
-        )
-        Icon(
-            imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
-            tint = Color.Gray
-        )
     }
 }
