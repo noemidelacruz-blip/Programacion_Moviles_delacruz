@@ -1,6 +1,5 @@
 package com.delacruz.tecsupfit.screens
 
-// Importaciones de Jetpack Compose y Material 3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,15 +22,10 @@ import com.delacruz.tecsupfit.model.Reserva
  * Pantalla que muestra el listado de reservas activas del usuario y permite cancelarlas.
  */
 @Composable
-fun PantallaReservas() {
-    // Lista de estado mutable ajustada exactamente al modelo Reserva(id, claseNombre, horario, estado)
-    val listaReservas = remember {
-        mutableStateListOf(
-            Reserva(1, "Yoga funcional", "Hoy · 7:00 am - Sala 2", "Confirmada"),
-            Reserva(2, "Spinning", "Mañana · 7:30 pm - Sala 3", "Confirmada")
-        )
-    }
-
+fun PantallaReservas(
+    listaReservas: List<Reserva>,
+    onEliminarReserva: (Reserva) -> Unit
+) {
     // Estado para controlar qué reserva se desea cancelar
     var reservaACancelar by remember { mutableStateOf<Reserva?>(null) }
 
@@ -139,7 +133,7 @@ fun PantallaReservas() {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        listaReservas.remove(reserva)
+                        onEliminarReserva(reserva)
                         reservaACancelar = null
                     }
                 ) {

@@ -54,7 +54,7 @@ fun PantallaInicio(onClaseClick: (ClaseFit) -> Unit) {
             Column {
                 Text("TECSUP Fit", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Hola, Diego", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                Text("Hola, Noemi", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
             }
         }
 

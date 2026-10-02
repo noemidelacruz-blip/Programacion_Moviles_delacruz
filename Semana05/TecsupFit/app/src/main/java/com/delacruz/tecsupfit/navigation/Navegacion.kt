@@ -2,6 +2,7 @@ package com.delacruz.tecsupfit.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -9,75 +10,82 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.delacruz.tecsupfit.model.ClaseFit
+import com.delacruz.tecsupfit.model.Reserva
 import com.delacruz.tecsupfit.screens.PantallaConfirmacion
 import com.delacruz.tecsupfit.screens.PantallaDetalleClase
 import com.delacruz.tecsupfit.screens.PantallaPrincipal
 
-/**
- * Objeto central que define los identificadores de ruta para la navegación de la aplicación.
- */
 object Rutas {
-    // Constante para la ruta de la pantalla principal de inicio
     const val PANTALLA_INICIO = "inicio"
-    // Constante para la ruta de la pantalla de detalle de clase
     const val PANTALLA_DETALLE = "detalle"
-    // Constante para la ruta de la pantalla de confirmación de reserva
     const val PANTALLA_CONFIRMACION = "confirmacion"
 }
 
-/**
- * Grafo de navegación central que administra el flujo entre pantallas en TECSUP Fit.
- */
 @Composable
 fun NavegacionApp() {
-    // Creación e inicialización del NavController con rememberNavController para gestionar la navegación internamente
     val navController = rememberNavController()
+    var tabInicial by remember { mutableIntStateOf(0) }
 
-    // Estado mutable para almacenar y compartir la clase seleccionada entre las vistas
+    // 1. Manejar la lista de tipo Reserva en lugar de ClaseFit
+    var listaReservas by remember {
+        mutableStateOf(
+            listOf(
+                Reserva(1, "Yoga funcional", "Hoy · 7:00 am - Sala 2", "Confirmada"),
+                Reserva(2, "Spinning", "Mañana · 7:30 pm - Sala 3", "Confirmada")
+            )
+        )
+    }
+
     var claseSeleccionada by remember {
         mutableStateOf(ClaseFit(1, "Yoga funcional", "7:00 am", "Sala 2"))
     }
 
-    // Contenedor principal NavHost asignando el controlador e indicando la ruta inicial
     NavHost(
         navController = navController,
         startDestination = Rutas.PANTALLA_INICIO
     ) {
-        // Ruta 1: Pantalla Principal (Contiene la navegación por pestañas de Inicio, Reservas y Perfil)
         composable(Rutas.PANTALLA_INICIO) {
             PantallaPrincipal(
+                tabInicial = tabInicial,
+                listaReservas = listaReservas, // Pasamos la lista de objetos Reserva
+                onEliminarReserva = { reservaAEliminar ->
+                    listaReservas = listaReservas.filter { it.id != reservaAEliminar.id }
+                },
                 onClaseClick = { clase ->
-                    // Guarda la clase seleccionada en el estado local
                     claseSeleccionada = clase
-                    // Navega hacia la pantalla de detalle
                     navController.navigate(Rutas.PANTALLA_DETALLE)
                 }
             )
         }
 
-        // Ruta 2: Pantalla de Detalle de la Clase Seleccionada
         composable(Rutas.PANTALLA_DETALLE) {
             PantallaDetalleClase(
                 clase = claseSeleccionada,
-                onBack = {
-                    // Regresa a la pantalla anterior en la pila de navegación
-                    navController.popBackStack()
-                },
-                onReservar = {
-                    // Navega a la pantalla de confirmación tras realizar la reserva
-                    navController.navigate(Rutas.PANTALLA_CONFIRMACION)
-                }
+                onBack = { navController.popBackStack() },
+                onReservar = { navController.navigate(Rutas.PANTALLA_CONFIRMACION) }
             )
         }
 
-        // Ruta 3: Pantalla de Confirmación de Reserva
         composable(Rutas.PANTALLA_CONFIRMACION) {
             PantallaConfirmacion(
                 nombre = claseSeleccionada.nombre,
                 hora = claseSeleccionada.hora,
                 sala = claseSeleccionada.sala,
                 onVerReservas = {
-                    // Limpia la pila de navegación y retorna a la pantalla de inicio
+                    // 2. Mapear ClaseFit a la estructura Reserva
+                    val nuevaReserva = Reserva(
+                        id = (listaReservas.maxOfOrNull { it.id } ?: 0) + 1,
+                        claseNombre = claseSeleccionada.nombre,
+                        horario = "Hoy · ${claseSeleccionada.hora} - ${claseSeleccionada.sala}",
+                        estado = "Confirmada"
+                    )
+
+                    // 3. Evitar duplicados y agregar la nueva reserva a la lista global
+                    if (!listaReservas.any { it.claseNombre == nuevaReserva.claseNombre }) {
+                        listaReservas = listaReservas + nuevaReserva
+                    }
+
+                    tabInicial = 1
                     navController.popBackStack(Rutas.PANTALLA_INICIO, inclusive = false)
                 }
             )

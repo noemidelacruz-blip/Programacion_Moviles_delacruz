@@ -6,16 +6,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.delacruz.tecsupfit.model.ClaseFit
+import com.delacruz.tecsupfit.model.Reserva
 
 /**
  * Pantalla contenedora principal que administra la navegación inferior de 4 secciones.
  */
 @Composable
 fun PantallaPrincipal(
+    tabInicial: Int = 0,
+    listaReservas: List<Reserva> = emptyList(), // <-- Recibe la lista de reservas
+    onEliminarReserva: (Reserva) -> Unit = {},  // <-- Recibe el callback para eliminar
     onClaseClick: (ClaseFit) -> Unit
 ) {
-    // Estado mutable para el índice de la pestaña activa (0: Inicio, 1: Reservas, 2: Rutinas, 3: Perfil)
-    var indiceSeleccionado by remember { mutableIntStateOf(0) }
+    // Estado mutable para el índice de la pestaña activa
+    var indiceSeleccionado by remember { mutableIntStateOf(tabInicial) }
+
+    // Sincroniza la pestaña cuando tabInicial cambia desde la navegación
+    LaunchedEffect(tabInicial) {
+        indiceSeleccionado = tabInicial
+    }
 
     // Lista con las 4 pestañas requeridas
     val opcionesNavegacion = listOf("Inicio", "Reservas", "Rutinas", "Perfil")
@@ -48,7 +57,10 @@ fun PantallaPrincipal(
         Surface(modifier = Modifier.padding(paddingInterno)) {
             when (indiceSeleccionado) {
                 0 -> PantallaInicio(onClaseClick = onClaseClick)
-                1 -> PantallaReservas()
+                1 -> PantallaReservas(
+                    listaReservas = listaReservas,
+                    onEliminarReserva = onEliminarReserva
+                )
                 2 -> PantallaRutinas()
                 3 -> PantallaPerfil()
             }
