@@ -53,4 +53,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // 1. Íconos extendidos de Material Design
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+    // 2. Navegación en Jetpack Compose (necesario para el NavigationDrawer y cambio de pantallas)
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 }
