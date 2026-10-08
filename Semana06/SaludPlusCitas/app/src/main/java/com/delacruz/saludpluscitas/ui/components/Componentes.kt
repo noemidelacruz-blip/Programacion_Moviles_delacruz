@@ -558,3 +558,60 @@ fun EstadoVacio(
         )
     }
 }
+
+// Tarjeta del médico arriba de Fecha y hora y Confirmar cita.
+// Con mostrarCmp se agrega el CMP debajo de la profesión.
+@Composable
+fun ResumenMedico(
+    medico: Medico,
+    mostrarCmp: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(FondoClaro)
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AvatarMedico()
+        Spacer(modifier = Modifier.width(14.dp))
+        Column {
+            Text(
+                text = medico.nombre,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(text = medico.profesion, fontSize = 14.sp, color = TextoSecundario)
+            if (mostrarCmp) {
+                Text(text = "CMP: ${medico.cmp}", fontSize = 13.sp, color = TextoSecundario)
+            }
+        }
+    }
+}
+
+// Celda del grid de horarios: azul si está seleccionada.
+@Composable
+fun ChipHorario(
+    hora: String,
+    seleccionado: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (seleccionado) AzulPrimario else FondoClaro)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = hora,
+            fontSize = 15.sp,
+            fontWeight = if (seleccionado) FontWeight.Bold else FontWeight.Medium,
+            color = if (seleccionado) Color.White else MaterialTheme.colorScheme.onSurface
+        )
+    }
+}

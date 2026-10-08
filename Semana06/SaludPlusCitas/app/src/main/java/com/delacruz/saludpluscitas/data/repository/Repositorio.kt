@@ -171,25 +171,47 @@ object Repositorio {
     // Citas
     // ---------------------------------------------------------------
 
-    // TODO: horarios de horariosBase que el médico aún no tiene reservados ese día (filter + map).
+    // Horarios de horariosBase que el médico aún no tiene reservados ese día.
     fun horariosDisponibles(medicoId: Int, fecha: String): List<String> {
-        return emptyList()
+        val ocupadas = citas
+            .filter { it.medicoId == medicoId && it.fecha == fecha }
+            .map { it.hora }
+        return horariosBase.filter { it !in ocupadas }
     }
 
-    // TODO: crear la cita del usuarioActual (any + add).
-    //       Devuelve null si ese horario ya está tomado o si no hay sesión iniciada.
+    // Crea la cita del usuarioActual. Devuelve null si ese horario
+    // ya está tomado o si no hay sesión iniciada.
     fun agendarCita(
         medicoId: Int,
         fecha: String,
         hora: String,
         motivo: String
     ): Cita? {
-        return null
+        val usuario = usuarioActual ?: return null
+
+        val ocupado = citas.any {
+            it.medicoId == medicoId && it.fecha == fecha && it.hora == hora
+        }
+        if (ocupado) return null
+
+        val cita = Cita(
+            id = (citas.maxOfOrNull { it.id } ?: 0) + 1,
+            usuarioId = usuario.id,
+            medicoId = medicoId,
+            fecha = fecha,
+            hora = hora,
+            motivo = motivo.trim()
+        )
+        citas.add(cita)
+        return cita
     }
 
-    // TODO: citas del usuarioActual ordenadas por fecha y hora (filter + sortedWith).
+    // Citas del usuarioActual ordenadas por fecha y hora.
     fun citasDelUsuario(): List<Cita> {
-        return emptyList()
+        val usuario = usuarioActual ?: return emptyList()
+        return citas
+            .filter { it.usuarioId == usuario.id }
+            .sortedWith(compareBy({ it.fecha }, { it.hora }))
     }
 
     // Reto extra (Detalle de cita).
