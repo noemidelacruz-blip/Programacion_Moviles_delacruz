@@ -189,3 +189,124 @@ fun TextoConEnlace(
         )
     }
 }
+
+// Tarjeta pastel del Inicio: ícono arriba y título abajo, del mismo color.
+@Composable
+fun TarjetaAccion(
+    titulo: String,
+    icono: ImageVector,
+    colorFondo: Color,
+    colorContenido: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = colorFondo),
+        modifier = modifier.height(116.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Icon(
+                imageVector = icono,
+                contentDescription = null,
+                tint = colorContenido,
+                modifier = Modifier.size(40.dp)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = titulo,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colorContenido
+            )
+            Spacer(modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+// Ícono y colores de cada especialidad (el modelo no trae ícono).
+data class EstiloEspecialidad(
+    val icono: ImageVector,
+    val colorFondo: Color,
+    val colorIcono: Color
+)
+
+fun estiloEspecialidad(especialidadId: Int): EstiloEspecialidad {
+    return when (especialidadId) {
+        1 -> EstiloEspecialidad(Icons.Default.Person, AzulPastel, AzulPrimario)
+        2 -> EstiloEspecialidad(Icons.Default.ChildCare, NaranjaPastel, NaranjaTexto)
+        3 -> EstiloEspecialidad(Icons.Default.Female, RojoPastel, RojoTexto)
+        4 -> EstiloEspecialidad(Icons.Default.Favorite, RojoPastel, RojoTexto)
+        5 -> EstiloEspecialidad(Icons.Default.Spa, NaranjaPastel, NaranjaTexto)
+        6 -> EstiloEspecialidad(Icons.Default.Healing, AzulPastel, AzulPrimario)
+        7 -> EstiloEspecialidad(Icons.Default.Visibility, AzulPastel, AzulPrimario)
+        else -> EstiloEspecialidad(Icons.Default.Person, AzulPastel, AzulPrimario)
+    }
+}
+
+// Ícono de la especialidad dentro de un círculo de color.
+@Composable
+fun IconoEspecialidad(
+    especialidadId: Int,
+    modifier: Modifier = Modifier,
+    tamano: Int = 48
+) {
+    val estilo = estiloEspecialidad(especialidadId)
+    Box(
+        modifier = modifier
+            .size(tamano.dp)
+            .clip(RoundedCornerShape(50))
+            .background(estilo.colorFondo),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = estilo.icono,
+            contentDescription = null,
+            tint = estilo.colorIcono,
+            modifier = Modifier.size((tamano / 2).dp)
+        )
+    }
+}
+
+// Tarjeta pequeña del LazyRow de especialidades destacadas.
+@Composable
+fun TarjetaEspecialidadDestacada(
+    especialidad: Especialidad,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = SuperficieBlanca),
+        border = BorderStroke(1.dp, BordeSuave),
+        modifier = modifier.size(width = 104.dp, height = 116.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(6.dp))
+            IconoEspecialidad(especialidadId = especialidad.id)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = especialidad.nombre,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                lineHeight = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
