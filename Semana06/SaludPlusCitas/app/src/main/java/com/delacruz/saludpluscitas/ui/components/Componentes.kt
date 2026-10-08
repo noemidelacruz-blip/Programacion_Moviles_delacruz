@@ -449,6 +449,87 @@ fun TarjetaEspecialidad(
     }
 }
 
+// Avatar del médico: no hay fotos, se usa un ícono en un círculo.
+@Composable
+fun AvatarMedico(
+    modifier: Modifier = Modifier,
+    tamano: Int = 64
+) {
+    Box(
+        modifier = modifier
+            .size(tamano.dp)
+            .clip(RoundedCornerShape(50))
+            .background(AzulClaro),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = null,
+            tint = AzulPrimario,
+            modifier = Modifier.size((tamano * 0.6f).dp)
+        )
+    }
+}
+
+// Tarjeta del médico: avatar, nombre, profesión, calificación y chip de disponibilidad.
+@Composable
+fun TarjetaMedico(
+    medico: Medico,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = SuperficieBlanca),
+        border = BorderStroke(1.dp, BordeSuave),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AvatarMedico()
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = medico.nombre,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(text = medico.profesion, fontSize = 13.sp, color = TextoSecundario)
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = Estrella,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${medico.calificacion} (${medico.resenas})",
+                        fontSize = 13.sp,
+                        color = TextoSecundario
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = medico.disponibilidad,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = VerdeTexto,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(VerdePastel)
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
+        }
+    }
+}
+
 // Mensaje centrado cuando una lista no tiene elementos.
 @Composable
 fun EstadoVacio(
