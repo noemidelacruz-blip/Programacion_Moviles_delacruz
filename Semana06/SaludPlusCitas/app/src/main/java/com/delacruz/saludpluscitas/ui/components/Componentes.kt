@@ -615,3 +615,72 @@ fun ChipHorario(
         )
     }
 }
+
+// Fila con ícono en recuadro, etiqueta pequeña y valor (Confirmar cita y resúmenes).
+@Composable
+fun FilaDato(
+    icono: ImageVector,
+    etiqueta: String,
+    valor: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(AzulClaro),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(imageVector = icono, contentDescription = null, tint = AzulPrimario)
+        }
+        Spacer(modifier = Modifier.width(14.dp))
+        Column {
+            Text(text = etiqueta, fontSize = 13.sp, color = TextoSecundario)
+            Text(
+                text = valor,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+// Fase 1: formatos a mano desde la fecha ISO. En la Fase 2 se usa LocalDate.
+private val nombresMes = listOf(
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "setiembre", "octubre", "noviembre", "diciembre"
+)
+
+// Días de la semana fija de FechaHora (12 al 16 de octubre de 2026).
+private val nombresDia = mapOf(
+    "2026-10-12" to "Lunes",
+    "2026-10-13" to "Martes",
+    "2026-10-14" to "Miércoles",
+    "2026-10-15" to "Jueves",
+    "2026-10-16" to "Viernes"
+)
+
+// "2026-10-13" → "Martes 13 de octubre de 2026"
+fun formatearFecha(fecha: String): String {
+    val partes = fecha.split("-")
+    if (partes.size != 3) return fecha
+    val (anio, mes, dia) = partes
+    val nombreMes = nombresMes.getOrNull(mes.toInt() - 1) ?: mes
+    val texto = "${dia.toInt()} de $nombreMes de $anio"
+    return nombresDia[fecha]?.let { "$it $texto" } ?: texto
+}
+
+// "09:30" → "09:30 a 10:00" (cada cita dura 30 minutos).
+fun rangoHora(hora: String): String {
+    val partes = hora.split(":")
+    if (partes.size != 2) return hora
+    val total = partes[0].toInt() * 60 + partes[1].toInt() + 30
+    val fin = "%02d:%02d".format(total / 60, total % 60)
+    return "$hora a $fin"
+}
