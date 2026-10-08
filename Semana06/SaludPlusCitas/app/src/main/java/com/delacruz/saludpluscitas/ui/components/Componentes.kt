@@ -310,3 +310,50 @@ fun TarjetaEspecialidadDestacada(
         }
     }
 }
+
+// Destino de la barra inferior.
+data class DestinoBarra(
+    val titulo: String,
+    val icono: ImageVector,
+    val ruta: String
+)
+
+private val destinosBarra = listOf(
+    DestinoBarra("Inicio", Icons.Default.Home, Rutas.Home.ruta),
+    DestinoBarra("Citas", Icons.Default.CalendarMonth, Rutas.MisCitas.ruta),
+    DestinoBarra("Resultados", Icons.Default.Description, Rutas.Resultados.ruta),
+    DestinoBarra("Perfil", Icons.Default.Person, Rutas.Perfil.ruta)
+)
+
+// NavigationBar con los 4 destinos principales. rutaActual marca cuál está activo.
+@Composable
+fun BarraNavegacion(
+    navController: NavController,
+    rutaActual: String
+) {
+    NavigationBar(containerColor = SuperficieBlanca) {
+        destinosBarra.forEach { destino ->
+            NavigationBarItem(
+                selected = destino.ruta == rutaActual,
+                onClick = {
+                    if (destino.ruta != rutaActual) {
+                        navController.navigate(destino.ruta) {
+                            // Sin copias del mismo destino en la pila; Atrás vuelve al Inicio.
+                            popUpTo(Rutas.Home.ruta)
+                            launchSingleTop = true
+                        }
+                    }
+                },
+                icon = { Icon(imageVector = destino.icono, contentDescription = null) },
+                label = { Text(text = destino.titulo, fontSize = 12.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = AzulPrimario,
+                    selectedTextColor = AzulPrimario,
+                    indicatorColor = AzulClaro,
+                    unselectedIconColor = TextoSecundario,
+                    unselectedTextColor = TextoSecundario
+                )
+            )
+        }
+    }
+}

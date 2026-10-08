@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.delacruz.saludpluscitas.data.repository.Repositorio
 import com.delacruz.saludpluscitas.navigation.Rutas
+import com.delacruz.saludpluscitas.ui.components.BarraNavegacion
 import com.delacruz.saludpluscitas.ui.components.TarjetaAccion
 import com.delacruz.saludpluscitas.ui.components.TarjetaEspecialidadDestacada
 import com.delacruz.saludpluscitas.ui.theme.AzulPastel
@@ -55,7 +56,13 @@ fun HomeScreen(
     val destacadas = Repositorio.especialidadesDestacadas()
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        bottomBar = {
+            BarraNavegacion(
+                navController = navController,
+                rutaActual = Rutas.Home.ruta
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
