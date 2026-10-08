@@ -130,39 +130,41 @@ object Repositorio {
     // Especialidades y médicos
     // ---------------------------------------------------------------
 
-    // TODO: especialidades cuyo nombre contiene el texto (filter + contains, sin importar mayúsculas).
+    // Especialidades cuyo nombre contiene el texto (sin importar mayúsculas).
     fun buscarEspecialidades(texto: String): List<Especialidad> {
-        return emptyList()
+        val dato = texto.trim()
+        return especialidades.filter { it.nombre.contains(dato, ignoreCase = true) }
     }
 
-    // TODO: las 3 primeras especialidades para el LazyRow del Inicio (take).
+    // Las 3 primeras especialidades para el LazyRow del Inicio.
     fun especialidadesDestacadas(): List<Especialidad> {
-        return emptyList()
+        return especialidades.take(3)
     }
 
-    // TODO: obtener la especialidad por id (find).
     fun obtenerEspecialidad(id: Int): Especialidad? {
-        return null
+        return especialidades.find { it.id == id }
     }
 
-    // TODO: obtener el médico por id (find).
     fun obtenerMedico(id: Int): Medico? {
-        return null
+        return medicos.find { it.id == id }
     }
 
-    // TODO: obtener la cita por id (find).
     fun obtenerCita(id: Int): Cita? {
-        return null
+        return citas.find { it.id == id }
     }
 
-    // TODO: médicos de una especialidad, mejor calificados primero (filter + sortedByDescending).
+    // Médicos de una especialidad, mejor calificados primero.
     fun medicosPorEspecialidad(especialidadId: Int): List<Medico> {
-        return emptyList()
+        return medicos
+            .filter { it.especialidadId == especialidadId }
+            .sortedByDescending { it.calificacion }
     }
 
-    // TODO: médicos de una especialidad cuyo nombre contiene el texto.
+    // Médicos de una especialidad cuyo nombre contiene el texto.
     fun buscarMedicos(especialidadId: Int, texto: String): List<Medico> {
-        return emptyList()
+        val dato = texto.trim()
+        return medicosPorEspecialidad(especialidadId)
+            .filter { it.nombre.contains(dato, ignoreCase = true) }
     }
 
     // ---------------------------------------------------------------
