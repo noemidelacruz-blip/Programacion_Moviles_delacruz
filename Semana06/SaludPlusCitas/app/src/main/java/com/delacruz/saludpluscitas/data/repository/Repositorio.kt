@@ -22,7 +22,7 @@ object Repositorio {
         Usuario(
             id = 1,
             nombre = "Noemí De la Cruz",
-            telefono = "987654321",
+            telefono = "989821225",
             correo = "noemi.delacruz@gmail.com",
             password = "123456"
         )
@@ -215,8 +215,8 @@ object Repositorio {
     }
 
     // Reto extra (Detalle de cita).
+    // Elimina la cita por id. Devuelve true si se eliminó alguna cita.
     fun cancelarCita(id: Int): Boolean {
-        // TODO: removeIf por id.
-        return false
+        return citas.removeIf { it.id == id }
     }
 }
