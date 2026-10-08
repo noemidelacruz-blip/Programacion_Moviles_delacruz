@@ -357,3 +357,123 @@ fun BarraNavegacion(
         }
     }
 }
+
+// Barra superior de las vistas internas: flecha atrás, título centrado y acciones.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BarraSuperior(
+    titulo: String,
+    onAtras: () -> Unit,
+    acciones: @Composable RowScope.() -> Unit = {}
+) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(text = titulo, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        },
+        navigationIcon = {
+            IconButton(onClick = onAtras) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Atrás"
+                )
+            }
+        },
+        actions = acciones,
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = SuperficieBlanca
+        )
+    )
+}
+
+// Buscador con lupa y fondo gris claro ("Buscar especialidad...").
+@Composable
+fun CampoBusqueda(
+    valor: String,
+    onValorChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onValorChange,
+        placeholder = { Text(placeholder, color = TextoSecundario) },
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = TextoSecundario)
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = AzulPrimario,
+            unfocusedBorderColor = BordeSuave,
+            focusedContainerColor = FondoClaro,
+            unfocusedContainerColor = FondoClaro
+        ),
+        modifier = modifier.fillMaxWidth()
+    )
+}
+
+// Fila de la lista de especialidades: ícono de color, nombre, descripción y chevron.
+@Composable
+fun TarjetaEspecialidad(
+    especialidad: Especialidad,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconoEspecialidad(especialidadId = especialidad.id)
+        Spacer(modifier = Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = especialidad.nombre,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = especialidad.descripcion,
+                fontSize = 13.sp,
+                color = TextoSecundario
+            )
+        }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = TextoSecundario
+        )
+    }
+}
+
+// Mensaje centrado cuando una lista no tiene elementos.
+@Composable
+fun EstadoVacio(
+    mensaje: String,
+    modifier: Modifier = Modifier,
+    icono: ImageVector = Icons.Outlined.SearchOff
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icono,
+            contentDescription = null,
+            tint = TextoSecundario,
+            modifier = Modifier.size(48.dp)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = mensaje,
+            fontSize = 15.sp,
+            color = TextoSecundario,
+            textAlign = TextAlign.Center
+        )
+    }
+}
