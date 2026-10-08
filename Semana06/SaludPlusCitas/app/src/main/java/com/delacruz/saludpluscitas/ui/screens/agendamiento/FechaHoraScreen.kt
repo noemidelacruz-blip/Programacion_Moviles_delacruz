@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,9 +45,12 @@ import com.delacruz.saludpluscitas.ui.components.BotonPrimario
 import com.delacruz.saludpluscitas.ui.components.ChipHorario
 import com.delacruz.saludpluscitas.ui.components.EstadoVacio
 import com.delacruz.saludpluscitas.ui.components.ResumenMedico
+import com.delacruz.saludpluscitas.ui.components.mesYAnio
 import com.delacruz.saludpluscitas.ui.theme.AzulPrimario
 import com.delacruz.saludpluscitas.ui.theme.FondoClaro
 import com.delacruz.saludpluscitas.ui.theme.TextoSecundario
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 // Día del calendario: etiqueta corta, número y fecha ISO que viaja en la ruta.
 private data class DiaCalendario(
@@ -55,15 +59,34 @@ private data class DiaCalendario(
     val fecha: String
 )
 
-// Fase 1: semana fija de lunes a viernes. En la Fase 2 se generan con LocalDate.
-private const val MES = "Octubre 2026"
-private val dias = listOf(
-    DiaCalendario("Lun", "12", "2026-10-12"),
-    DiaCalendario("Mar", "13", "2026-10-13"),
-    DiaCalendario("Mié", "14", "2026-10-14"),
-    DiaCalendario("Jue", "15", "2026-10-15"),
-    DiaCalendario("Vie", "16", "2026-10-16")
-)
+// Etiquetas cortas en el orden de DayOfWeek (lunes = 1 ... domingo = 7).
+private val etiquetasDia = listOf("Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom")
+
+// Cantidad de días hábiles que muestra el calendario.
+private const val DIAS_VISIBLES = 5
+
+// Fase 2: devuelve los primeros "cantidad" días hábiles (lunes a viernes)
+// a partir de la fecha indicada, incluyéndola si es un día hábil.
+private fun diasHabiles(desde: LocalDate, cantidad: Int): List<LocalDate> {
+    val resultado = mutableListOf<LocalDate>()
+    var dia = desde
+    while (resultado.size < cantidad) {
+        if (dia.dayOfWeek != DayOfWeek.SATURDAY && dia.dayOfWeek != DayOfWeek.SUNDAY) {
+            resultado.add(dia)
+        }
+        dia = dia.plusDays(1)
+    }
+    return resultado
+}
+
+// Convierte un LocalDate en el día que se dibuja en el calendario.
+private fun LocalDate.aDiaCalendario(): DiaCalendario {
+    return DiaCalendario(
+        etiqueta = etiquetasDia[dayOfWeek.value - 1],
+        numero = dayOfMonth.toString(),
+        fecha = toString()
+    )
+}
 
 @Composable
 fun FechaHoraScreen(
@@ -71,6 +94,11 @@ fun FechaHoraScreen(
     medicoId: Int
 ) {
     val medico = Repositorio.obtenerMedico(medicoId)
+
+    // Fase 2: los días se calculan a partir de la fecha de hoy.
+    val hoy = remember { LocalDate.now() }
+    val fechasVisibles = remember(hoy) { diasHabiles(hoy, DIAS_VISIBLES) }
+    val dias = fechasVisibles.map { it.aDiaCalendario() }
 
     // rememberSaveable: al volver de Confirmar se mantiene lo elegido.
     var fecha by rememberSaveable { mutableStateOf<String?>(null) }
@@ -98,7 +126,7 @@ fun FechaHoraScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Las flechas se activan en la Fase 2 (calendario dinámico).
+            // Las flechas se activan en el siguiente commit de la Fase 2.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -107,7 +135,8 @@ fun FechaHoraScreen(
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Semana anterior")
                 }
                 Text(
-                    text = MES,
+                    // El mes y el año salen del primer día que se muestra.
+                    text = mesYAnio(fechasVisibles.first()),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
