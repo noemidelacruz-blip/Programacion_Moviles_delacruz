@@ -684,3 +684,55 @@ fun rangoHora(hora: String): String {
     val fin = "%02d:%02d".format(total / 60, total % 60)
     return "$hora a $fin"
 }
+
+// Resumen de una cita para Mis citas: médico, especialidad, fecha y hora.
+@Composable
+fun TarjetaCita(
+    cita: Cita,
+    onClick: () -> Unit
+) {
+    val medico = Repositorio.obtenerMedico(cita.medicoId)
+    val especialidad = medico?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
+
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = SuperficieBlanca),
+        border = BorderStroke(1.dp, BordeSuave),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconoEspecialidad(especialidadId = medico?.especialidadId ?: 0)
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = medico?.nombre ?: "",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(text = especialidad?.nombre ?: "", fontSize = 13.sp, color = TextoSecundario)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = formatearFecha(cita.fecha),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = rangoHora(cita.hora),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = AzulPrimario
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = TextoSecundario
+            )
+        }
+    }
+}
