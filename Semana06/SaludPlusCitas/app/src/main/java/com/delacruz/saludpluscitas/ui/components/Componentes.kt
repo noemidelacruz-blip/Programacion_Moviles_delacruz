@@ -82,6 +82,7 @@ import com.delacruz.saludpluscitas.ui.theme.RojoPastel
 import com.delacruz.saludpluscitas.ui.theme.RojoTexto
 import com.delacruz.saludpluscitas.ui.theme.SuperficieBlanca
 import com.delacruz.saludpluscitas.ui.theme.TextoSecundario
+import java.time.LocalDate
 
 // Componentes reutilizables de la app.
 // Pendientes (se crean junto con la pantalla que los usa):
@@ -651,29 +652,33 @@ fun FilaDato(
     }
 }
 
-// Fase 1: formatos a mano desde la fecha ISO. En la Fase 2 se usa LocalDate.
+// Fase 2: los nombres de mes y de día se obtienen a partir de LocalDate.
 private val nombresMes = listOf(
     "enero", "febrero", "marzo", "abril", "mayo", "junio",
     "julio", "agosto", "setiembre", "octubre", "noviembre", "diciembre"
 )
 
-// Días de la semana fija de FechaHora (12 al 16 de octubre de 2026).
-private val nombresDia = mapOf(
-    "2026-10-12" to "Lunes",
-    "2026-10-13" to "Martes",
-    "2026-10-14" to "Miércoles",
-    "2026-10-15" to "Jueves",
-    "2026-10-16" to "Viernes"
+// Nombres de los días en el orden de DayOfWeek (lunes = 1 ... domingo = 7).
+private val nombresDia = listOf(
+    "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"
 )
 
-// "2026-10-13" → "Martes 13 de octubre de 2026"
+// "2026-10-13" → "Martes 13 de octubre 2026"
 fun formatearFecha(fecha: String): String {
-    val partes = fecha.split("-")
-    if (partes.size != 3) return fecha
-    val (anio, mes, dia) = partes
-    val nombreMes = nombresMes.getOrNull(mes.toInt() - 1) ?: mes
-    val texto = "${dia.toInt()} de $nombreMes de $anio"
-    return nombresDia[fecha]?.let { "$it $texto" } ?: texto
+    val f = try {
+        LocalDate.parse(fecha)
+    } catch (e: Exception) {
+        return fecha
+    }
+    val dia = nombresDia[f.dayOfWeek.value - 1]
+    val mes = nombresMes[f.monthValue - 1]
+    return "$dia ${f.dayOfMonth} de $mes ${f.year}"
+}
+
+// LocalDate → "Octubre 2026" (mes con inicial mayúscula y año).
+fun mesYAnio(fecha: LocalDate): String {
+    val mes = nombresMes[fecha.monthValue - 1].replaceFirstChar { it.uppercase() }
+    return "$mes ${fecha.year}"
 }
 
 // "09:30" → "09:30 a 10:00" (cada cita dura 30 minutos).
