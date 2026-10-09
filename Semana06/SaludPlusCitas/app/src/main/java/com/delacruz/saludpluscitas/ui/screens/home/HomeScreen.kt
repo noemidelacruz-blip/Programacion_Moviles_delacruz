@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
@@ -137,6 +138,17 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f)
                 )
             }
+
+            // Acceso a la lista de doctores organizados por especialidad.
+            Spacer(modifier = Modifier.height(12.dp))
+            TarjetaAccion(
+                titulo = "Mis doctores",
+                icono = Icons.Default.MedicalServices,
+                colorFondo = AzulPastel,
+                colorContenido = AzulPrimario,
+                onClick = { navController.navigate(Rutas.MisDoctores.ruta) },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 

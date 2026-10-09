@@ -22,6 +22,8 @@ import com.delacruz.saludpluscitas.ui.screens.notificaciones.NotificacionesScree
 import com.delacruz.saludpluscitas.ui.screens.perfil.PerfilScreen
 import com.delacruz.saludpluscitas.ui.screens.resultados.ResultadosScreen
 
+import com.delacruz.saludpluscitas.ui.screens.doctores.MisDoctoresScreen
+
 @Composable
 fun AppNavigation() {
 
@@ -33,6 +35,7 @@ fun AppNavigation() {
     ) {
 
         // auth
+
         composable(Rutas.Splash.ruta) {
             SplashScreen(navController)
         }
@@ -57,6 +60,9 @@ fun AppNavigation() {
         // agendamiento
         composable(Rutas.Especialidades.ruta) {
             EspecialidadesScreen(navController)
+        }
+        composable(Rutas.MisDoctores.ruta) {
+            MisDoctoresScreen(navController)
         }
 
         composable(
