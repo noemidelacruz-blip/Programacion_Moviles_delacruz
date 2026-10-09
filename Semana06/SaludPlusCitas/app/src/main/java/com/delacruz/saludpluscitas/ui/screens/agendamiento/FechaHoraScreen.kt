@@ -97,7 +97,12 @@ fun FechaHoraScreen(
 
     // Fase 2: los días se calculan a partir de la fecha de hoy.
     val hoy = remember { LocalDate.now() }
-    val fechasVisibles = remember(hoy) { diasHabiles(hoy, DIAS_VISIBLES) }
+
+    // Semana que se muestra: 0 es la semana actual; cada paso avanza 7 días.
+    var semana by rememberSaveable { mutableStateOf(0) }
+    val fechasVisibles = remember(semana) {
+        diasHabiles(hoy.plusDays(7L * semana), DIAS_VISIBLES)
+    }
     val dias = fechasVisibles.map { it.aDiaCalendario() }
 
     // rememberSaveable: al volver de Confirmar se mantiene lo elegido.
@@ -126,12 +131,20 @@ fun FechaHoraScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Las flechas se activan en el siguiente commit de la Fase 2.
+            // La flecha izquierda se desactiva en la semana actual: no se retrocede más.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {}, enabled = false) {
+                IconButton(
+                    onClick = {
+                        semana -= 1
+                        // El día y la hora elegidos ya no están en la semana mostrada.
+                        fecha = null
+                        hora = null
+                    },
+                    enabled = semana > 0
+                ) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Semana anterior")
                 }
                 Text(
@@ -143,7 +156,13 @@ fun FechaHoraScreen(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
-                IconButton(onClick = {}, enabled = false) {
+                IconButton(
+                    onClick = {
+                        semana += 1
+                        fecha = null
+                        hora = null
+                    }
+                ) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Semana siguiente")
                 }
             }
