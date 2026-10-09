@@ -83,6 +83,13 @@ import com.delacruz.saludpluscitas.ui.theme.RojoTexto
 import com.delacruz.saludpluscitas.ui.theme.SuperficieBlanca
 import com.delacruz.saludpluscitas.ui.theme.TextoSecundario
 import java.time.LocalDate
+//para imagenes:
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.runtime.remember
+
 
 // Componentes reutilizables de la app.
 // Pendientes (se crean junto con la pantalla que los usa):
@@ -450,25 +457,47 @@ fun TarjetaEspecialidad(
     }
 }
 
-// Avatar del médico: no hay fotos, se usa un ícono en un círculo.
+// Obtiene la fotografía del médico a partir de su identificador (doc1, doc2, ...).
+// Si la imagen no existe en drawable, devuelve 0 y se mostrará el ícono.
+@Composable
+fun fotoDeMedico(medicoId: Int): Int {
+    val contexto = LocalContext.current
+    return remember(medicoId) {
+        contexto.resources.getIdentifier("doc$medicoId", "drawable", contexto.packageName)
+    }
+}
+
+// Avatar del médico: muestra su fotografía si existe; de lo contrario, un ícono en un círculo.
 @Composable
 fun AvatarMedico(
     modifier: Modifier = Modifier,
-    tamano: Int = 64
+    tamano: Int = 64,
+    foto: Int = 0
 ) {
-    Box(
-        modifier = modifier
-            .size(tamano.dp)
-            .clip(RoundedCornerShape(50))
-            .background(AzulClaro),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            tint = AzulPrimario,
-            modifier = Modifier.size((tamano * 0.6f).dp)
+    if (foto != 0) {
+        Image(
+            painter = painterResource(id = foto),
+            contentDescription = "Fotografía del médico",
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+                .size(tamano.dp)
+                .clip(RoundedCornerShape(50))
         )
+    } else {
+        Box(
+            modifier = modifier
+                .size(tamano.dp)
+                .clip(RoundedCornerShape(50))
+                .background(AzulClaro),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                tint = AzulPrimario,
+                modifier = Modifier.size((tamano * 0.6f).dp)
+            )
+        }
     }
 }
 
@@ -489,7 +518,7 @@ fun TarjetaMedico(
             modifier = Modifier.padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AvatarMedico()
+            AvatarMedico(foto = fotoDeMedico(medico.id))
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -575,7 +604,7 @@ fun ResumenMedico(
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AvatarMedico()
+        AvatarMedico(foto = fotoDeMedico(medico.id))
         Spacer(modifier = Modifier.width(14.dp))
         Column {
             Text(

@@ -37,6 +37,11 @@ import com.delacruz.saludpluscitas.ui.theme.AzulOscuro
 import com.delacruz.saludpluscitas.ui.theme.AzulPrimario
 import com.delacruz.saludpluscitas.ui.theme.TextoSecundario
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import com.delacruz.saludpluscitas.R
+
 private val FondoSplash = Color(0xFFF5F6FA)
 private val HojaVerde = Color(0xFF5BA889)
 private val HojaAzul = Color(0xFF7FB3D5)
@@ -105,65 +110,15 @@ fun SplashScreen(
 // doctor al centro, maletín médico en una insignia y hojas a los lados.
 @Composable
 private fun IlustracionDoctor() {
-    Box(
-        modifier = Modifier.size(260.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(230.dp)
-                .clip(CircleShape)
-                .background(AzulClaro.copy(alpha = 0.6f))
-        )
-        Box(
-            modifier = Modifier
-                .size(170.dp)
-                .clip(CircleShape)
-                .background(AzulClaro),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Doctor",
-                tint = AzulPrimario,
-                modifier = Modifier.size(130.dp)
-            )
-        }
-        Icon(
-            imageVector = Icons.Default.Spa,
-            contentDescription = null,
-            tint = HojaVerde,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .size(64.dp)
-        )
-        Icon(
-            imageVector = Icons.Default.Spa,
-            contentDescription = null,
-            tint = HojaAzul,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .size(56.dp)
-        )
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 28.dp, end = 28.dp)
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(Color.White),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.MedicalServices,
-                contentDescription = null,
-                tint = AzulPrimario,
-                modifier = Modifier.size(30.dp)
-            )
-        }
-    }
+    Image(
+        painter = painterResource(id = R.drawable.doctor),
+        contentDescription = "Ilustración del Doctor",
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(280.dp),
+        contentScale = ContentScale.Fit
+    )
 }
-
 // Cruz azul con un corazón blanco al centro.
 @Composable
 private fun LogoSaludPlus() {
@@ -184,6 +139,7 @@ private fun LogoSaludPlus() {
                 .height(36.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(AzulPrimario)
+
         )
         Icon(
             imageVector = Icons.Default.Favorite,
