@@ -13,6 +13,7 @@ sealed class Rutas(val ruta: String) {
 
     // agendamiento
     object Especialidades : Rutas("especialidades")
+    object Sedes : Rutas("sedes")
     object MisDoctores : Rutas("mis_doctores")
 
 

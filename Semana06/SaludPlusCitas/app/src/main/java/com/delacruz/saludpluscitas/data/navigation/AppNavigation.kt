@@ -23,7 +23,7 @@ import com.delacruz.saludpluscitas.ui.screens.perfil.PerfilScreen
 import com.delacruz.saludpluscitas.ui.screens.resultados.ResultadosScreen
 
 import com.delacruz.saludpluscitas.ui.screens.doctores.MisDoctoresScreen
-
+import com.delacruz.saludpluscitas.ui.screens.sedes.SedesScreen
 @Composable
 fun AppNavigation() {
 
@@ -63,6 +63,9 @@ fun AppNavigation() {
         }
         composable(Rutas.MisDoctores.ruta) {
             MisDoctoresScreen(navController)
+        }
+        composable(Rutas.Sedes.ruta) {
+            SedesScreen(navController)
         }
 
         composable(
