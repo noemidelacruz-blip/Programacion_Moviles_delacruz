@@ -143,9 +143,9 @@ fun RegistroScreen(
                 if (formularioValido) {
                     val registrado = Repositorio.registrarUsuario(nombre, telefono, correo, password)
                     if (registrado) {
-                        // Al entrar al Inicio, Atrás ya no vuelve al registro.
-                        navController.navigate(Rutas.Home.ruta) {
-                            popUpTo(Rutas.Splash.ruta) { inclusive = true }
+                        // Tras registrarse, el usuario debe iniciar sesión; Atrás ya no vuelve al registro.
+                        navController.navigate(Rutas.Login.ruta) {
+                            popUpTo(Rutas.Registro.ruta) { inclusive = true }
                         }
                     } else {
                         errorRegistro = "Ese teléfono o correo ya está registrado"
