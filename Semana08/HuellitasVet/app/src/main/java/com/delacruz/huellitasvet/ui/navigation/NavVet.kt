@@ -9,15 +9,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.delacruz.huellitasvet.VetApp
 import com.delacruz.huellitasvet.data.local.entity.Usuario
 import com.delacruz.huellitasvet.model.Rol
 import com.delacruz.huellitasvet.ui.components.VetButton
+import com.delacruz.huellitasvet.ui.dueno.InicioScreen
 import com.delacruz.huellitasvet.ui.dueno.LoginScreen
+import com.delacruz.huellitasvet.ui.dueno.MascotasScreen
 import com.delacruz.huellitasvet.ui.dueno.SplashScreen
 import com.delacruz.huellitasvet.ui.theme.VetTheme
 import com.delacruz.huellitasvet.ui.veterinario.ServiciosScreen
+import com.delacruz.huellitasvet.viewmodel.InicioViewModel
 import com.delacruz.huellitasvet.viewmodel.ServiciosViewModel
 import com.delacruz.huellitasvet.viewmodel.SesionViewModel
 import com.delacruz.huellitasvet.viewmodel.VetViewModelFactory
@@ -27,8 +31,9 @@ private fun primerNombre(usuario: Usuario?): String =
     usuario?.nombre?.substringBefore(" ") ?: ""
 
 // Navegacion de la app: Splash -> Login -> pantalla principal del perfil.
-// Cada destino aplica el tema de su perfil (esmeralda para el dueno, azul para el veterinario)
-// y el modo oscuro guardado. En el commit 14 se agrega el grafo completo de cada perfil
+// El dueno tiene barra inferior con Inicio, Mascotas, Citas y Perfil.
+// Cada destino aplica el tema de su perfil y el modo oscuro guardado.
+// En el commit 14 se completa el grafo de cada perfil
 @Composable
 fun NavVet() {
     val navController = rememberNavController()
@@ -40,6 +45,10 @@ fun NavVet() {
     // Un solo SesionViewModel para toda la app: guarda al usuario con sesion iniciada
     val sesionVm: SesionViewModel = viewModel(factory = fabrica)
     val modoOscuro by sesionVm.modoOscuro.collectAsState()
+
+    // Ruta que se esta mostrando (para marcar el item activo de la barra inferior)
+    val entradaActual by navController.currentBackStackEntryAsState()
+    val rutaActual = entradaActual?.destination?.route
 
     // Va a la pantalla principal del perfil y limpia la pila para que "atras" no vuelva al login
     val irAPrincipal: (Usuario) -> Unit = { usuario ->
@@ -53,6 +62,15 @@ fun NavVet() {
         sesionVm.cerrarSesion()
         navController.navigate(Rutas.LOGIN) {
             popUpTo(navController.graph.id) { inclusive = true }
+        }
+    }
+
+    // Cambia de pestana en la barra inferior conservando el estado de cada una
+    val irAPestana: (String) -> Unit = { ruta ->
+        navController.navigate(ruta) {
+            popUpTo(Rutas.INICIO) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
         }
     }
 
@@ -73,17 +91,81 @@ fun NavVet() {
             // El login aplica su propio tema, porque cambia de color segun la pestana elegida
             LoginScreen(vm = sesionVm, onLoginExitoso = irAPrincipal)
         }
+
+        // ---------- Perfil del dueno (con barra inferior) ----------
         composable(Rutas.INICIO) {
             val usuario by sesionVm.usuarioActual.collectAsState()
+            val actual = usuario
             VetTheme(rol = Rol.CLIENTE, modoOscuro = modoOscuro) {
-                // Provisional: se reemplaza por InicioScreen en el commit 8
-                PantallaTemporal(
-                    titulo = "Inicio del dueño",
-                    saludo = "Hola, ${primerNombre(usuario)}",
-                    onCerrarSesion = cerrarSesion
-                )
+                if (actual != null) {
+                    // La clave por usuario evita mostrar los datos de otra cuenta al cambiar de sesion
+                    val fabricaDueno = remember(actual.id) {
+                        VetViewModelFactory(app.repository, app.preferencias, actual.id)
+                    }
+                    val vm: InicioViewModel = viewModel(key = "dueno-${actual.id}", factory = fabricaDueno)
+                    ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) { modifier ->
+                        InicioScreen(
+                            vm = vm,
+                            nombre = primerNombre(actual),
+                            onVerMascotas = { irAPestana(Rutas.MASCOTAS) },
+                            // La ficha, el formulario y Pedir cita se conectan en los commits 9 y 10
+                            onMascota = {},
+                            onAgregar = {},
+                            onPedirCita = {},
+                            modifier = modifier
+                        )
+                    }
+                }
             }
         }
+        composable(Rutas.MASCOTAS) {
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            val actual = usuario
+            VetTheme(rol = Rol.CLIENTE, modoOscuro = modoOscuro) {
+                if (actual != null) {
+                    val fabricaDueno = remember(actual.id) {
+                        VetViewModelFactory(app.repository, app.preferencias, actual.id)
+                    }
+                    val vm: InicioViewModel = viewModel(key = "dueno-${actual.id}", factory = fabricaDueno)
+                    ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) { modifier ->
+                        MascotasScreen(
+                            vm = vm,
+                            // La ficha y el formulario se conectan en el commit 9
+                            onMascota = {},
+                            onAgregar = {},
+                            modifier = modifier
+                        )
+                    }
+                }
+            }
+        }
+        composable(Rutas.CITAS) {
+            VetTheme(rol = Rol.CLIENTE, modoOscuro = modoOscuro) {
+                ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) {
+                    // Provisional: se reemplaza por MisCitasScreen en el commit 11
+                    PantallaTemporal(
+                        titulo = "Mis citas",
+                        saludo = "",
+                        onCerrarSesion = cerrarSesion
+                    )
+                }
+            }
+        }
+        composable(Rutas.PERFIL) {
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            VetTheme(rol = Rol.CLIENTE, modoOscuro = modoOscuro) {
+                ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) {
+                    // Provisional: se reemplaza por PerfilScreen en el commit 13
+                    PantallaTemporal(
+                        titulo = "Perfil",
+                        saludo = usuario?.nombre ?: "",
+                        onCerrarSesion = cerrarSesion
+                    )
+                }
+            }
+        }
+
+        // ---------- Perfil del veterinario ----------
         composable(Rutas.PANEL) {
             val usuario by sesionVm.usuarioActual.collectAsState()
             VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
