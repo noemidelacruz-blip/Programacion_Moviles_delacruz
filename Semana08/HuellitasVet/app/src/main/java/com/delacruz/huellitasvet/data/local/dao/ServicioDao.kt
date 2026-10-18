@@ -46,4 +46,8 @@ interface ServicioDao {
     // Activa o desactiva un servicio (el switch de la lista)
     @Query("UPDATE servicios SET activo = :activo WHERE id = :id")
     suspend fun cambiarActivo(id: Int, activo: Boolean)
+
+    // Cuantas citas usan este servicio (un servicio con citas no se puede eliminar, solo desactivar)
+    @Query("SELECT COUNT(*) FROM citas WHERE servicioId = :id")
+    suspend fun contarCitas(id: Int): Int
 }
