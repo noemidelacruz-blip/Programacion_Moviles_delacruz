@@ -10,4 +10,12 @@ object Rutas {
     const val PERFIL = "perfil"
     const val PANEL = "panel"
     const val SERVICIOS = "servicios"
+
+    // Rutas con argumentos: la ficha recibe el id de la mascota y el formulario lo recibe
+    // opcionalmente (0 = mascota nueva)
+    const val FICHA = "ficha/{id}"
+    const val FORMULARIO = "formulario?id={id}"
+
+    fun ficha(id: Int) = "ficha/$id"
+    fun formulario(id: Int = 0) = "formulario?id=$id"
 }
