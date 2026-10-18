@@ -2,4 +2,6 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    // Agregado: KSP se declara aqui y se aplica en el modulo app
+    alias(libs.plugins.ksp) apply false
 }
