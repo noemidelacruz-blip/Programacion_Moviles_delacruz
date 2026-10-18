@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
+import com.delacruz.huellitasvet.data.prefs.PreferenciasStore
+
 // Clase Application: crea la base de datos y el repositorio una sola vez para toda la app
 class VetApp : Application() {
 
@@ -18,6 +20,9 @@ class VetApp : Application() {
 
     // El repositorio que usan los ViewModels (se expone como interface)
     val repository: VetRepository by lazy { VetRepositoryRoom(database) }
+
+    // Preferencias guardadas en DataStore (perfil activo, modo oscuro, etc.)
+    val preferencias: PreferenciasStore by lazy { PreferenciasStore(this) }
 
     override fun onCreate() {
         super.onCreate()

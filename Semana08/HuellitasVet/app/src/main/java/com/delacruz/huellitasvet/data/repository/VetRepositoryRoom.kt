@@ -25,6 +25,8 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     // Devuelve el usuario si el correo y la clave coinciden, o null si no
     override suspend fun login(correo: String, clave: String): Usuario? =
         usuarioDao.login(correo, clave)
+    // Recupera un usuario por id (restaurar la sesion guardada)
+    override suspend fun obtenerUsuario(id: Int): Usuario? = usuarioDao.obtener(id)
 
     // ---------- Servicios ----------
     override fun observarServicios(): Flow<List<Servicio>> = servicioDao.observarTodos()

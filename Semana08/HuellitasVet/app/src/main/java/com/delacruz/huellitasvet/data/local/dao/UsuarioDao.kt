@@ -19,4 +19,8 @@ interface UsuarioDao {
     // Cuantos usuarios hay (se usa para sembrar los datos iniciales solo una vez)
     @Query("SELECT COUNT(*) FROM usuarios")
     suspend fun contar(): Int
+
+    // Un usuario por id (para recuperar la sesion guardada al abrir la app)
+    @Query("SELECT * FROM usuarios WHERE id = :id")
+    suspend fun obtener(id: Int): Usuario?
 }
