@@ -25,5 +25,9 @@ fun fechaDiaMes(fecha: String): String {
     val f = LocalDate.parse(fecha)
     val mes = f.month.getDisplayName(TextStyle.SHORT, ES).replace(".", "")
     return String.format(Locale.US, "%02d", f.dayOfMonth) + " " + mes
-
 }
+
+// Precio como texto: "S/ 60" o, con decimales = true, "S/ 45.00"
+fun textoPrecio(precio: Double, decimales: Boolean = false): String =
+    if (decimales || precio % 1.0 != 0.0) "S/ " + String.format(Locale.US, "%.2f", precio)
+    else "S/ " + precio.toInt()

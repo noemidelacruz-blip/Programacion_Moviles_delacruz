@@ -16,6 +16,10 @@ object Rutas {
     const val FICHA = "ficha/{id}"
     const val FORMULARIO = "formulario?id={id}"
 
+    // Pedir cita puede abrirse con una mascota ya elegida (0 = ninguna)
+    const val PEDIR_CITA = "pedir-cita?mascotaId={mascotaId}"
+
     fun ficha(id: Int) = "ficha/$id"
     fun formulario(id: Int = 0) = "formulario?id=$id"
+    fun pedirCita(mascotaId: Int = 0) = "pedir-cita?mascotaId=$mascotaId"
 }

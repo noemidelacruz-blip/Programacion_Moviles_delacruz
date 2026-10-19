@@ -12,7 +12,9 @@ class VetViewModelFactory(
     private val repo: VetRepository,
     private val prefs: PreferenciasStore,
     // Id del dueno con sesion iniciada, para los ViewModels que solo muestran sus datos
-    private val usuarioId: Int = 0
+    private val usuarioId: Int = 0,
+    // Id extra que algunas pantallas reciben al abrirse (por ejemplo, la mascota de Pedir cita)
+    private val argumentoId: Int = 0
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -26,6 +28,8 @@ class VetViewModelFactory(
                 InicioViewModel(repo, usuarioId) as T
             modelClass.isAssignableFrom(MascotaViewModel::class.java) ->
                 MascotaViewModel(repo, usuarioId) as T
+            modelClass.isAssignableFrom(PedirCitaViewModel::class.java) ->
+                PedirCitaViewModel(repo, usuarioId, argumentoId) as T
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
     }

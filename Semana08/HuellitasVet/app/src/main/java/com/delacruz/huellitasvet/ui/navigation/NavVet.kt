@@ -22,11 +22,13 @@ import com.delacruz.huellitasvet.ui.dueno.FormularioMascotaScreen
 import com.delacruz.huellitasvet.ui.dueno.InicioScreen
 import com.delacruz.huellitasvet.ui.dueno.LoginScreen
 import com.delacruz.huellitasvet.ui.dueno.MascotasScreen
+import com.delacruz.huellitasvet.ui.dueno.PedirCitaScreen
 import com.delacruz.huellitasvet.ui.dueno.SplashScreen
 import com.delacruz.huellitasvet.ui.theme.VetTheme
 import com.delacruz.huellitasvet.ui.veterinario.ServiciosScreen
 import com.delacruz.huellitasvet.viewmodel.InicioViewModel
 import com.delacruz.huellitasvet.viewmodel.MascotaViewModel
+import com.delacruz.huellitasvet.viewmodel.PedirCitaViewModel
 import com.delacruz.huellitasvet.viewmodel.ServiciosViewModel
 import com.delacruz.huellitasvet.viewmodel.SesionViewModel
 import com.delacruz.huellitasvet.viewmodel.VetViewModelFactory
@@ -37,7 +39,7 @@ private fun primerNombre(usuario: Usuario?): String =
 
 // Navegacion de la app: Splash -> Login -> pantalla principal del perfil.
 // El dueno tiene barra inferior con Inicio, Mascotas, Citas y Perfil, y puede abrir la ficha
-// de una mascota y el formulario de registro o edicion.
+// de una mascota, el formulario de registro o edicion y Pedir cita.
 // Cada destino aplica el tema de su perfil y el modo oscuro guardado.
 // En el commit 14 se completa el grafo de cada perfil
 @Composable
@@ -117,8 +119,7 @@ fun NavVet() {
                             onVerMascotas = { irAPestana(Rutas.MASCOTAS) },
                             onMascota = { navController.navigate(Rutas.ficha(it)) },
                             onAgregar = { navController.navigate(Rutas.formulario()) },
-                            // Pedir cita se conecta en el commit 10
-                            onPedirCita = {},
+                            onPedirCita = { navController.navigate(Rutas.pedirCita()) },
                             modifier = modifier
                         )
                     }
@@ -169,7 +170,7 @@ fun NavVet() {
             }
         }
 
-        // ---------- Ficha y formulario de mascota ----------
+        // ---------- Ficha, formulario de mascota y Pedir cita ----------
         composable(
             route = Rutas.FICHA,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
@@ -187,8 +188,8 @@ fun NavVet() {
                             vm = vm,
                             mascotaId = mascotaId,
                             onVolver = { navController.popBackStack() },
-                            // Pedir cita se conecta en el commit 10
-                            onPedirCita = {},
+                            // Pedir cita se abre con esta mascota ya elegida
+                            onPedirCita = { navController.navigate(Rutas.pedirCita(mascotaId)) },
                             onEditar = { navController.navigate(Rutas.formulario(mascotaId)) },
                             modifier = modifier
                         )
@@ -218,6 +219,33 @@ fun NavVet() {
                         onVolver = { navController.popBackStack() },
                         // Al eliminar, se vuelve a la pantalla anterior a la ficha
                         onEliminada = { navController.popBackStack(Rutas.FICHA, inclusive = true) }
+                    )
+                }
+            }
+        }
+        composable(
+            route = Rutas.PEDIR_CITA,
+            arguments = listOf(
+                navArgument("mascotaId") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) { entrada ->
+            val mascotaInicial = entrada.arguments?.getInt("mascotaId") ?: 0
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            val actual = usuario
+            VetTheme(rol = Rol.CLIENTE, modoOscuro = modoOscuro) {
+                if (actual != null) {
+                    val fabricaCita = remember(actual.id, mascotaInicial) {
+                        VetViewModelFactory(app.repository, app.preferencias, actual.id, mascotaInicial)
+                    }
+                    val vm: PedirCitaViewModel = viewModel(factory = fabricaCita)
+                    PedirCitaScreen(
+                        vm = vm,
+                        onVolver = { navController.popBackStack() },
+                        // Al confirmar, se vuelve a la pestana Mis citas
+                        onCitaCreada = { irAPestana(Rutas.CITAS) }
                     )
                 }
             }
