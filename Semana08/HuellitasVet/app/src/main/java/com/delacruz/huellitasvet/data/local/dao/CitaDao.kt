@@ -9,6 +9,8 @@ import com.delacruz.huellitasvet.data.local.relation.CitaConDetalle
 import com.delacruz.huellitasvet.model.ConteoServicio
 import kotlinx.coroutines.flow.Flow
 
+import com.delacruz.huellitasvet.model.UltimaVisita
+
 // Los estados se comparan con el texto del enum EstadoCita ('CANCELADA', 'ATENDIDA')
 @Dao
 interface CitaDao {
@@ -93,4 +95,11 @@ interface CitaDao {
     // Cuantas citas ATENDIDAS hay desde una fecha (las "atenciones del mes" del panel)
     @Query("SELECT COUNT(*) FROM citas WHERE estado = 'ATENDIDA' AND fecha >= :fechaInicio")
     fun contarAtendidasDesde(fechaInicio: String): Flow<Int>
+
+    // Ultima atencion de cada mascota: la fecha mas reciente de sus citas ATENDIDAS (para Pacientes)
+    @Query(
+        "SELECT mascotaId AS mascotaId, MAX(fecha) AS fecha FROM citas " +
+                "WHERE estado = 'ATENDIDA' GROUP BY mascotaId"
+    )
+    fun ultimasVisitas(): Flow<List<UltimaVisita>>
 }

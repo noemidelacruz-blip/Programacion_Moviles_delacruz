@@ -53,8 +53,8 @@ fun FichaMascotaScreen(
     vm: MascotaViewModel,
     mascotaId: Int,
     onVolver: () -> Unit,
-    onPedirCita: () -> Unit,
-    onEditar: () -> Unit,
+    onPedirCita: (() -> Unit)? = null,
+    onEditar: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val mascota by vm.mascota(mascotaId).collectAsState()
@@ -78,20 +78,23 @@ fun FichaMascotaScreen(
             if (m != null) {
                 CabeceraMascota(m = m, vacunasAlDia = vacunasAlDia)
 
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    VetButton(
-                        texto = "Pedir cita",
-                        onClick = onPedirCita,
-                        icono = Icons.Filled.CalendarMonth,
-                        modifier = Modifier.weight(1f)
-                    )
-                    VetButton(
-                        texto = "Editar",
-                        onClick = onEditar,
-                        tipo = VetBotonTipo.CONTORNO,
-                        icono = Icons.Filled.Edit,
-                        modifier = Modifier.weight(1f)
-                    )
+                // Los botones son del dueno: el veterinario abre la ficha sin ellos
+                if (onPedirCita != null && onEditar != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        VetButton(
+                            texto = "Pedir cita",
+                            onClick = onPedirCita,
+                            icono = Icons.Filled.CalendarMonth,
+                            modifier = Modifier.weight(1f)
+                        )
+                        VetButton(
+                            texto = "Editar",
+                            onClick = onEditar,
+                            tipo = VetBotonTipo.CONTORNO,
+                            icono = Icons.Filled.Edit,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
 
                 SelectorPestanas(seleccion = pestana, onElegir = { pestana = it })

@@ -9,6 +9,7 @@ import com.delacruz.huellitasvet.model.ConteoServicio
 import com.delacruz.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
 
+import com.delacruz.huellitasvet.model.UltimaVisita
 // El contrato entre los ViewModels y los datos. Es una interface para que mas adelante
 // se pueda conectar a un servicio web sin cambiar ViewModels ni pantallas.
 // Regla de oro: lectura que debe actualizar la pantalla -> Flow (sin suspend);
@@ -65,4 +66,5 @@ interface VetRepository {
     fun observarCitasPorServicio(): Flow<List<ConteoServicio>>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
     fun observarAtencionesDesde(fechaInicio: String): Flow<Int>
+    fun observarUltimasVisitas(): Flow<List<UltimaVisita>>
 }

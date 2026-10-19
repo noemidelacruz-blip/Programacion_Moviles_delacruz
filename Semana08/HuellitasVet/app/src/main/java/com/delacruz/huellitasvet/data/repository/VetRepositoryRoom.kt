@@ -12,6 +12,7 @@ import com.delacruz.huellitasvet.model.ConteoServicio
 import com.delacruz.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
 
+import com.delacruz.huellitasvet.model.UltimaVisita
 // Implementacion del repositorio con Room: cada funcion delega en el DAO correspondiente.
 // Las funciones observar* no son suspend porque devuelven Flow
 class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
@@ -142,4 +143,6 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override fun observarAtencionesDesde(fechaInicio: String): Flow<Int> =
         citaDao.contarAtendidasDesde(fechaInicio)
+
+    override fun observarUltimasVisitas(): Flow<List<UltimaVisita>> = citaDao.ultimasVisitas()
 }

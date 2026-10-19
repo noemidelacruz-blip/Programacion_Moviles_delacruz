@@ -26,12 +26,16 @@ import com.delacruz.huellitasvet.ui.dueno.PedirCitaScreen
 import com.delacruz.huellitasvet.ui.dueno.SplashScreen
 import com.delacruz.huellitasvet.ui.theme.VetTheme
 import com.delacruz.huellitasvet.ui.veterinario.AgendaScreen
+import com.delacruz.huellitasvet.ui.veterinario.AtenderCitaScreen
+import com.delacruz.huellitasvet.ui.veterinario.PacientesScreen
 import com.delacruz.huellitasvet.ui.veterinario.PanelScreen
 import com.delacruz.huellitasvet.ui.veterinario.ServiciosScreen
 import com.delacruz.huellitasvet.viewmodel.AgendaViewModel
+import com.delacruz.huellitasvet.viewmodel.AtenderCitaViewModel
 import com.delacruz.huellitasvet.viewmodel.InicioViewModel
 import com.delacruz.huellitasvet.viewmodel.MascotaViewModel
 import com.delacruz.huellitasvet.viewmodel.MisCitasViewModel
+import com.delacruz.huellitasvet.viewmodel.PacientesViewModel
 import com.delacruz.huellitasvet.viewmodel.PanelViewModel
 import com.delacruz.huellitasvet.viewmodel.PedirCitaViewModel
 import com.delacruz.huellitasvet.viewmodel.ServiciosViewModel
@@ -292,8 +296,7 @@ fun NavVet() {
                     AgendaScreen(
                         vm = vm,
                         onVolver = { irAPestanaVet(Rutas.PANEL) },
-                        // Atender cita se conecta en el commit 13
-                        onAtender = {},
+                        onAtender = { navController.navigate(Rutas.atender(it)) },
                         modifier = modifier
                     )
                 }
@@ -301,12 +304,14 @@ fun NavVet() {
         }
         composable(Rutas.PACIENTES) {
             VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
-                ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) {
-                    // Provisional: se reemplaza por PacientesScreen en el commit 13
-                    PantallaTemporal(
-                        titulo = "Pacientes",
-                        saludo = "",
-                        onCerrarSesion = cerrarSesion
+                val vm: PacientesViewModel = viewModel(factory = fabrica)
+                ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) { modifier ->
+                    PacientesScreen(
+                        vm = vm,
+                        onVolver = { irAPestanaVet(Rutas.PANEL) },
+                        // Tocar una tarjeta abre la ficha con el historial clinico
+                        onPaciente = { navController.navigate(Rutas.fichaVet(it)) },
+                        modifier = modifier
                     )
                 }
             }
@@ -329,6 +334,44 @@ fun NavVet() {
                         titulo = "Ajustes",
                         saludo = usuario?.nombre ?: "",
                         onCerrarSesion = cerrarSesion
+                    )
+                }
+            }
+        }
+
+        // ---------- Atender cita y ficha de un paciente (veterinario) ----------
+        composable(
+            route = Rutas.ATENDER,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entrada ->
+            val citaId = entrada.arguments?.getInt("id") ?: 0
+            VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
+                // La cita a atender llega a la fabrica como argumento
+                val fabricaAtender = remember(citaId) {
+                    VetViewModelFactory(app.repository, app.preferencias, 0, citaId)
+                }
+                val vm: AtenderCitaViewModel = viewModel(factory = fabricaAtender)
+                AtenderCitaScreen(
+                    vm = vm,
+                    // Al registrar o cancelar, se vuelve a la Agenda
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+        }
+        composable(
+            route = Rutas.FICHA_VET,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entrada ->
+            val mascotaId = entrada.arguments?.getInt("id") ?: 0
+            VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
+                val vm: MascotaViewModel = viewModel(factory = fabrica)
+                // La barra inferior marca "Pacientes"; la ficha va sin los botones del dueno
+                ConBarraVet(rutaActual = Rutas.PACIENTES, onIr = irAPestanaVet) { modifier ->
+                    FichaMascotaScreen(
+                        vm = vm,
+                        mascotaId = mascotaId,
+                        onVolver = { navController.popBackStack() },
+                        modifier = modifier
                     )
                 }
             }

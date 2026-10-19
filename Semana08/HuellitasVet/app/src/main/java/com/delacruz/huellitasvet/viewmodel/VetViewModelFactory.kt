@@ -13,7 +13,7 @@ class VetViewModelFactory(
     private val prefs: PreferenciasStore,
     // Id del dueno con sesion iniciada, para los ViewModels que solo muestran sus datos
     private val usuarioId: Int = 0,
-    // Id extra que algunas pantallas reciben al abrirse (por ejemplo, la mascota de Pedir cita)
+    // Id extra que algunas pantallas reciben al abrirse (la mascota de Pedir cita, la cita a atender)
     private val argumentoId: Int = 0
 ) : ViewModelProvider.Factory {
 
@@ -36,6 +36,10 @@ class VetViewModelFactory(
                 PanelViewModel(repo) as T
             modelClass.isAssignableFrom(AgendaViewModel::class.java) ->
                 AgendaViewModel(repo) as T
+            modelClass.isAssignableFrom(AtenderCitaViewModel::class.java) ->
+                AtenderCitaViewModel(repo, argumentoId) as T
+            modelClass.isAssignableFrom(PacientesViewModel::class.java) ->
+                PacientesViewModel(repo) as T
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
     }
