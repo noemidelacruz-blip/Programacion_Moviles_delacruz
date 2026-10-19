@@ -95,7 +95,8 @@ fun CitaCard(
 
             if (accion != null) {
                 Spacer(modifier = Modifier.width(4.dp))
-                accion()
+                // La accion va abajo a la derecha de la tarjeta, como en el mockup
+                Box(modifier = Modifier.align(Alignment.Bottom)) { accion() }
             }
         }
     }

@@ -30,6 +30,8 @@ class VetViewModelFactory(
                 MascotaViewModel(repo, usuarioId) as T
             modelClass.isAssignableFrom(PedirCitaViewModel::class.java) ->
                 PedirCitaViewModel(repo, usuarioId, argumentoId) as T
+            modelClass.isAssignableFrom(MisCitasViewModel::class.java) ->
+                MisCitasViewModel(repo, usuarioId) as T
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
     }

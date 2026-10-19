@@ -31,3 +31,12 @@ fun fechaDiaMes(fecha: String): String {
 fun textoPrecio(precio: Double, decimales: Boolean = false): String =
     if (decimales || precio % 1.0 != 0.0) "S/ " + String.format(Locale.US, "%.2f", precio)
     else "S/ " + precio.toInt()
+
+// Convierte una fecha "aaaa-MM-dd" en el dia de la semana y el numero: "Mie 21"
+fun fechaDia(fecha: String): String {
+    val f = LocalDate.parse(fecha)
+    val dia = f.dayOfWeek.getDisplayName(TextStyle.SHORT, ES)
+        .replace(".", "")
+        .replaceFirstChar { it.uppercase() }
+    return "$dia ${f.dayOfMonth}"
+}

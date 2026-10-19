@@ -33,6 +33,9 @@ import com.delacruz.huellitasvet.viewmodel.ServiciosViewModel
 import com.delacruz.huellitasvet.viewmodel.SesionViewModel
 import com.delacruz.huellitasvet.viewmodel.VetViewModelFactory
 
+import com.delacruz.huellitasvet.ui.dueno.MisCitasScreen
+import com.delacruz.huellitasvet.viewmodel.MisCitasViewModel
+
 // Primer nombre del usuario para el saludo (Noemi De La Cruz -> Noemi)
 private fun primerNombre(usuario: Usuario?): String =
     usuario?.nombre?.substringBefore(" ") ?: ""
@@ -145,14 +148,20 @@ fun NavVet() {
             }
         }
         composable(Rutas.CITAS) {
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            val actual = usuario
             VetTheme(rol = Rol.CLIENTE, modoOscuro = modoOscuro) {
-                ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) {
-                    // Provisional: se reemplaza por MisCitasScreen en el commit 11
-                    PantallaTemporal(
-                        titulo = "Mis citas",
-                        saludo = "",
-                        onCerrarSesion = cerrarSesion
-                    )
+                if (actual != null) {
+                    val fabricaDueno = remember(actual.id) { fabricaDe(actual.id) }
+                    val vm: MisCitasViewModel = viewModel(key = "citas-${actual.id}", factory = fabricaDueno)
+                    ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) { modifier ->
+                        MisCitasScreen(
+                            vm = vm,
+                            onVolver = { irAPestana(Rutas.INICIO) },
+                            onPedirCita = { navController.navigate(Rutas.pedirCita()) },
+                            modifier = modifier
+                        )
+                    }
                 }
             }
         }
