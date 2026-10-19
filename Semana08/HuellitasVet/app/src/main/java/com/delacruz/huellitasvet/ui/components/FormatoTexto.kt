@@ -40,3 +40,9 @@ fun fechaDia(fecha: String): String {
         .replaceFirstChar { it.uppercase() }
     return "$dia ${f.dayOfMonth}"
 }
+
+// Nombre corto de una persona: primer nombre e inicial del apellido ("Luis Ramírez" -> "Luis R.")
+fun nombreCorto(nombre: String): String {
+    val partes = nombre.trim().split(" ").filter { it.isNotBlank() }
+    return if (partes.size >= 2) "${partes[0]} ${partes[1].first().uppercaseChar()}." else nombre
+}

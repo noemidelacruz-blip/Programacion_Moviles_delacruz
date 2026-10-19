@@ -138,4 +138,8 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override fun observarIngresosDesde(fechaInicio: String): Flow<Double> =
         citaDao.ingresosDesde(fechaInicio)
+
+
+    override fun observarAtencionesDesde(fechaInicio: String): Flow<Int> =
+        citaDao.contarAtendidasDesde(fechaInicio)
 }

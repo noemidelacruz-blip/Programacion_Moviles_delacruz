@@ -4,12 +4,19 @@ package com.delacruz.huellitasvet.ui.navigation
 object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
+
+    // Dueno
     const val INICIO = "inicio"
     const val MASCOTAS = "mascotas"
     const val CITAS = "citas"
     const val PERFIL = "perfil"
+
+    // Veterinario
     const val PANEL = "panel"
+    const val AGENDA = "agenda"
+    const val PACIENTES = "pacientes"
     const val SERVICIOS = "servicios"
+    const val AJUSTES = "ajustes"
 
     // Rutas con argumentos: la ficha recibe el id de la mascota y el formulario lo recibe
     // opcionalmente (0 = mascota nueva)

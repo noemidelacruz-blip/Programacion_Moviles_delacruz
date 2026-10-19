@@ -88,4 +88,9 @@ interface CitaDao {
                 "WHERE estado = 'ATENDIDA' AND fecha >= :fechaInicio"
     )
     fun ingresosDesde(fechaInicio: String): Flow<Double>
+
+
+    // Cuantas citas ATENDIDAS hay desde una fecha (las "atenciones del mes" del panel)
+    @Query("SELECT COUNT(*) FROM citas WHERE estado = 'ATENDIDA' AND fecha >= :fechaInicio")
+    fun contarAtendidasDesde(fechaInicio: String): Flow<Int>
 }

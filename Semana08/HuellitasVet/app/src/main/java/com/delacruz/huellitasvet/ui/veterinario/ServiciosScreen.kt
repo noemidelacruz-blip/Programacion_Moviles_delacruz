@@ -43,11 +43,13 @@ import java.util.Locale
 fun ServiciosScreen(
     vm: ServiciosViewModel,
     onEditar: (Int) -> Unit,
-    onNuevo: () -> Unit
+    onNuevo: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val servicios by vm.servicios.collectAsState()
 
     Scaffold(
+        modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
         topBar = { AppTopBar(titulo = "Servicios") },
         floatingActionButton = {

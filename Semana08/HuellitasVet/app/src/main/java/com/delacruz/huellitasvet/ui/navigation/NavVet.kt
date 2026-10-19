@@ -16,33 +16,35 @@ import androidx.navigation.navArgument
 import com.delacruz.huellitasvet.VetApp
 import com.delacruz.huellitasvet.data.local.entity.Usuario
 import com.delacruz.huellitasvet.model.Rol
-import com.delacruz.huellitasvet.ui.components.VetButton
 import com.delacruz.huellitasvet.ui.dueno.FichaMascotaScreen
 import com.delacruz.huellitasvet.ui.dueno.FormularioMascotaScreen
 import com.delacruz.huellitasvet.ui.dueno.InicioScreen
 import com.delacruz.huellitasvet.ui.dueno.LoginScreen
 import com.delacruz.huellitasvet.ui.dueno.MascotasScreen
+import com.delacruz.huellitasvet.ui.dueno.MisCitasScreen
 import com.delacruz.huellitasvet.ui.dueno.PedirCitaScreen
 import com.delacruz.huellitasvet.ui.dueno.SplashScreen
 import com.delacruz.huellitasvet.ui.theme.VetTheme
+import com.delacruz.huellitasvet.ui.veterinario.AgendaScreen
+import com.delacruz.huellitasvet.ui.veterinario.PanelScreen
 import com.delacruz.huellitasvet.ui.veterinario.ServiciosScreen
+import com.delacruz.huellitasvet.viewmodel.AgendaViewModel
 import com.delacruz.huellitasvet.viewmodel.InicioViewModel
 import com.delacruz.huellitasvet.viewmodel.MascotaViewModel
+import com.delacruz.huellitasvet.viewmodel.MisCitasViewModel
+import com.delacruz.huellitasvet.viewmodel.PanelViewModel
 import com.delacruz.huellitasvet.viewmodel.PedirCitaViewModel
 import com.delacruz.huellitasvet.viewmodel.ServiciosViewModel
 import com.delacruz.huellitasvet.viewmodel.SesionViewModel
 import com.delacruz.huellitasvet.viewmodel.VetViewModelFactory
-
-import com.delacruz.huellitasvet.ui.dueno.MisCitasScreen
-import com.delacruz.huellitasvet.viewmodel.MisCitasViewModel
 
 // Primer nombre del usuario para el saludo (Noemi De La Cruz -> Noemi)
 private fun primerNombre(usuario: Usuario?): String =
     usuario?.nombre?.substringBefore(" ") ?: ""
 
 // Navegacion de la app: Splash -> Login -> pantalla principal del perfil.
-// El dueno tiene barra inferior con Inicio, Mascotas, Citas y Perfil, y puede abrir la ficha
-// de una mascota, el formulario de registro o edicion y Pedir cita.
+// El dueno tiene barra inferior con Inicio, Mascotas, Citas y Perfil, y el veterinario con
+// Panel, Agenda, Pacientes, Servicios y Ajustes.
 // Cada destino aplica el tema de su perfil y el modo oscuro guardado.
 // En el commit 14 se completa el grafo de cada perfil
 @Composable
@@ -79,10 +81,19 @@ fun NavVet() {
         }
     }
 
-    // Cambia de pestana en la barra inferior conservando el estado de cada una
+    // Cambia de pestana en la barra inferior del dueno conservando el estado de cada una
     val irAPestana: (String) -> Unit = { ruta ->
         navController.navigate(ruta) {
             popUpTo(Rutas.INICIO) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    // Lo mismo para la barra inferior del veterinario, cuya pantalla de inicio es el Panel
+    val irAPestanaVet: (String) -> Unit = { ruta ->
+        navController.navigate(ruta) {
+            popUpTo(Rutas.PANEL) { saveState = true }
             launchSingleTop = true
             restoreState = true
         }
@@ -169,7 +180,7 @@ fun NavVet() {
             val usuario by sesionVm.usuarioActual.collectAsState()
             VetTheme(rol = Rol.CLIENTE, modoOscuro = modoOscuro) {
                 ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) {
-                    // Provisional: se reemplaza por PerfilScreen en el commit 13
+                    // Provisional: se reemplaza por PerfilScreen en el commit 14
                     PantallaTemporal(
                         titulo = "Perfil",
                         saludo = usuario?.nombre ?: "",
@@ -260,29 +271,66 @@ fun NavVet() {
             }
         }
 
-        // ---------- Perfil del veterinario ----------
+        // ---------- Perfil del veterinario (con barra inferior) ----------
         composable(Rutas.PANEL) {
-            val usuario by sesionVm.usuarioActual.collectAsState()
             VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
-                // Provisional: se reemplaza por PanelScreen en el commit 12
-                PantallaTemporal(
-                    titulo = "Panel de la clínica",
-                    saludo = "Hola, ${primerNombre(usuario)}",
-                    onCerrarSesion = cerrarSesion,
-                    accionExtra = {
-                        VetButton(
-                            texto = "Ver servicios",
-                            onClick = { navController.navigate(Rutas.SERVICIOS) }
-                        )
-                    }
-                )
+                val vm: PanelViewModel = viewModel(factory = fabrica)
+                ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) { modifier ->
+                    PanelScreen(
+                        vm = vm,
+                        // El boton Ver de la alerta lleva a la Agenda
+                        onVerAgenda = { irAPestanaVet(Rutas.AGENDA) },
+                        modifier = modifier
+                    )
+                }
+            }
+        }
+        composable(Rutas.AGENDA) {
+            VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
+                val vm: AgendaViewModel = viewModel(factory = fabrica)
+                ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) { modifier ->
+                    AgendaScreen(
+                        vm = vm,
+                        onVolver = { irAPestanaVet(Rutas.PANEL) },
+                        // Atender cita se conecta en el commit 13
+                        onAtender = {},
+                        modifier = modifier
+                    )
+                }
+            }
+        }
+        composable(Rutas.PACIENTES) {
+            VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
+                ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) {
+                    // Provisional: se reemplaza por PacientesScreen en el commit 13
+                    PantallaTemporal(
+                        titulo = "Pacientes",
+                        saludo = "",
+                        onCerrarSesion = cerrarSesion
+                    )
+                }
             }
         }
         composable(Rutas.SERVICIOS) {
             VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
                 val vm: ServiciosViewModel = viewModel(factory = fabrica)
-                // Editar y nuevo se conectan con el formulario en el commit 14
-                ServiciosScreen(vm = vm, onEditar = {}, onNuevo = {})
+                ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) { modifier ->
+                    // Editar y nuevo se conectan con el formulario en el commit 14
+                    ServiciosScreen(vm = vm, onEditar = {}, onNuevo = {}, modifier = modifier)
+                }
+            }
+        }
+        composable(Rutas.AJUSTES) {
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
+                ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) {
+                    // Provisional: se reemplaza por AjustesScreen en el commit 14
+                    PantallaTemporal(
+                        titulo = "Ajustes",
+                        saludo = usuario?.nombre ?: "",
+                        onCerrarSesion = cerrarSesion
+                    )
+                }
             }
         }
     }
