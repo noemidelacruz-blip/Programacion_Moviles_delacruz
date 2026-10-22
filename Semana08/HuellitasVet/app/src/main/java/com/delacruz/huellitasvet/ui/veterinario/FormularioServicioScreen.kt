@@ -52,7 +52,7 @@ import com.delacruz.huellitasvet.ui.components.VetTextField
 import com.delacruz.huellitasvet.ui.components.iconoDeServicio
 import com.delacruz.huellitasvet.viewmodel.ServiciosViewModel
 import java.util.Locale
-
+import com.delacruz.huellitasvet.ui.components.coloresSwitch
 // Formulario para crear un servicio (servicioId = 0) o editar uno existente.
 // La View solo muestra los campos y avisa al ViewModel; las validaciones viven en el ViewModel
 @Composable
@@ -211,7 +211,7 @@ fun FormularioServicioScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Switch(checked = activo, onCheckedChange = { activo = it })
+                    Switch(checked = activo, onCheckedChange = { activo = it }, colors = coloresSwitch())
                 }
             }
 

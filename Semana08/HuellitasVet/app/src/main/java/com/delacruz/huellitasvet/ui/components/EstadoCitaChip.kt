@@ -30,7 +30,9 @@ fun EstadoCitaChip(
             text = estado.etiqueta,
             style = MaterialTheme.typography.labelSmall,
             color = color,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            softWrap = false,
+            maxLines = 1
         )
     }
 }

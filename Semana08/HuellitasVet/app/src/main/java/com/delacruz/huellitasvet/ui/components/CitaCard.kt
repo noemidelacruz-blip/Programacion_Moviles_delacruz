@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -49,8 +48,9 @@ fun IconoCuadrado(icono: ImageVector, modifier: Modifier = Modifier) {
 }
 
 // Tarjeta de una cita. A la izquierda va lo que se pase en "izquierda" (IconoCuadrado o
-// MascotaAvatar), al centro el titulo, el detalle y el chip de estado, y a la derecha una
-// accion opcional (boton Cancelar, Confirmar o Atender)
+// MascotaAvatar). A la derecha, el titulo y el detalle ocupan todo el ancho y debajo va una fila
+// con el chip de estado a la izquierda y la accion opcional (Cancelar, Confirmar o Atender)
+// a la derecha, como en el mockup
 @Composable
 fun CitaCard(
     titulo: String,
@@ -69,7 +69,7 @@ fun CitaCard(
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             izquierda()
@@ -89,14 +89,16 @@ fun CitaCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                EstadoCitaChip(estado = estado)
-            }
-
-            if (accion != null) {
-                Spacer(modifier = Modifier.width(4.dp))
-                // La accion va abajo a la derecha de la tarjeta, como en el mockup
-                Box(modifier = Modifier.align(Alignment.Bottom)) { accion() }
+                Spacer(modifier = Modifier.height(6.dp))
+                // Fila inferior: chip de estado a la izquierda y la accion a la derecha
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    EstadoCitaChip(estado = estado)
+                    Spacer(modifier = Modifier.weight(1f))
+                    if (accion != null) accion()
+                }
             }
         }
     }

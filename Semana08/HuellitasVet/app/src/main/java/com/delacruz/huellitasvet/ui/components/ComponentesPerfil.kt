@@ -29,7 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.graphics.Color
 // Tarjeta con los datos del usuario: icono de persona, nombre, correo y un chip (Dueno / Perfil activo)
 @Composable
 fun TarjetaUsuario(
@@ -152,6 +153,7 @@ fun GrupoPreferencias(contenido: @Composable ColumnScope.() -> Unit) {
 // Una preferencia: titulo, subtitulo y un switch a la derecha
 @Composable
 fun FilaPreferencia(
+
     titulo: String,
     subtitulo: String,
     activado: Boolean,
@@ -175,7 +177,7 @@ fun FilaPreferencia(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Switch(checked = activado, onCheckedChange = onCambio)
+        Switch(checked = activado, onCheckedChange = onCambio, colors = coloresSwitch())
     }
 }
 
@@ -213,3 +215,14 @@ fun NotaDataStore() {
         }
     }
 }
+
+// Colores del switch: apagado en gris con perilla blanca y encendido con el color del perfil
+@Composable
+fun coloresSwitch() = SwitchDefaults.colors(
+    checkedThumbColor = Color.White,
+    checkedTrackColor = MaterialTheme.colorScheme.primary,
+    checkedBorderColor = Color.Transparent,
+    uncheckedThumbColor = Color.White,
+    uncheckedTrackColor = Color(0xFFCBD5E1),
+    uncheckedBorderColor = Color.Transparent
+)

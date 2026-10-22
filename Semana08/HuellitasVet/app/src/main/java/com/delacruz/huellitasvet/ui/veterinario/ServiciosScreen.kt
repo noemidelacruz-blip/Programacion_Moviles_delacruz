@@ -36,7 +36,7 @@ import com.delacruz.huellitasvet.ui.components.IconoCuadrado
 import com.delacruz.huellitasvet.ui.components.iconoDeServicio
 import com.delacruz.huellitasvet.viewmodel.ServiciosViewModel
 import java.util.Locale
-
+import com.delacruz.huellitasvet.ui.components.coloresSwitch
 // Pantalla Servicios del veterinario. La View solo observa el ViewModel y le avisa de los clics:
 // no conoce el DAO ni el Repository
 @Composable
@@ -119,7 +119,7 @@ private fun ServicioItem(
                 )
             }
 
-            Switch(checked = s.activo, onCheckedChange = { onToggle() })
+            Switch(checked = s.activo, onCheckedChange = { onToggle() }, colors = coloresSwitch())
 
             IconButton(onClick = onEditar) {
                 Icon(
