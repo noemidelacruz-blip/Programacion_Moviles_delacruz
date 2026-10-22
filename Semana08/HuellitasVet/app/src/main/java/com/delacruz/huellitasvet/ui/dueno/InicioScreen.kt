@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
@@ -70,6 +71,7 @@ fun InicioScreen(
 ) {
     val mascotas by vm.mascotas.collectAsState()
     val proxima by vm.proximaCita.collectAsState()
+    val control by vm.proximoControl.collectAsState()
 
     Column(
         modifier = modifier
@@ -144,6 +146,11 @@ fun InicioScreen(
         // Recordatorio calculado a partir de la proxima cita
         if (proxima != null) {
             TarjetaRecordatorio(cita = proxima!!)
+        }
+
+        // Tarjeta de proximo control medico
+        if (control != null) {
+            TarjetaProximoControl(cita = control!!)
         }
 
         VetButton(texto = "Pedir una cita", onClick = onPedirCita)
@@ -375,6 +382,56 @@ private fun TarjetaRecordatorio(cita: CitaConDetalle) {
                     text = "${cita.mascota.mascota.nombre}: ${cita.servicio.nombre} $cuando",
                     style = MaterialTheme.typography.bodySmall,
                     color = AmbarTexto
+                )
+            }
+        }
+    }
+}
+
+// Tarjeta proximo control si hay un control programado
+@Composable
+private fun TarjetaProximoControl(cita: CitaConDetalle) {
+    val fc = cita.cita.fechaControl ?: return
+    val fechaControlLocal = LocalDate.parse(fc)
+    val dias = ChronoUnit.DAYS.between(LocalDate.now(), fechaControlLocal)
+    val cuando = when (dias) {
+        0L -> "hoy"
+        1L -> "mañana"
+        else -> "en $dias días"
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.CalendarMonth,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Column {
+                Text(
+                    text = "Próximo control",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(
+                    text = "${cita.mascota.mascota.nombre} · ${fechaCorta(fc)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(
+                    text = cuando,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                 )
             }
         }

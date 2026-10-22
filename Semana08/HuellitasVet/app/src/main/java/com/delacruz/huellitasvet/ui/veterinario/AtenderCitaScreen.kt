@@ -1,7 +1,12 @@
 package com.delacruz.huellitasvet.ui.veterinario
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,23 +40,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.delacruz.huellitasvet.data.local.entity.Mascota
 import com.delacruz.huellitasvet.model.Especie
 import com.delacruz.huellitasvet.model.EstadoCita
+import com.delacruz.huellitasvet.model.OpcionControl
 import com.delacruz.huellitasvet.model.Sexo
 import com.delacruz.huellitasvet.ui.components.AppTopBar
 import com.delacruz.huellitasvet.ui.components.MascotaAvatar
 import com.delacruz.huellitasvet.ui.components.VetBotonTipo
 import com.delacruz.huellitasvet.ui.components.VetButton
 import com.delacruz.huellitasvet.ui.components.VetTextField
+import com.delacruz.huellitasvet.ui.components.fechaCorta
 import com.delacruz.huellitasvet.ui.components.fechaDia
 import com.delacruz.huellitasvet.ui.components.iconoDeServicio
 import com.delacruz.huellitasvet.ui.components.nombreCorto
 import com.delacruz.huellitasvet.ui.components.textoEdad
 import com.delacruz.huellitasvet.viewmodel.AtenderCitaViewModel
+import java.time.LocalDate
 import java.util.Locale
 
 // Pantalla Atender cita del veterinario. La View solo muestra los campos y avisa de los clics:
@@ -241,6 +251,60 @@ fun AtenderCitaScreen(
                         etiqueta = "Tratamiento",
                         lineasMinimas = 3
                     )
+
+                    val opcionControl by vm.opcionControl.collectAsState()
+
+                    Text(
+                        text = "Próximo control (opcional)",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OpcionControl.entries.forEach { op ->
+                            val seleccionado = op == opcionControl
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .background(
+                                        if (seleccionado) MaterialTheme.colorScheme.primary
+                                        else Color.Transparent
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        color = if (seleccionado) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.outline,
+                                        shape = RoundedCornerShape(50)
+                                    )
+                                    .clickable { vm.elegirControl(op) }
+                                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = op.etiqueta,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (seleccionado) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (seleccionado) MaterialTheme.colorScheme.onPrimary
+                                    else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+
+                    if (opcionControl != OpcionControl.NINGUNO && opcionControl.dias != null) {
+                        val fechaControlCalc = LocalDate.now().plusDays(opcionControl.dias!!.toLong()).toString()
+                        Text(
+                            text = "Se programará para el ${fechaCorta(fechaControlCalc)}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
 
                     // Aviso de que se actualizara el peso (aparece cuando el peso es valido)
                     if (pesoNuevo != null && pesoNuevo > 0.0) {

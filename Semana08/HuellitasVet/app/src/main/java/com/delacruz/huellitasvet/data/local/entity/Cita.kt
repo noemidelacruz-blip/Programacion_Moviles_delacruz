@@ -46,5 +46,6 @@ data class Cita(
     val diagnostico: String? = null,
     val tratamiento: String? = null,
     val pesoRegistrado: Double? = null,
+    val fechaControl: String? = null,
     val fechaCreacion: Long = System.currentTimeMillis()
 )

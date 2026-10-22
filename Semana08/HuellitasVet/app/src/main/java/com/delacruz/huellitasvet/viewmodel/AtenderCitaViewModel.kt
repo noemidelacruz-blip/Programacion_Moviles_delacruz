@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.delacruz.huellitasvet.data.local.relation.CitaConDetalle
 import com.delacruz.huellitasvet.data.repository.VetRepository
 import com.delacruz.huellitasvet.model.EstadoCita
+import com.delacruz.huellitasvet.model.OpcionControl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 // Errores del formulario de atencion, uno por campo (null = el campo esta bien)
 data class ErroresAtencion(
@@ -36,12 +38,19 @@ class AtenderCitaViewModel(
     private val _errores = MutableStateFlow(ErroresAtencion())
     val errores: StateFlow<ErroresAtencion> = _errores.asStateFlow()
 
+    private val _opcionControl = MutableStateFlow(OpcionControl.NINGUNO)
+    val opcionControl: StateFlow<OpcionControl> = _opcionControl.asStateFlow()
+
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
     // true cuando la atencion se registro o la cita se cancelo (la pantalla vuelve a la Agenda)
     private val _listo = MutableStateFlow(false)
     val listo: StateFlow<Boolean> = _listo.asStateFlow()
+
+    fun elegirControl(op: OpcionControl) {
+        _opcionControl.value = op
+    }
 
     // Regla: solo se puede atender una cita PENDIENTE o CONFIRMADA
     fun puedeAtender(c: CitaConDetalle): Boolean {
@@ -69,11 +78,14 @@ class AtenderCitaViewModel(
                 _mensaje.value = "Solo se puede atender una cita pendiente o confirmada"
                 return@launch
             }
+            val dias = _opcionControl.value.dias
+            val fechaControl = if (dias != null) LocalDate.now().plusDays(dias.toLong()).toString() else null
             repo.registrarAtencion(
                 citaId = citaId,
                 diagnostico = diagnostico.trim(),
                 tratamiento = tratamiento.trim().ifBlank { "Ninguno" },
-                peso = pesoNumero
+                peso = pesoNumero,
+                fechaControl = fechaControl
             )
             _listo.value = true
         }

@@ -84,7 +84,8 @@ object DatosIniciales {
         citaDao.insertar(
             Cita(mascotaId = lunaId, servicioId = vacunacionId, fecha = hoy.minusDays(6).toString(), hora = "10:00",
                 estado = EstadoCita.ATENDIDA.name, precio = vacunacion.precio,
-                diagnostico = "Vacuna triple felina.", tratamiento = "Refuerzo en 12 meses.", pesoRegistrado = 4.3)
+                diagnostico = "Vacuna triple felina.", tratamiento = "Refuerzo en 12 meses.", pesoRegistrado = 4.3,
+                fechaControl = hoy.plusDays(21).toString())
         )
         citaDao.insertar(
             Cita(mascotaId = lunaId, servicioId = consultaId, fecha = hoy.minusDays(107).toString(), hora = "09:30",

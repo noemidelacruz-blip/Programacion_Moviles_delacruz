@@ -65,7 +65,8 @@ interface VetRepository {
         citaId: Int,
         diagnostico: String,
         tratamiento: String,
-        peso: Double
+        peso: Double,
+        fechaControl: String?
     )
 
     // ---------- Panel del veterinario ----------

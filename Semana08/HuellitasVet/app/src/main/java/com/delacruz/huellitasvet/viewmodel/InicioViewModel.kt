@@ -40,6 +40,23 @@ class InicioViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    // Proximo control: la cita ATENDIDA con fechaControl no nulo e igual o posterior a hoy,
+    // con la fecha de control mas cercana
+    val proximoControl: StateFlow<CitaConDetalle?> = repo.observarCitasDeDueno(duenoId)
+        .map { citas ->
+            val hoy = LocalDate.now()
+            citas
+                .filter { c ->
+                    val estado = EstadoCita.desdeTexto(c.cita.estado)
+                    val fc = c.cita.fechaControl
+                    estado == EstadoCita.ATENDIDA &&
+                            !fc.isNullOrBlank() &&
+                            !LocalDate.parse(fc).isBefore(hoy)
+                }
+                .minByOrNull { LocalDate.parse(it.cita.fechaControl) }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     // Une la fecha (aaaa-MM-dd) y la hora (HH:mm) de la cita en un solo valor comparable
     private fun fechaHora(c: CitaConDetalle): LocalDateTime =
         LocalDateTime.of(LocalDate.parse(c.cita.fecha), LocalTime.parse(c.cita.hora))

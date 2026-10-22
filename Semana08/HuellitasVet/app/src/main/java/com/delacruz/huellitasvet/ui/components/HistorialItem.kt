@@ -41,7 +41,8 @@ fun HistorialItem(
     diagnostico: String?,
     peso: Double?,
     esUltimo: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    control: String? = null
 ) {
     Row(modifier = modifier.height(IntrinsicSize.Min)) {
         // Columna de la linea de tiempo
@@ -132,6 +133,15 @@ fun HistorialItem(
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
+                }
+
+                if (!control.isNullOrBlank()) {
+                    Text(
+                        text = "Próximo control: $control",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }

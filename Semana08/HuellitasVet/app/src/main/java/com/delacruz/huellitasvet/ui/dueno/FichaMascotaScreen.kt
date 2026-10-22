@@ -134,7 +134,8 @@ fun FichaMascotaScreen(
                                 servicio = c.servicio.nombre,
                                 diagnostico = c.cita.diagnostico,
                                 peso = c.cita.pesoRegistrado,
-                                esUltimo = indice == historial.lastIndex
+                                esUltimo = indice == historial.lastIndex,
+                                control = c.cita.fechaControl?.let { fechaDiaMes(it) }
                             )
                         }
                     }

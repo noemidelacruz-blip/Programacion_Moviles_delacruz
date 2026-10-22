@@ -22,12 +22,12 @@ interface CitaDao {
     @Query("UPDATE citas SET estado = :estado WHERE id = :id")
     suspend fun actualizarEstado(id: Int, estado: String)
 
-    // Pasa la cita a ATENDIDA y guarda diagnostico, tratamiento y peso registrado
+    // Pasa la cita a ATENDIDA y guarda diagnostico, tratamiento, peso registrado y fechaControl
     @Query(
         "UPDATE citas SET estado = 'ATENDIDA', diagnostico = :diagnostico, " +
-                "tratamiento = :tratamiento, pesoRegistrado = :peso WHERE id = :id"
+                "tratamiento = :tratamiento, pesoRegistrado = :peso, fechaControl = :fechaControl WHERE id = :id"
     )
-    suspend fun registrarAtencion(id: Int, diagnostico: String, tratamiento: String, peso: Double)
+    suspend fun registrarAtencion(id: Int, diagnostico: String, tratamiento: String, peso: Double, fechaControl: String?)
 
     @Query("SELECT * FROM citas WHERE id = :id")
     suspend fun obtener(id: Int): Cita?

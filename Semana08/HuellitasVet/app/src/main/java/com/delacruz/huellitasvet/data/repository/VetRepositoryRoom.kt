@@ -137,11 +137,12 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
         citaId: Int,
         diagnostico: String,
         tratamiento: String,
-        peso: Double
+        peso: Double,
+        fechaControl: String?
     ) {
         db.withTransaction {
             val cita = citaDao.obtener(citaId) ?: return@withTransaction
-            citaDao.registrarAtencion(citaId, diagnostico, tratamiento, peso)
+            citaDao.registrarAtencion(citaId, diagnostico, tratamiento, peso, fechaControl)
             mascotaDao.actualizarPeso(cita.mascotaId, peso)
         }
     }

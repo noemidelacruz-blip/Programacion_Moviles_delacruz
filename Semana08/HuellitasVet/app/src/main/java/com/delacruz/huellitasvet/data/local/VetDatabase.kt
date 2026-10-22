@@ -19,7 +19,7 @@ import com.delacruz.huellitasvet.data.local.entity.Vacuna
 // usuarios, servicios, mascotas, citas y vacunas
 @Database(
     entities = [Servicio::class, Usuario::class, Mascota::class, Cita::class, Vacuna::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class VetDatabase : RoomDatabase() {
