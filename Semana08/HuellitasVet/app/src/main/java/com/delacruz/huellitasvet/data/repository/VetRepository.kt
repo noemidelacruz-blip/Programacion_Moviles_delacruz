@@ -3,6 +3,7 @@ package com.delacruz.huellitasvet.data.repository
 import com.delacruz.huellitasvet.data.local.entity.Mascota
 import com.delacruz.huellitasvet.data.local.entity.Servicio
 import com.delacruz.huellitasvet.data.local.entity.Usuario
+import com.delacruz.huellitasvet.data.local.entity.Vacuna
 import com.delacruz.huellitasvet.data.local.relation.CitaConDetalle
 import com.delacruz.huellitasvet.data.local.relation.MascotaConDueno
 import com.delacruz.huellitasvet.model.ConteoServicio
@@ -37,6 +38,11 @@ interface VetRepository {
     suspend fun guardarMascota(m: Mascota)
     suspend fun eliminarMascota(m: Mascota)
     suspend fun mascotaTieneCitas(id: Int): Boolean
+
+    // ---------- Vacunas ----------
+    fun observarVacunas(mascotaId: Int): Flow<List<Vacuna>>
+    suspend fun guardarVacuna(v: Vacuna)
+    suspend fun eliminarVacuna(v: Vacuna)
 
     // ---------- Citas ----------
     fun observarHorasOcupadas(fecha: String): Flow<List<String>>

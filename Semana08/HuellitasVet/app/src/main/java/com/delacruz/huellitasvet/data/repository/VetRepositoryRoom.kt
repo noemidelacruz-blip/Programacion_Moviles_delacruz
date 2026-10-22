@@ -6,6 +6,7 @@ import com.delacruz.huellitasvet.data.local.entity.Cita
 import com.delacruz.huellitasvet.data.local.entity.Mascota
 import com.delacruz.huellitasvet.data.local.entity.Servicio
 import com.delacruz.huellitasvet.data.local.entity.Usuario
+import com.delacruz.huellitasvet.data.local.entity.Vacuna
 import com.delacruz.huellitasvet.data.local.relation.CitaConDetalle
 import com.delacruz.huellitasvet.data.local.relation.MascotaConDueno
 import com.delacruz.huellitasvet.model.ConteoServicio
@@ -21,6 +22,7 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     private val servicioDao = db.servicioDao()
     private val mascotaDao = db.mascotaDao()
     private val citaDao = db.citaDao()
+    private val vacunaDao = db.vacunaDao()
 
     // ---------- Usuarios ----------
     // Devuelve el usuario si el correo y la clave coinciden, o null si no
@@ -68,6 +70,16 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     override suspend fun eliminarMascota(m: Mascota) = mascotaDao.eliminar(m)
 
     override suspend fun mascotaTieneCitas(id: Int): Boolean = mascotaDao.contarCitas(id) > 0
+
+    // ---------- Vacunas ----------
+    override fun observarVacunas(mascotaId: Int): Flow<List<Vacuna>> =
+        vacunaDao.observarDeMascota(mascotaId)
+
+    override suspend fun guardarVacuna(v: Vacuna) {
+        if (v.id == 0) vacunaDao.insertar(v) else vacunaDao.actualizar(v)
+    }
+
+    override suspend fun eliminarVacuna(v: Vacuna) = vacunaDao.eliminar(v)
 
     // ---------- Citas ----------
     override fun observarHorasOcupadas(fecha: String): Flow<List<String>> =

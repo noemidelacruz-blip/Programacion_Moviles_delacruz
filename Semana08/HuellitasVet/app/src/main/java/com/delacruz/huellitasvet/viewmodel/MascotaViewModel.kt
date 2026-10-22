@@ -3,9 +3,11 @@ package com.delacruz.huellitasvet.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.delacruz.huellitasvet.data.local.entity.Mascota
+import com.delacruz.huellitasvet.data.local.entity.Vacuna
 import com.delacruz.huellitasvet.data.local.relation.CitaConDetalle
 import com.delacruz.huellitasvet.data.repository.VetRepository
 import com.delacruz.huellitasvet.model.Especie
+import com.delacruz.huellitasvet.model.EstadoVacuna
 import com.delacruz.huellitasvet.model.Sexo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -51,10 +53,18 @@ class MascotaViewModel(
     private val _eliminada = MutableStateFlow(false)
     val eliminada: StateFlow<Boolean> = _eliminada.asStateFlow()
 
+    // Estado del registro de vacunas
+    private val _errorVacuna = MutableStateFlow<String?>(null)
+    val errorVacuna: StateFlow<String?> = _errorVacuna.asStateFlow()
+
+    private val _vacunaGuardada = MutableStateFlow(false)
+    val vacunaGuardada: StateFlow<Boolean> = _vacunaGuardada.asStateFlow()
+
     // Cada flujo se crea una sola vez por mascota y se reutiliza
     private val mascotas = mutableMapOf<Int, StateFlow<Mascota?>>()
     private val historiales = mutableMapOf<Int, StateFlow<List<CitaConDetalle>>>()
     private val vacunas = mutableMapOf<Int, StateFlow<Boolean>>()
+    private val mapaVacunas = mutableMapOf<Int, StateFlow<List<Vacuna>>>()
 
     // Una mascota por id (ficha y formulario de edicion)
     fun mascota(id: Int): StateFlow<Mascota?> = mascotas.getOrPut(id) {
@@ -66,6 +76,55 @@ class MascotaViewModel(
     fun historial(mascotaId: Int): StateFlow<List<CitaConDetalle>> = historiales.getOrPut(mascotaId) {
         repo.observarHistorial(mascotaId)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }
+
+    // Lista de vacunas aplicadas a la mascota (la mas reciente primero)
+    fun vacunas(mascotaId: Int): StateFlow<List<Vacuna>> = mapaVacunas.getOrPut(mascotaId) {
+        repo.observarVacunas(mascotaId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }
+
+    // Calcula el estado de una vacuna segun la fecha de proxima dosis
+    fun estadoVacuna(v: Vacuna): EstadoVacuna {
+        val prox = v.proximaDosis
+        if (prox.isNullOrBlank()) return EstadoVacuna.VIGENTE
+        val hoy = LocalDate.now()
+        val fechaProxima = LocalDate.parse(prox)
+        return when {
+            fechaProxima.isBefore(hoy) -> EstadoVacuna.VENCIDA
+            !fechaProxima.isAfter(hoy.plusDays(30)) -> EstadoVacuna.PROXIMA
+            else -> EstadoVacuna.VIGENTE
+        }
+    }
+
+    // Registra una nueva vacuna para la mascota
+    fun registrarVacuna(mascotaId: Int, nombre: String, mesesProximaDosis: Int?) {
+        val nombreLimpio = nombre.trim()
+        if (nombreLimpio.length < 3) {
+            _errorVacuna.value = "Escribe al menos 3 caracteres"
+            return
+        }
+        _errorVacuna.value = null
+        viewModelScope.launch {
+            val hoy = LocalDate.now()
+            val proxima = mesesProximaDosis?.let { hoy.plusMonths(it.toLong()).toString() }
+            val vacuna = Vacuna(
+                mascotaId = mascotaId,
+                nombre = nombreLimpio,
+                fecha = hoy.toString(),
+                proximaDosis = proxima
+            )
+            repo.guardarVacuna(vacuna)
+            _vacunaGuardada.value = true
+        }
+    }
+
+    fun limpiarErrorVacuna() {
+        _errorVacuna.value = null
+    }
+
+    fun consumirVacunaGuardada() {
+        _vacunaGuardada.value = false
     }
 
     // Vacunas al dia: tiene una vacunacion atendida en los ultimos 12 meses

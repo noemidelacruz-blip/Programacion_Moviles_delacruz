@@ -410,6 +410,7 @@ fun NavVet() {
                         vm = vm,
                         mascotaId = mascotaId,
                         onVolver = { navController.popBackStack() },
+                        puedeRegistrarVacunas = true,
                         modifier = modifier
                     )
                 }

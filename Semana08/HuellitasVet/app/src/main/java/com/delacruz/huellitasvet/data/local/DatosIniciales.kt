@@ -4,6 +4,7 @@ import com.delacruz.huellitasvet.data.local.entity.Cita
 import com.delacruz.huellitasvet.data.local.entity.Mascota
 import com.delacruz.huellitasvet.data.local.entity.Servicio
 import com.delacruz.huellitasvet.data.local.entity.Usuario
+import com.delacruz.huellitasvet.data.local.entity.Vacuna
 import com.delacruz.huellitasvet.model.Especie
 import com.delacruz.huellitasvet.model.EstadoCita
 import com.delacruz.huellitasvet.model.Rol
@@ -134,6 +135,36 @@ object DatosIniciales {
         citaDao.insertar(
             Cita(mascotaId = rockyId, servicioId = vacunacionId, fecha = hoy.plusDays(4).toString(), hora = "14:00",
                 estado = EstadoCita.CONFIRMADA.name, precio = vacunacion.precio)
+        )
+
+        // Vacunas iniciales para Luna y Max
+        db.vacunaDao().insertarTodos(
+            listOf(
+                Vacuna(
+                    mascotaId = lunaId,
+                    nombre = "Triple felina",
+                    fecha = hoy.minusDays(6).toString(),
+                    proximaDosis = hoy.plusDays(359).toString()
+                ),
+                Vacuna(
+                    mascotaId = lunaId,
+                    nombre = "Antirrábica",
+                    fecha = hoy.minusDays(400).toString(),
+                    proximaDosis = hoy.minusDays(35).toString()
+                ),
+                Vacuna(
+                    mascotaId = maxId,
+                    nombre = "Óctuple",
+                    fecha = hoy.minusDays(20).toString(),
+                    proximaDosis = hoy.plusDays(20).toString()
+                ),
+                Vacuna(
+                    mascotaId = maxId,
+                    nombre = "Antirrábica",
+                    fecha = hoy.minusDays(200).toString(),
+                    proximaDosis = hoy.plusDays(165).toString()
+                )
+            )
         )
     }
 }
