@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
@@ -101,12 +102,13 @@ fun HomeScreen(
 
             // Grid 2x2 de accesos rápidos.
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                // Agendar cita inicia con la elección de la sede.
                 TarjetaAccion(
                     titulo = "Agendar cita",
                     icono = Icons.Default.CalendarMonth,
                     colorFondo = AzulPastel,
                     colorContenido = AzulPrimario,
-                    onClick = { navController.navigate(Rutas.Especialidades.ruta) },
+                    onClick = { navController.navigate(Rutas.Sedes.ruta) },
                     modifier = Modifier.weight(1f)
                 )
                 TarjetaAccion(
@@ -138,6 +140,17 @@ fun HomeScreen(
                 )
             }
 
+            // Acceso a la lista de doctores organizados por especialidad.
+            Spacer(modifier = Modifier.height(12.dp))
+            TarjetaAccion(
+                titulo = "Mis doctores",
+                icono = Icons.Default.MedicalServices,
+                colorFondo = AzulPastel,
+                colorContenido = AzulPrimario,
+                onClick = { navController.navigate(Rutas.MisDoctores.ruta) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(
@@ -151,7 +164,7 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
-                TextButton(onClick = { navController.navigate(Rutas.Especialidades.ruta) }) {
+                TextButton(onClick = { navController.navigate(Rutas.Sedes.ruta) }) {
                     Text(text = "Ver todas", color = AzulPrimario)
                 }
             }

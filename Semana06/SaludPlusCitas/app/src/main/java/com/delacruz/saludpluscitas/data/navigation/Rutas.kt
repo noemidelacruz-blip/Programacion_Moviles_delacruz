@@ -13,6 +13,9 @@ sealed class Rutas(val ruta: String) {
 
     // agendamiento
     object Especialidades : Rutas("especialidades")
+    object Sedes : Rutas("sedes")
+    object MisDoctores : Rutas("mis_doctores")
+
 
     object Medicos : Rutas("medicos/{especialidadId}") {
         fun crearRuta(especialidadId: Int): String {
