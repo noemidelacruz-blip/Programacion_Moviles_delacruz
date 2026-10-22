@@ -11,8 +11,8 @@ import com.delacruz.huellitasvet.data.local.relation.MascotaConDueno
 import com.delacruz.huellitasvet.model.ConteoServicio
 import com.delacruz.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
-
 import com.delacruz.huellitasvet.model.UltimaVisita
+import com.delacruz.huellitasvet.model.Rol
 // Implementacion del repositorio con Room: cada funcion delega en el DAO correspondiente.
 // Las funciones observar* no son suspend porque devuelven Flow
 class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
@@ -29,14 +29,18 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     // Recupera un usuario por id (restaurar la sesion guardada)
     override suspend fun obtenerUsuario(id: Int): Usuario? = usuarioDao.obtener(id)
 
+    // Primer usuario de un perfil (Cambiar de perfil)
+    override suspend fun obtenerUsuarioPorRol(rol: Rol): Usuario? = usuarioDao.obtenerPorRol(rol.name)
+
     // ---------- Servicios ----------
     override fun observarServicios(): Flow<List<Servicio>> = servicioDao.observarTodos()
 
     override fun observarServiciosActivos(): Flow<List<Servicio>> = servicioDao.observarActivos()
 
-    // insertar con REPLACE sirve para crear un servicio nuevo y para guardar cambios
+    // Un servicio nuevo (id = 0) se inserta; uno existente se actualiza, para no borrar y
+    // reinsertar un servicio que ya tiene citas
     override suspend fun guardarServicio(s: Servicio) {
-        servicioDao.insertar(s)
+        if (s.id == 0) servicioDao.insertar(s) else servicioDao.actualizar(s)
     }
 
     override suspend fun eliminarServicio(s: Servicio) = servicioDao.eliminar(s)
@@ -45,6 +49,8 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
         servicioDao.cambiarActivo(id, activo)
 
     override suspend fun servicioTieneCitas(id: Int): Boolean = servicioDao.contarCitas(id) > 0
+
+    override suspend fun obtenerServicio(id: Int): Servicio? = servicioDao.obtener(id)
 
     // ---------- Mascotas ----------
     override fun observarMascotasDeDueno(duenoId: Int): Flow<List<Mascota>> =

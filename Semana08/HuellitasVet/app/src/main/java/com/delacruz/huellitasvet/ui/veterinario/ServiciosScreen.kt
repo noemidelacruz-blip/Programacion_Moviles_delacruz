@@ -1,13 +1,13 @@
 package com.delacruz.huellitasvet.ui.veterinario
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +42,7 @@ import java.util.Locale
 @Composable
 fun ServiciosScreen(
     vm: ServiciosViewModel,
+    onVolver: () -> Unit,
     onEditar: (Int) -> Unit,
     onNuevo: () -> Unit,
     modifier: Modifier = Modifier
@@ -51,7 +52,7 @@ fun ServiciosScreen(
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { AppTopBar(titulo = "Servicios") },
+        topBar = { AppTopBar(titulo = "Servicios", onAtras = onVolver) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNuevo,

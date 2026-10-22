@@ -14,7 +14,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-// ViewModel de la sesion: valida el login, recuerda el perfil en DataStore y expone al usuario actual.
+// ViewModel de la sesion: valida el login, recuerda el perfil en DataStore, expone al usuario actual
+// y los ajustes (modo oscuro, notificaciones, aceptar citas). Permite cambiar de perfil.
 // Solo conoce el Repository (interface) y las preferencias, nunca el DAO ni las pantallas
 class SesionViewModel(
     private val repo: VetRepository,
@@ -33,9 +34,16 @@ class SesionViewModel(
     private val _cargando = MutableStateFlow(true)
     val cargando: StateFlow<Boolean> = _cargando.asStateFlow()
 
-    // Modo oscuro guardado en DataStore (lo usan todas las pantallas)
+    // Ajustes guardados en DataStore (los usan todas las pantallas)
     val modoOscuro: StateFlow<Boolean> = prefs.modoOscuro
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    val notificaciones: StateFlow<Boolean> = prefs.notificaciones
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    val aceptarCitas: StateFlow<Boolean> = prefs.aceptarCitas
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    // Ultimo dueno que tuvo la sesion, para volver a el al cambiar de perfil
+    private var ultimoDueno: Usuario? = null
 
     init {
         restaurarSesion()
@@ -72,7 +80,7 @@ class SesionViewModel(
                 // Credenciales incorrectas
                 usuario == null ->
                     _error.value = "Correo o contraseña incorrectos"
-                // El rol de la cuenta no coincide con la pestaña elegida
+                // El rol de la cuenta no coincide con la pestana elegida
                 Rol.desdeTexto(usuario.rol) != rolSeleccionado ->
                     _error.value = "Esta cuenta no corresponde al perfil ${rolSeleccionado.etiqueta}"
                 // Exito: se guarda el perfil en DataStore
@@ -85,7 +93,7 @@ class SesionViewModel(
         }
     }
 
-    // Quita el mensaje de error (al escribir o cambiar de pestaña)
+    // Quita el mensaje de error (al escribir o cambiar de pestana)
     fun limpiarError() {
         _error.value = null
     }
@@ -95,5 +103,37 @@ class SesionViewModel(
     fun cerrarSesion() {
         _usuarioActual.value = null
         viewModelScope.launch { prefs.cerrarSesion() }
+    }
+
+    // Cambia al otro perfil (modo practica): guarda el nuevo perfil en DataStore y avisa a la
+    // navegacion con el usuario nuevo para que vaya a su pantalla principal
+    fun cambiarPerfil(onListo: (Usuario) -> Unit) {
+        val actual = _usuarioActual.value ?: return
+        val rolActual = Rol.desdeTexto(actual.rol)
+        if (rolActual == Rol.CLIENTE) ultimoDueno = actual
+        val otroRol = if (rolActual == Rol.ADMIN) Rol.CLIENTE else Rol.ADMIN
+
+        viewModelScope.launch {
+            // Al volver al dueno se usa el ultimo que tuvo la sesion; si no hay, el primero de ese perfil
+            val otro = (if (otroRol == Rol.CLIENTE) ultimoDueno else null)
+                ?: repo.obtenerUsuarioPorRol(otroRol)
+                ?: return@launch
+            prefs.guardarSesion(otroRol, otro.id)
+            _usuarioActual.value = otro
+            onListo(otro)
+        }
+    }
+
+    // ---------- Ajustes ----------
+    fun cambiarModoOscuro(activado: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(activado) }
+    }
+
+    fun cambiarNotificaciones(activado: Boolean) {
+        viewModelScope.launch { prefs.guardarNotificaciones(activado) }
+    }
+
+    fun cambiarAceptarCitas(activado: Boolean) {
+        viewModelScope.launch { prefs.guardarAceptarCitas(activado) }
     }
 }

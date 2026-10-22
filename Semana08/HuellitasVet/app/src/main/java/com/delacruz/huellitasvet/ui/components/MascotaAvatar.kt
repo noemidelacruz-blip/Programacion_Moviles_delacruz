@@ -20,13 +20,21 @@ import com.delacruz.huellitasvet.model.Especie
 private val PelajesPerro = listOf(Color(0xFFD9A066), Color(0xFF8B8E94))
 private val PelajesGato = listOf(Color(0xFF9CA3AF), Color(0xFFF59E0B))
 private val PelajeOtro = Color(0xFFE9B872)
+// Colores fijos de las mascotas de ejemplo, para que se vean como en el mockup
+private val PelajesPorNombre = mapOf(
+    "max" to Color(0xFFD9A066),    // perro marron claro
+    "luna" to Color(0xFF9CA3AF),   // gata gris
+    "rocky" to Color(0xFF4B5563),  // perro gris oscuro
+    "michi" to Color(0xFFF59E0B)   // gato naranja
+)
 private val ColorOjos = Color(0xFF1F2937)
 private val ColorNariz = Color(0xFF3B2F2F)
 private val ColorHocico = Color(0xFFFFF1DE)
 private val ColorNarizGato = Color(0xFFF472B6)
 
-// Elige el pelaje segun la especie y el nombre
+// Elige el pelaje: primero el color fijo por nombre y, si no hay, uno segun la especie y el nombre
 private fun elegirPelaje(especie: Especie, nombre: String): Color {
+    PelajesPorNombre[nombre.trim().lowercase()]?.let { return it }
     val indice = nombre.hashCode() and Int.MAX_VALUE
     return when (especie) {
         Especie.PERRO -> PelajesPerro[indice % PelajesPerro.size]

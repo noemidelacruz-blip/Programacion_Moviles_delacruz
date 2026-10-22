@@ -23,4 +23,8 @@ interface UsuarioDao {
     // Un usuario por id (para recuperar la sesion guardada al abrir la app)
     @Query("SELECT * FROM usuarios WHERE id = :id")
     suspend fun obtener(id: Int): Usuario?
+
+    // Primer usuario de un rol (para Cambiar de perfil en modo practica)
+    @Query("SELECT * FROM usuarios WHERE rol = :rol ORDER BY id LIMIT 1")
+    suspend fun obtenerPorRol(rol: String): Usuario?
 }

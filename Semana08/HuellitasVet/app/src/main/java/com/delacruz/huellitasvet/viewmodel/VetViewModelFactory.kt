@@ -29,7 +29,7 @@ class VetViewModelFactory(
             modelClass.isAssignableFrom(MascotaViewModel::class.java) ->
                 MascotaViewModel(repo, usuarioId) as T
             modelClass.isAssignableFrom(PedirCitaViewModel::class.java) ->
-                PedirCitaViewModel(repo, usuarioId, argumentoId) as T
+                PedirCitaViewModel(repo, usuarioId, argumentoId, prefs) as T
             modelClass.isAssignableFrom(MisCitasViewModel::class.java) ->
                 MisCitasViewModel(repo, usuarioId) as T
             modelClass.isAssignableFrom(PanelViewModel::class.java) ->
@@ -40,6 +40,8 @@ class VetViewModelFactory(
                 AtenderCitaViewModel(repo, argumentoId) as T
             modelClass.isAssignableFrom(PacientesViewModel::class.java) ->
                 PacientesViewModel(repo) as T
+            modelClass.isAssignableFrom(PerfilViewModel::class.java) ->
+                PerfilViewModel(repo, usuarioId) as T
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
     }

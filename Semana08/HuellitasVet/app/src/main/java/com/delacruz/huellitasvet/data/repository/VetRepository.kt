@@ -8,8 +8,8 @@ import com.delacruz.huellitasvet.data.local.relation.MascotaConDueno
 import com.delacruz.huellitasvet.model.ConteoServicio
 import com.delacruz.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
-
 import com.delacruz.huellitasvet.model.UltimaVisita
+import com.delacruz.huellitasvet.model.Rol
 // El contrato entre los ViewModels y los datos. Es una interface para que mas adelante
 // se pueda conectar a un servicio web sin cambiar ViewModels ni pantallas.
 // Regla de oro: lectura que debe actualizar la pantalla -> Flow (sin suspend);
@@ -19,6 +19,7 @@ interface VetRepository {
     // ---------- Usuarios ----------
     suspend fun login(correo: String, clave: String): Usuario?
     suspend fun obtenerUsuario(id: Int): Usuario?
+    suspend fun obtenerUsuarioPorRol(rol: Rol): Usuario?
 
     // ---------- Servicios (ejemplo resuelto) ----------
     fun observarServicios(): Flow<List<Servicio>>
@@ -27,6 +28,7 @@ interface VetRepository {
     suspend fun eliminarServicio(s: Servicio)
     suspend fun cambiarActivo(id: Int, activo: Boolean)
     suspend fun servicioTieneCitas(id: Int): Boolean
+    suspend fun obtenerServicio(id: Int): Servicio?
 
     // ---------- Mascotas ----------
     fun observarMascotasDeDueno(duenoId: Int): Flow<List<Mascota>>

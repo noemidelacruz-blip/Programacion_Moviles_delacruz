@@ -49,6 +49,8 @@ import com.delacruz.huellitasvet.ui.components.fechaCorta
 import com.delacruz.huellitasvet.ui.components.iconoDeServicio
 import com.delacruz.huellitasvet.ui.components.textoPrecio
 import com.delacruz.huellitasvet.viewmodel.PedirCitaViewModel
+import com.delacruz.huellitasvet.ui.theme.AmbarSuave
+import com.delacruz.huellitasvet.ui.theme.AmbarTexto
 
 // Pantalla Pedir cita. La View solo muestra lo elegido y avisa de los clics:
 // las reglas (fechas, horarios, servicios activos) viven en el ViewModel
@@ -67,6 +69,7 @@ fun PedirCitaScreen(
     val ocupadas by vm.horasOcupadas.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val creada by vm.creada.collectAsState()
+    val aceptaCitas by vm.aceptaCitas.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
     // Cuando la cita se crea, se vuelve a Mis citas
@@ -101,7 +104,23 @@ fun PedirCitaScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+
+        ) {            // Aviso cuando el veterinario cerro la agenda en Ajustes
+            if (!aceptaCitas) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = AmbarSuave)
+                ) {
+                    Text(
+                        text = "La clínica no está recibiendo citas",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = AmbarTexto,
+                        modifier = Modifier.padding(14.dp)
+                    )
+                }
+            }
             // ---------- Quien viene ----------
             Titulo("¿Quién viene?")
             if (mascotas.isEmpty()) {
@@ -211,7 +230,7 @@ fun PedirCitaScreen(
             VetButton(
                 texto = "Confirmar cita",
                 onClick = { vm.confirmar() },
-                habilitado = completo
+                habilitado = completo && aceptaCitas
             )
             Spacer(modifier = Modifier.height(16.dp))
         }

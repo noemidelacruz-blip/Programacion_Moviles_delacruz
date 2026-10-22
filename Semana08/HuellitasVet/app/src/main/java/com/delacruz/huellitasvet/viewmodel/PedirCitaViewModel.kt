@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.delacruz.huellitasvet.data.prefs.PreferenciasStore
 
 // ViewModel de Pedir cita: guarda lo que el dueno va eligiendo (mascota, servicio, fecha y hora)
 // y valida todo antes de crear la cita. Solo conoce el Repository (interface)
@@ -22,7 +23,8 @@ import java.time.LocalDate
 class PedirCitaViewModel(
     private val repo: VetRepository,
     duenoId: Int,
-    mascotaInicial: Int
+    mascotaInicial: Int,
+    prefs: PreferenciasStore
 ) : ViewModel() {
 
     private companion object {
@@ -37,6 +39,10 @@ class PedirCitaViewModel(
     // Solo servicios ACTIVOS: los inactivos no aparecen al pedir cita
     val servicios: StateFlow<List<Servicio>> = repo.observarServiciosActivos()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // Si el veterinario cerro la agenda (Aceptar citas apagado), el dueno no puede pedir citas
+    val aceptaCitas: StateFlow<Boolean> = prefs.aceptarCitas
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     // Fechas que muestran los chips: hoy y los 7 dias siguientes
     val fechas: List<LocalDate> = List(DIAS_MAXIMOS + 1) { LocalDate.now().plusDays(it.toLong()) }
@@ -95,6 +101,11 @@ class PedirCitaViewModel(
 
     // Valida todo y crea la cita. Las reglas viven aqui, no en la pantalla
     fun confirmar() {
+        // Regla: si la clinica no acepta citas, no se crea ninguna
+        if (!aceptaCitas.value) {
+            _mensaje.value = "La clínica no está recibiendo citas"
+            return
+        }
         val mascotaElegida = _mascotaId.value
         val servicioElegido = _servicioId.value
         val horaElegida = _hora.value

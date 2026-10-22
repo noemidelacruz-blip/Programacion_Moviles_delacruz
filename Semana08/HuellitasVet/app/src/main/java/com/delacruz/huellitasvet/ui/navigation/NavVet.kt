@@ -23,10 +23,13 @@ import com.delacruz.huellitasvet.ui.dueno.LoginScreen
 import com.delacruz.huellitasvet.ui.dueno.MascotasScreen
 import com.delacruz.huellitasvet.ui.dueno.MisCitasScreen
 import com.delacruz.huellitasvet.ui.dueno.PedirCitaScreen
+import com.delacruz.huellitasvet.ui.dueno.PerfilScreen
 import com.delacruz.huellitasvet.ui.dueno.SplashScreen
 import com.delacruz.huellitasvet.ui.theme.VetTheme
 import com.delacruz.huellitasvet.ui.veterinario.AgendaScreen
+import com.delacruz.huellitasvet.ui.veterinario.AjustesScreen
 import com.delacruz.huellitasvet.ui.veterinario.AtenderCitaScreen
+import com.delacruz.huellitasvet.ui.veterinario.FormularioServicioScreen
 import com.delacruz.huellitasvet.ui.veterinario.PacientesScreen
 import com.delacruz.huellitasvet.ui.veterinario.PanelScreen
 import com.delacruz.huellitasvet.ui.veterinario.ServiciosScreen
@@ -38,6 +41,7 @@ import com.delacruz.huellitasvet.viewmodel.MisCitasViewModel
 import com.delacruz.huellitasvet.viewmodel.PacientesViewModel
 import com.delacruz.huellitasvet.viewmodel.PanelViewModel
 import com.delacruz.huellitasvet.viewmodel.PedirCitaViewModel
+import com.delacruz.huellitasvet.viewmodel.PerfilViewModel
 import com.delacruz.huellitasvet.viewmodel.ServiciosViewModel
 import com.delacruz.huellitasvet.viewmodel.SesionViewModel
 import com.delacruz.huellitasvet.viewmodel.VetViewModelFactory
@@ -48,9 +52,8 @@ private fun primerNombre(usuario: Usuario?): String =
 
 // Navegacion de la app: Splash -> Login -> pantalla principal del perfil.
 // El dueno tiene barra inferior con Inicio, Mascotas, Citas y Perfil, y el veterinario con
-// Panel, Agenda, Pacientes, Servicios y Ajustes.
-// Cada destino aplica el tema de su perfil y el modo oscuro guardado.
-// En el commit 14 se completa el grafo de cada perfil
+// Panel, Agenda, Pacientes, Servicios y Ajustes. Desde Perfil o Ajustes se puede cambiar de perfil.
+// Cada destino aplica el tema de su perfil y el modo oscuro guardado
 @Composable
 fun NavVet() {
     val navController = rememberNavController()
@@ -62,7 +65,7 @@ fun NavVet() {
     val fabricaDe: (Int) -> VetViewModelFactory =
         { id -> VetViewModelFactory(app.repository, app.preferencias, id) }
 
-    // Un solo SesionViewModel para toda la app: guarda al usuario con sesion iniciada
+    // Un solo SesionViewModel para toda la app: guarda al usuario con sesion iniciada y los ajustes
     val sesionVm: SesionViewModel = viewModel(factory = fabrica)
     val modoOscuro by sesionVm.modoOscuro.collectAsState()
 
@@ -83,6 +86,11 @@ fun NavVet() {
         navController.navigate(Rutas.LOGIN) {
             popUpTo(navController.graph.id) { inclusive = true }
         }
+    }
+    // Cambia al otro perfil: el ViewModel guarda el perfil en DataStore y la navegacion
+    // va a su pantalla principal limpiando la pila (popUpTo)
+    val cambiarPerfil: () -> Unit = {
+        sesionVm.cambiarPerfil { usuario -> irAPrincipal(usuario) }
     }
 
     // Cambia de pestana en la barra inferior del dueno conservando el estado de cada una
@@ -182,14 +190,27 @@ fun NavVet() {
         }
         composable(Rutas.PERFIL) {
             val usuario by sesionVm.usuarioActual.collectAsState()
+            val notificaciones by sesionVm.notificaciones.collectAsState()
+            val actual = usuario
             VetTheme(rol = Rol.CLIENTE, modoOscuro = modoOscuro) {
-                ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) {
-                    // Provisional: se reemplaza por PerfilScreen en el commit 14
-                    PantallaTemporal(
-                        titulo = "Perfil",
-                        saludo = usuario?.nombre ?: "",
-                        onCerrarSesion = cerrarSesion
-                    )
+                if (actual != null) {
+                    val fabricaDueno = remember(actual.id) { fabricaDe(actual.id) }
+                    val vm: PerfilViewModel = viewModel(key = "perfil-${actual.id}", factory = fabricaDueno)
+                    ConBarraDueno(rutaActual = rutaActual, onIr = irAPestana) { modifier ->
+                        PerfilScreen(
+                            vm = vm,
+                            usuario = actual,
+                            modoOscuro = modoOscuro,
+                            // En el dueno, Recordatorios usa la preferencia de notificaciones
+                            recordatorios = notificaciones,
+                            onModoOscuro = { sesionVm.cambiarModoOscuro(it) },
+                            onRecordatorios = { sesionVm.cambiarNotificaciones(it) },
+                            onCambiarPerfil = cambiarPerfil,
+                            onCerrarSesion = cerrarSesion,
+                            onVolver = { irAPestana(Rutas.INICIO) },
+                            modifier = modifier
+                        )
+                    }
                 }
             }
         }
@@ -320,26 +341,44 @@ fun NavVet() {
             VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
                 val vm: ServiciosViewModel = viewModel(factory = fabrica)
                 ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) { modifier ->
-                    // Editar y nuevo se conectan con el formulario en el commit 14
-                    ServiciosScreen(vm = vm, onEditar = {}, onNuevo = {}, modifier = modifier)
+                    ServiciosScreen(
+                        vm = vm,
+                        onVolver = { irAPestanaVet(Rutas.PANEL) },
+                        // El lapiz y el boton + abren el formulario de servicio
+                        onEditar = { navController.navigate(Rutas.formularioServicio(it)) },
+                        onNuevo = { navController.navigate(Rutas.formularioServicio()) },
+                        modifier = modifier
+                    )
                 }
             }
         }
         composable(Rutas.AJUSTES) {
             val usuario by sesionVm.usuarioActual.collectAsState()
+            val notificaciones by sesionVm.notificaciones.collectAsState()
+            val aceptarCitas by sesionVm.aceptarCitas.collectAsState()
+            val actual = usuario
             VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
-                ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) {
-                    // Provisional: se reemplaza por AjustesScreen en el commit 14
-                    PantallaTemporal(
-                        titulo = "Ajustes",
-                        saludo = usuario?.nombre ?: "",
-                        onCerrarSesion = cerrarSesion
-                    )
+                if (actual != null) {
+                    ConBarraVet(rutaActual = rutaActual, onIr = irAPestanaVet) { modifier ->
+                        AjustesScreen(
+                            usuario = actual,
+                            modoOscuro = modoOscuro,
+                            notificaciones = notificaciones,
+                            aceptarCitas = aceptarCitas,
+                            onModoOscuro = { sesionVm.cambiarModoOscuro(it) },
+                            onNotificaciones = { sesionVm.cambiarNotificaciones(it) },
+                            onAceptarCitas = { sesionVm.cambiarAceptarCitas(it) },
+                            onCambiarPerfil = cambiarPerfil,
+                            onCerrarSesion = cerrarSesion,
+                            onVolver = { irAPestanaVet(Rutas.PANEL) },
+                            modifier = modifier
+                        )
+                    }
                 }
             }
         }
 
-        // ---------- Atender cita y ficha de un paciente (veterinario) ----------
+        // ---------- Atender cita, ficha de un paciente y formulario de servicio (veterinario) ----------
         composable(
             route = Rutas.ATENDER,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
@@ -374,6 +413,25 @@ fun NavVet() {
                         modifier = modifier
                     )
                 }
+            }
+        }
+        composable(
+            route = Rutas.FORMULARIO_SERVICIO,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) { entrada ->
+            val servicioId = entrada.arguments?.getInt("id") ?: 0
+            VetTheme(rol = Rol.ADMIN, modoOscuro = modoOscuro) {
+                val vm: ServiciosViewModel = viewModel(factory = fabrica)
+                FormularioServicioScreen(
+                    vm = vm,
+                    servicioId = servicioId,
+                    onVolver = { navController.popBackStack() }
+                )
             }
         }
     }

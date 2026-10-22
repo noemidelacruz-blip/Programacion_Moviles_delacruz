@@ -1,6 +1,6 @@
 package com.delacruz.huellitasvet.ui.navigation
 
-// Nombres de las rutas de navegacion. Las demas se agregan en los commits siguientes
+// Nombres de las rutas de navegacion
 object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
@@ -26,13 +26,15 @@ object Rutas {
     // Pedir cita puede abrirse con una mascota ya elegida (0 = ninguna)
     const val PEDIR_CITA = "pedir-cita?mascotaId={mascotaId}"
 
-    // Del veterinario: atender una cita y ver la ficha de un paciente
+    // Del veterinario: atender una cita, ver la ficha de un paciente y el formulario de servicio
     const val ATENDER = "atender/{id}"
     const val FICHA_VET = "ficha-vet/{id}"
+    const val FORMULARIO_SERVICIO = "formulario-servicio?id={id}"
 
     fun ficha(id: Int) = "ficha/$id"
     fun formulario(id: Int = 0) = "formulario?id=$id"
     fun pedirCita(mascotaId: Int = 0) = "pedir-cita?mascotaId=$mascotaId"
     fun atender(id: Int) = "atender/$id"
     fun fichaVet(id: Int) = "ficha-vet/$id"
+    fun formularioServicio(id: Int = 0) = "formulario-servicio?id=$id"
 }
