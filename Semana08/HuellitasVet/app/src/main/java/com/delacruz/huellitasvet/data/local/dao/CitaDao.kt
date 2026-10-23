@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.delacruz.huellitasvet.data.local.entity.Cita
 import com.delacruz.huellitasvet.data.local.relation.CitaConDetalle
+import com.delacruz.huellitasvet.model.ConteoFecha
 import com.delacruz.huellitasvet.model.ConteoServicio
 import kotlinx.coroutines.flow.Flow
 
@@ -83,6 +84,14 @@ interface CitaDao {
                 "INNER JOIN servicios s ON c.servicioId = s.id GROUP BY s.id ORDER BY total DESC"
     )
     fun contarPorServicio(): Flow<List<ConteoServicio>>
+
+    // Citas no canceladas de cada dia entre dos fechas: los puntos del calendario mensual.
+    // Los alias coinciden con ConteoFecha
+    @Query(
+        "SELECT fecha AS fecha, COUNT(*) AS total FROM citas " +
+                "WHERE fecha BETWEEN :inicio AND :fin AND estado != 'CANCELADA' GROUP BY fecha"
+    )
+    fun contarPorDia(inicio: String, fin: String): Flow<List<ConteoFecha>>
 
     // Ingresos: suma del precio de las citas ATENDIDAS desde una fecha (0.0 si no hay ninguna)
     @Query(

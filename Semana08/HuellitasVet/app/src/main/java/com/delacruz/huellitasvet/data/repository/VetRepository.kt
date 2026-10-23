@@ -6,6 +6,7 @@ import com.delacruz.huellitasvet.data.local.entity.Usuario
 import com.delacruz.huellitasvet.data.local.entity.Vacuna
 import com.delacruz.huellitasvet.data.local.relation.CitaConDetalle
 import com.delacruz.huellitasvet.data.local.relation.MascotaConDueno
+import com.delacruz.huellitasvet.model.ConteoFecha
 import com.delacruz.huellitasvet.model.ConteoServicio
 import com.delacruz.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
@@ -73,6 +74,9 @@ interface VetRepository {
     fun observarCitasDeFecha(fecha: String): Flow<Int>
     fun observarCantidadPorEstado(estado: EstadoCita): Flow<Int>
     fun observarCitasPorServicio(): Flow<List<ConteoServicio>>
+
+    // Citas no canceladas de cada dia entre inicio y fin (calendario mensual de la Agenda)
+    fun observarCitasPorDia(inicio: String, fin: String): Flow<List<ConteoFecha>>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
     fun observarAtencionesDesde(fechaInicio: String): Flow<Int>
     fun observarUltimasVisitas(): Flow<List<UltimaVisita>>

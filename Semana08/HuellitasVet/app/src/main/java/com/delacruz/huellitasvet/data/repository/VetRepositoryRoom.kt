@@ -9,6 +9,7 @@ import com.delacruz.huellitasvet.data.local.entity.Usuario
 import com.delacruz.huellitasvet.data.local.entity.Vacuna
 import com.delacruz.huellitasvet.data.local.relation.CitaConDetalle
 import com.delacruz.huellitasvet.data.local.relation.MascotaConDueno
+import com.delacruz.huellitasvet.model.ConteoFecha
 import com.delacruz.huellitasvet.model.ConteoServicio
 import com.delacruz.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
@@ -155,6 +156,9 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override fun observarCitasPorServicio(): Flow<List<ConteoServicio>> =
         citaDao.contarPorServicio()
+
+    override fun observarCitasPorDia(inicio: String, fin: String): Flow<List<ConteoFecha>> =
+        citaDao.contarPorDia(inicio, fin)
 
     override fun observarIngresosDesde(fechaInicio: String): Flow<Double> =
         citaDao.ingresosDesde(fechaInicio)
