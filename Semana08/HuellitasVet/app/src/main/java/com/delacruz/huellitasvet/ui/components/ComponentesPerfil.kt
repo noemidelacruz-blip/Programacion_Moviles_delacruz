@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,12 +29,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.graphics.Color
-// Tarjeta con los datos del usuario: icono de persona, nombre, correo y un chip (Dueno / Perfil activo)
+import com.delacruz.huellitasvet.model.Rol
+// Tarjeta con los datos del usuario: avatar, nombre, correo y un chip (Dueno / Perfil activo).
+// El avatar cambia segun el rol: duena o veterinaria
 @Composable
 fun TarjetaUsuario(
     nombre: String,
     correo: String,
     chip: String,
+    rol: Rol = Rol.CLIENTE,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -51,19 +52,7 @@ fun TarjetaUsuario(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
+            AvatarUsuario(rol = rol, tamano = 60.dp)
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = nombre,
@@ -216,13 +205,13 @@ fun NotaDataStore() {
     }
 }
 
-// Colores del switch: apagado en gris con perilla blanca y encendido con el color del perfil
+// Colores del switch: apagado con la superficie variante del tema y encendido con el color del perfil
 @Composable
 fun coloresSwitch() = SwitchDefaults.colors(
     checkedThumbColor = Color.White,
     checkedTrackColor = MaterialTheme.colorScheme.primary,
     checkedBorderColor = Color.Transparent,
     uncheckedThumbColor = Color.White,
-    uncheckedTrackColor = Color(0xFFCBD5E1),
+    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
     uncheckedBorderColor = Color.Transparent
 )

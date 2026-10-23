@@ -111,6 +111,20 @@ fun NavVet() {
         }
     }
 
+    // Al confirmar una cita se vuelve a la pestana Mis citas. No se usa irAPestana porque
+    // este lleva saveState/restoreState: si Mis citas ya estaba debajo de Pedir cita, al
+    // restaurar se volveria a poner Pedir cita encima y la pantalla quedaria congelada.
+    // Si Mis citas esta en la pila (se llego desde su boton +), se vuelve a ella; si no
+    // (se llego desde la ficha de la mascota), se navega quitando Pedir cita.
+    val irACitas: () -> Unit = {
+        if (!navController.popBackStack(Rutas.CITAS, inclusive = false)) {
+            navController.navigate(Rutas.CITAS) {
+                popUpTo(Rutas.INICIO) { inclusive = false }
+                launchSingleTop = true
+            }
+        }
+    }
+
     NavHost(navController = navController, startDestination = Rutas.SPLASH) {
         composable(Rutas.SPLASH) {
             val usuario by sesionVm.usuarioActual.collectAsState()
@@ -290,7 +304,7 @@ fun NavVet() {
                         vm = vm,
                         onVolver = { navController.popBackStack() },
                         // Al confirmar, se vuelve a la pestana Mis citas
-                        onCitaCreada = { irAPestana(Rutas.CITAS) }
+                        onCitaCreada = irACitas
                     )
                 }
             }

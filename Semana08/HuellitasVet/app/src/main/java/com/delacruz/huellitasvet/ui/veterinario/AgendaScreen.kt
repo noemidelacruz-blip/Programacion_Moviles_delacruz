@@ -421,18 +421,21 @@ private fun FilaAgenda(
 }
 
 // Boton pequeno en forma de pildora (Confirmar o Atender)
+// Boton pequeno en forma de pildora (Confirmar o Atender)
 @Composable
 private fun BotonAccion(texto: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier.height(36.dp),
         shape = RoundedCornerShape(50),
-        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 0.dp)
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp) // <-- Reducido a 12.dp para dar espacio
     ) {
         Text(
             text = texto,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.labelMedium, // <-- Ajustado a labelMedium
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,     // <-- Prohíbe saltos de línea
+            softWrap = false  // <-- Asegura que la palabra vaya en una sola línea
         )
     }
 }

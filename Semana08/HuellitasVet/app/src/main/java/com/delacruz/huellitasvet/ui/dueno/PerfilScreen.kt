@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.delacruz.huellitasvet.data.local.entity.Usuario
+import com.delacruz.huellitasvet.model.Rol
 import com.delacruz.huellitasvet.ui.components.AppTopBar
 import com.delacruz.huellitasvet.ui.components.DivisorPreferencias
 import com.delacruz.huellitasvet.ui.components.FilaPreferencia
@@ -64,7 +65,7 @@ fun PerfilScreen(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            TarjetaUsuario(nombre = usuario.nombre, correo = usuario.correo, chip = "Dueño")
+            TarjetaUsuario(nombre = usuario.nombre, correo = usuario.correo, chip = "Dueño", rol = Rol.CLIENTE)
 
             // Tres contadores de color: verde, ambar y azul
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

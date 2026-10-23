@@ -127,15 +127,11 @@ class MascotaViewModel(
         _vacunaGuardada.value = false
     }
 
-    // Vacunas al dia: tiene una vacunacion atendida en los ultimos 12 meses
+    // Vacunas al dia: la mascota tiene vacunas registradas y ninguna esta vencida
     fun vacunasAlDia(mascotaId: Int): StateFlow<Boolean> = vacunas.getOrPut(mascotaId) {
-        historial(mascotaId)
+        repo.observarVacunas(mascotaId)
             .map { lista ->
-                val limite = LocalDate.now().minusYears(1)
-                lista.any { c ->
-                    c.servicio.nombre.contains("vacun", ignoreCase = true) &&
-                            !LocalDate.parse(c.cita.fecha).isBefore(limite)
-                }
+                lista.isNotEmpty() && lista.none { estadoVacuna(it) == EstadoVacuna.VENCIDA }
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     }

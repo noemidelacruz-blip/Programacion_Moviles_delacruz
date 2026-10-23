@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.delacruz.huellitasvet.data.local.entity.Usuario
+import com.delacruz.huellitasvet.model.Rol
 import com.delacruz.huellitasvet.ui.components.AppTopBar
 import com.delacruz.huellitasvet.ui.components.DivisorPreferencias
 import com.delacruz.huellitasvet.ui.components.FilaPreferencia
@@ -49,7 +50,7 @@ fun AjustesScreen(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            TarjetaUsuario(nombre = usuario.nombre, correo = usuario.correo, chip = "Perfil activo")
+            TarjetaUsuario(nombre = usuario.nombre, correo = usuario.correo, chip = "Perfil activo", rol = Rol.ADMIN)
 
             TarjetaCambiarPerfil(
                 subtitulo = "Modo práctica: ir a vista Dueño",
