@@ -44,13 +44,21 @@ object DatosIniciales {
         val banoId = db.servicioDao().insertar(bano).toInt()
         db.servicioDao().insertar(desparasitacion)
 
-        // ---------- Usuarios: 3 duenos y 1 veterinaria ----------
+        // ---------- Usuarios: 3 duenos, 1 veterinaria y 1 administrador ----------
         val ids = db.usuarioDao().insertarTodos(
             listOf(
                 Usuario(nombre = "Noemi De La Cruz", correo = "noemi@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
                 Usuario(nombre = "Luis Ramírez", correo = "luis@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
                 Usuario(nombre = "Marta Gómez", correo = "marta@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
-                Usuario(nombre = "Dra. Rojas", correo = "vet@huellitas.test", clave = "admin", rol = Rol.ADMIN.name)
+                Usuario(nombre = "Dra. Rojas", correo = "vet@huellitas.test", clave = "admin", rol = Rol.ADMIN.name),
+                Usuario(
+                    nombre = "AdministradorNoemi",
+                    apellidos = "De La Cruz",
+                    codigo = "ADM-001",
+                    correo = "admin@huellitas.test",
+                    clave = "admin1234",
+                    rol = Rol.ADMINISTRADOR.name
+                )
             )
         )
         val anaId = ids[0].toInt()

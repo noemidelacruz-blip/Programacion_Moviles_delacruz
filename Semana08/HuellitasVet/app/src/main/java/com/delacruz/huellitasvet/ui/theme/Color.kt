@@ -15,6 +15,12 @@ val AzulContenedor = Color(0xFFDBEAFE)
 val AzulFondo = Color(0xFFF7F9FF)
 val AzulTextoContenedor = Color(0xFF1E3A8A)
 
+// ---------- Perfil Administrador (morado) ----------
+val MoradoPrimario = Color(0xFF7C3AED)
+val MoradoContenedor = Color(0xFFEDE9FE)
+val MoradoFondo = Color(0xFFFAF7FF)
+val MoradoTextoContenedor = Color(0xFF4C1D95)
+
 // ---------- Estados de la cita (iguales para ambos perfiles) ----------
 val EstadoPendiente = Color(0xFFD97706)   // ambar
 val EstadoConfirmada = Color(0xFF16A34A)  // verde
@@ -41,6 +47,11 @@ val AzulClaro = Color(0xFF60A5FA)
 val AzulOscuroContenedor = Color(0xFF1E3A8A)
 val AzulOscuroFondo = Color(0xFF0A0F1E)
 val AzulOscuroSuperficie = Color(0xFF111A30)
+
+val MoradoClaro = Color(0xFFA78BFA)
+val MoradoOscuroContenedor = Color(0xFF4C1D95)
+val MoradoOscuroFondo = Color(0xFF0F0A1E)
+val MoradoOscuroSuperficie = Color(0xFF18112B)
 
 val TextoClaroSobreOscuro = Color(0xFFE5E7EB)
 val TextoSecundarioOscuro = Color(0xFF94A3B8)

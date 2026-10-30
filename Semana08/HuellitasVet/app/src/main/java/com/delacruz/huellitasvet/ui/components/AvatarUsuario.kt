@@ -29,8 +29,8 @@ private val Boca = Color(0xFFB4575E)
 private val Estetoscopio = Color(0xFF374151)
 
 // Avatar del usuario dibujado con Canvas, siguiendo el estilo de MascotaAvatar.
-// El dueno lleva melena larga con el color del perfil; la veterinaria lleva el
-// pelo recogido, bata clara y estetoscopio. El color sale del tema del perfil
+// El dueno lleva melena larga con el color del perfil; el veterinario y el administrador
+// llevan el pelo recogido, bata clara y estetoscopio. El color sale del tema del perfil
 @Composable
 fun AvatarUsuario(
     rol: Rol,
@@ -42,7 +42,7 @@ fun AvatarUsuario(
     val bata = MaterialTheme.colorScheme.surface
     Canvas(modifier = modifier.size(tamano).clip(CircleShape)) {
         drawCircle(color = fondo)
-        if (rol == Rol.ADMIN) dibujarVeterinaria(acento, bata) else dibujarDueno(acento)
+        if (rol == Rol.CLIENTE) dibujarDueno(acento) else dibujarVeterinaria(acento, bata)
     }
 }
 

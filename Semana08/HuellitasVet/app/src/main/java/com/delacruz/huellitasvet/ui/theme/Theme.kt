@@ -106,6 +106,54 @@ private val EsquemaVetOscuro = darkColorScheme(
     onErrorContainer = Color(0xFFFEE2E2)
 )
 
+// ---------- Administrador: esquema claro (morado) ----------
+private val EsquemaAdminClaro = lightColorScheme(
+    primary = MoradoPrimario,
+    onPrimary = Color.White,
+    primaryContainer = MoradoContenedor,
+    onPrimaryContainer = MoradoTextoContenedor,
+    secondary = MoradoPrimario,
+    onSecondary = Color.White,
+    secondaryContainer = MoradoContenedor,
+    onSecondaryContainer = MoradoTextoContenedor,
+    background = MoradoFondo,
+    onBackground = TextoPrincipal,
+    surface = Color.White,
+    onSurface = TextoPrincipal,
+    surfaceVariant = MoradoContenedor,
+    onSurfaceVariant = TextoSecundario,
+    outline = Color(0xFFE4DDF5),
+    outlineVariant = Color(0xFFE4DDF5),
+    error = RojoAccion,
+    onError = Color.White,
+    errorContainer = RojoSuave,
+    onErrorContainer = RojoAccion
+)
+
+// ---------- Administrador: esquema oscuro ----------
+private val EsquemaAdminOscuro = darkColorScheme(
+    primary = MoradoClaro,
+    onPrimary = Color(0xFF1E0B3D),
+    primaryContainer = MoradoOscuroContenedor,
+    onPrimaryContainer = MoradoContenedor,
+    secondary = MoradoClaro,
+    onSecondary = Color(0xFF1E0B3D),
+    secondaryContainer = MoradoOscuroContenedor,
+    onSecondaryContainer = MoradoContenedor,
+    background = MoradoOscuroFondo,
+    onBackground = TextoClaroSobreOscuro,
+    surface = MoradoOscuroSuperficie,
+    onSurface = TextoClaroSobreOscuro,
+    surfaceVariant = MoradoOscuroContenedor,
+    onSurfaceVariant = TextoSecundarioOscuro,
+    outline = Color(0xFF3B2A5E),
+    outlineVariant = Color(0xFF3B2A5E),
+    error = Color(0xFFF87171),
+    onError = Color(0xFF450A0A),
+    errorContainer = Color(0xFF7F1D1D),
+    onErrorContainer = Color(0xFFFEE2E2)
+)
+
 // Esquinas redondeadas como en el mockup (tarjetas, botones y chips)
 private val VetShapes = Shapes(
     extraSmall = RoundedCornerShape(6.dp),
@@ -115,7 +163,7 @@ private val VetShapes = Shapes(
     extraLarge = RoundedCornerShape(28.dp)
 )
 
-// Tema de la app: elige la paleta segun el perfil (Dueno o Veterinario) y el modo oscuro.
+// Tema de la app: elige la paleta segun el perfil (Dueno, Veterinario o Administrador) y el modo oscuro.
 // En las pantallas se usa siempre MaterialTheme.colorScheme.primary, nunca un color fijo
 @Composable
 fun VetTheme(
@@ -126,6 +174,7 @@ fun VetTheme(
     val esquema = when (rol) {
         Rol.CLIENTE -> if (modoOscuro) EsquemaDuenoOscuro else EsquemaDuenoClaro
         Rol.ADMIN -> if (modoOscuro) EsquemaVetOscuro else EsquemaVetClaro
+        Rol.ADMINISTRADOR -> if (modoOscuro) EsquemaAdminOscuro else EsquemaAdminClaro
     }
 
     MaterialTheme(

@@ -5,6 +5,9 @@ object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
 
+    // Administrador
+    const val ADMINISTRACION = "administracion"
+
     // Dueno
     const val INICIO = "inicio"
     const val MASCOTAS = "mascotas"

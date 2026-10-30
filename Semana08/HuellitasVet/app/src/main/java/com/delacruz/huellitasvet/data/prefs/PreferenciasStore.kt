@@ -38,7 +38,7 @@ class PreferenciasStore(private val context: Context) {
     }
 
     // ---------- Lectura (un Flow por cada preferencia) ----------
-    // Perfil guardado: "CLIENTE", "ADMIN" o vacio si no hay sesion
+    // Perfil guardado: "CLIENTE", "ADMIN", "ADMINISTRADOR" o vacio si no hay sesion
     val perfilActivo: Flow<String> = datos.map { it[Claves.PERFIL_ACTIVO] ?: "" }
 
     // Id del usuario con sesion iniciada (0 si no hay)

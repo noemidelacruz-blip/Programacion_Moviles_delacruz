@@ -50,9 +50,9 @@ import com.delacruz.huellitasvet.ui.theme.VetTheme
 import com.delacruz.huellitasvet.viewmodel.SesionViewModel
 import kotlinx.coroutines.launch
 
-// Login usado por los dos perfiles. El color de toda la pantalla (selector, iconos, links y
-// boton) sigue al perfil elegido: esmeralda para Dueno y azul para Veterinario.
-// La View solo observa el ViewModel y le avisa de los clics
+// Login usado por los tres perfiles. El color de toda la pantalla (selector, iconos, links y
+// boton) sigue al perfil elegido: esmeralda para Dueno, azul para Veterinario y morado para
+// Administrador. La View solo observa el ViewModel y le avisa de los clics
 @Composable
 fun LoginScreen(
     vm: SesionViewModel,
@@ -187,7 +187,7 @@ fun LoginScreen(
                             )
                         }
                     }
-                } else {
+                } else if (rol == Rol.ADMIN) {
                     // Solo el veterinario ve la tarjeta "Modo practica"
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -217,7 +217,7 @@ fun LoginScreen(
     }
 }
 
-// Selector de dos mitades: la elegida se rellena con el color del perfil
+// Selector de los tres perfiles: el elegido se rellena con el color del perfil
 @Composable
 private fun SelectorRol(
     seleccionado: Rol,
@@ -233,7 +233,7 @@ private fun SelectorRol(
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        listOf(Rol.CLIENTE, Rol.ADMIN).forEach { rol ->
+        listOf(Rol.CLIENTE, Rol.ADMIN, Rol.ADMINISTRADOR).forEach { rol ->
             val activo = rol == seleccionado
             Box(
                 modifier = Modifier
@@ -246,8 +246,9 @@ private fun SelectorRol(
             ) {
                 Text(
                     text = rol.etiqueta,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
+                    maxLines = 1,
                     color = if (activo) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onSurfaceVariant
                 )

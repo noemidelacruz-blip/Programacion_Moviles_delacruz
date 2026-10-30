@@ -16,6 +16,7 @@ import androidx.navigation.navArgument
 import com.delacruz.huellitasvet.VetApp
 import com.delacruz.huellitasvet.data.local.entity.Usuario
 import com.delacruz.huellitasvet.model.Rol
+import com.delacruz.huellitasvet.ui.administrador.AdminScreen
 import com.delacruz.huellitasvet.ui.dueno.FichaMascotaScreen
 import com.delacruz.huellitasvet.ui.dueno.FormularioMascotaScreen
 import com.delacruz.huellitasvet.ui.dueno.InicioScreen
@@ -51,8 +52,9 @@ private fun primerNombre(usuario: Usuario?): String =
     usuario?.nombre?.substringBefore(" ") ?: ""
 
 // Navegacion de la app: Splash -> Login -> pantalla principal del perfil.
-// El dueno tiene barra inferior con Inicio, Mascotas, Citas y Perfil, y el veterinario con
-// Panel, Agenda, Pacientes, Servicios y Ajustes. Desde Perfil o Ajustes se puede cambiar de perfil.
+// El dueno tiene barra inferior con Inicio, Mascotas, Citas y Perfil, el veterinario con
+// Panel, Agenda, Pacientes, Servicios y Ajustes, y el administrador su pantalla de datos.
+// Desde Perfil o Ajustes se puede cambiar de perfil.
 // Cada destino aplica el tema de su perfil y el modo oscuro guardado
 @Composable
 fun NavVet() {
@@ -75,7 +77,11 @@ fun NavVet() {
 
     // Va a la pantalla principal del perfil y limpia la pila para que "atras" no vuelva al login
     val irAPrincipal: (Usuario) -> Unit = { usuario ->
-        val destino = if (Rol.desdeTexto(usuario.rol) == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO
+        val destino = when (Rol.desdeTexto(usuario.rol)) {
+            Rol.CLIENTE -> Rutas.INICIO
+            Rol.ADMIN -> Rutas.PANEL
+            Rol.ADMINISTRADOR -> Rutas.ADMINISTRACION
+        }
         navController.navigate(destino) {
             popUpTo(navController.graph.id) { inclusive = true }
         }
@@ -447,6 +453,17 @@ fun NavVet() {
                     servicioId = servicioId,
                     onVolver = { navController.popBackStack() }
                 )
+            }
+        }
+
+        // ---------- Perfil del administrador ----------
+        composable(Rutas.ADMINISTRACION) {
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            val actual = usuario
+            VetTheme(rol = Rol.ADMINISTRADOR, modoOscuro = modoOscuro) {
+                if (actual != null) {
+                    AdminScreen(usuario = actual, onCerrarSesion = cerrarSesion)
+                }
             }
         }
     }
