@@ -50,7 +50,8 @@ class FirebaseAuthRepository(
     /** Lee el documento usuarios/{uid} y traduce el campo rol al enum. */
     private suspend fun leerSesion(uid: String, correo: String): Sesion {
         val documento = db.collection("usuarios").document(uid).get().await()
-        val rol = if (documento.getString("rol") == "admin") Rol.ADMIN else Rol.USUARIO
+        // trim(): tolera espacios accidentales al escribir el rol en Firestore.
+        val rol = if (documento.getString("rol")?.trim() == "admin") Rol.ADMIN else Rol.USUARIO
         return Sesion(uid = uid, correo = correo, rol = rol)
     }
 }

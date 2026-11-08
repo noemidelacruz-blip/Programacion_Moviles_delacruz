@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -32,17 +33,20 @@ import com.delacruz.catalogo.ui.components.ErrorView
 import com.delacruz.catalogo.ui.components.TarjetaProducto
 
 /**
- * Pantalla de lista (hitos H4 a H10).
+ * Pantalla de lista (hitos H4 a H14).
  *
  * La pantalla solo observa el estado del ViewModel y llama a sus funciones.
- * No usa Retrofit, Room ni Firebase.
+ * No usa Retrofit, Room ni Firebase. Si la persona es admin se muestra el
+ * acceso al panel Admin.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaScreen(
     viewModel: ListaViewModel,
+    esAdmin: Boolean,
     onItemClick: (Int) -> Unit,
     onVerFavoritos: () -> Unit,
+    onVerAdmin: () -> Unit,
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,6 +81,15 @@ fun ListaScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
+        },
+        floatingActionButton = {
+            if (esAdmin) {
+                ExtendedFloatingActionButton(
+                    onClick = onVerAdmin
+                ) {
+                    Text(text = "Panel Admin")
+                }
+            }
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
@@ -101,7 +114,12 @@ fun ListaScreen(
                         } else {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(16.dp),
+                                contentPadding = PaddingValues(
+                                    start = 16.dp,
+                                    top = 16.dp,
+                                    end = 16.dp,
+                                    bottom = if (esAdmin) 88.dp else 16.dp
+                                ),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 items(resultado.datos, key = { it.id }) { item ->
