@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.delacruz.catalogo.domain.model.Item
 import com.delacruz.catalogo.ui.UiState
@@ -53,8 +52,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaScreen(
+    viewModel: ListaViewModel,
     modifier: Modifier = Modifier,
-    viewModel: ListaViewModel = viewModel(),
     onItemClick: (Int) -> Unit = {}
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -77,7 +76,7 @@ fun ListaScreen(
 
                 is UiState.Error -> ErrorView(
                     mensaje = resultado.mensaje,
-                    onReintentar = viewModel::reintentar
+                    onReintentar = viewModel::refrescar
                 )
 
                 is UiState.Exito -> {
