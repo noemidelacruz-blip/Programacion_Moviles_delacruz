@@ -1,10 +1,18 @@
 package com.delacruz.catalogo
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.delacruz.catalogo.ui.MainViewModel
@@ -26,6 +34,24 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CatalogoTheme {
+                // R09: se pide el permiso de notificaciones una sola vez.
+                // Si la persona lo niega, la app sigue funcionando (PA-14).
+                val contexto = LocalContext.current
+                val permisoNotificaciones = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { _ -> }
+
+                LaunchedEffect(Unit) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                        ContextCompat.checkSelfPermission(
+                            contexto,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        permisoNotificaciones.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+
                 val mainViewModel: MainViewModel = viewModel(
                     factory = MainViewModelFactory(container.authRepository)
                 )

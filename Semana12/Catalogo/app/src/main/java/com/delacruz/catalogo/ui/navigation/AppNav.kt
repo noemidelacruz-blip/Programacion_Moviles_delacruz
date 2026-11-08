@@ -53,7 +53,10 @@ fun AppNav(
         composable(Rutas.LISTA) {
             ListaScreen(
                 viewModel = viewModel(
-                    factory = ListaViewModelFactory(container.itemRepository)
+                    factory = ListaViewModelFactory(
+                        repo = container.itemRepository,
+                        notificador = container.notificador
+                    )
                 ),
                 esAdmin = esAdmin,
                 onItemClick = { id -> navController.navigate(Rutas.detalle(id)) },

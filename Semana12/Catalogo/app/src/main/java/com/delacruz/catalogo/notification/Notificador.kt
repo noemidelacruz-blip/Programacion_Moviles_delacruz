@@ -1,15 +1,14 @@
 package com.delacruz.catalogo.notification
 
 /**
- * Contrato para mostrar notificaciones locales.
+ * Contrato de notificaciones (hito H15).
  *
- * El ViewModel pide la notificación a través de esta interface, así no recibe
- * Context ni importa clases de la vista.
- *
- * La implementación real (NotificadorAndroid) llega en el hito H15.
+ * El ViewModel depende de esta interface y NO de Android: así no recibe
+ * Context ni importa clases de vista (regla MVVM de la rúbrica). La
+ * implementación real es NotificadorAndroid.
  */
 interface Notificador {
 
-    /** Muestra una notificación local con título y texto. */
+    /** Muestra una notificación local. */
     fun mostrar(titulo: String, texto: String)
 }

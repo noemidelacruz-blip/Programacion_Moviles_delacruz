@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.delacruz.catalogo.data.repository.ItemRepository
 import com.delacruz.catalogo.domain.model.Item
+import com.delacruz.catalogo.notification.Notificador
 import com.delacruz.catalogo.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,15 +15,17 @@ import retrofit2.HttpException
 import java.io.IOException
 
 /**
- * ViewModel de la lista (hito H6).
+ * ViewModel de la lista (hitos H6 y H15).
  *
  * Ya consume la API a través de la interface ItemRepository: el ViewModel no
- * sabe si los datos vienen de Retrofit o de Room.
+ * sabe si los datos vienen de Retrofit o de Room. Tampoco conoce Android:
+ * avisa al terminar de sincronizar mediante la interface Notificador.
  *
  * Regla: la pantalla solo puede leer [estado]; nadie más lo modifica.
  */
 class ListaViewModel(
-    private val repo: ItemRepository
+    private val repo: ItemRepository,
+    private val notificador: Notificador
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
@@ -52,11 +55,16 @@ class ListaViewModel(
             val resultado = repo.refrescar()
             refrescoTerminado = true
             resultado
-                .onSuccess {
+                .onSuccess { cantidad ->
                     _aviso.value = null
                     if (_estado.value is UiState.Cargando) {
                         _estado.value = UiState.Exito(emptyList())
                     }
+                    // R09: aviso local al terminar de sincronizar.
+                    notificador.mostrar(
+                        "Datos actualizados",
+                        "Se guardaron $cantidad elementos"
+                    )
                 }
                 .onFailure { error ->
                     // Si no hay nada guardado, se muestra el error con Reintentar.
@@ -86,16 +94,17 @@ class ListaViewModel(
 
 /**
  * Factory que recibe el AppContainer y construye el ViewModel.
- * Así el ViewModel no crea el repositorio por su cuenta.
+ * Así el ViewModel no crea el repositorio ni el notificador por su cuenta.
  */
 class ListaViewModelFactory(
-    private val repo: ItemRepository
+    private val repo: ItemRepository,
+    private val notificador: Notificador
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ListaViewModel::class.java)) {
-            return ListaViewModel(repo) as T
+            return ListaViewModel(repo, notificador) as T
         }
         throw IllegalArgumentException("ViewModel no soportado: ${modelClass.name}")
     }
