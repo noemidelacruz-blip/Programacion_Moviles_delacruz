@@ -1,73 +1,81 @@
 package com.delacruz.catalogo.data.repository
 
+import com.delacruz.catalogo.data.local.ItemDao
+import com.delacruz.catalogo.data.mapper.aEntity
 import com.delacruz.catalogo.data.mapper.aModelo
 import com.delacruz.catalogo.data.remote.ApiService
 import com.delacruz.catalogo.domain.model.Item
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import retrofit2.HttpException
 import java.io.IOException
 
 /**
- * Implementación del repositorio (hito H6).
+ * Implementación del repositorio (hito H9).
  *
- * Por ahora guarda la lista en memoria; en el hito H9 se reemplaza por Room,
- * que será la fuente única de verdad. El ViewModel no nota el cambio porque
- * depende de la interface ItemRepository.
+ * Regla de arquitectura: Room es la fuente única de verdad.
+ * - items y favoritos salen SIEMPRE de Room.
+ * - Retrofit solo actualiza Room cuando se llama a refrescar().
+ *
+ * Así la app funciona sin internet y los favoritos sobreviven a la
+ * sincronización.
  */
 class ItemRepositoryImpl(
-    private val api: ApiService
+    private val api: ApiService,
+    private val dao: ItemDao
 ) : ItemRepository {
 
-    private val _items = MutableStateFlow<List<Item>>(emptyList())
-
-    override val items: Flow<List<Item>> = _items.asStateFlow()
+    override val items: Flow<List<Item>> =
+        dao.todos().map { lista -> lista.map { it.aModelo() } }
 
     override val favoritos: Flow<List<Item>> =
-        _items.map { lista -> lista.filter { it.esFavorito } }
+        dao.favoritos().map { lista -> lista.map { it.aModelo() } }
 
     /**
-     * Llama al endpoint de la lista y reemplaza lo que había en memoria.
-     * Devuelve cuántos productos se guardaron.
+     * Descarga la lista, la guarda en Room y devuelve cuántos guardó.
+     *
+     * Antes de guardar lee los ids favoritos y los vuelve a aplicar, porque
+     * el @Upsert sobrescribe esFavorito y si no se hace, los favoritos
+     * desaparecen al sincronizar.
      */
     override suspend fun refrescar(): Result<Int> = try {
-        val respuesta = api.listar()
-        val nuevos = respuesta.products.map { it.aModelo() }
-        _items.value = nuevos
+        val idsFavoritos = dao.idsFavoritos().toSet()
+        val nuevos = api.listar().products.map { dto ->
+            dto.aEntity(esFavorito = dto.id in idsFavoritos)
+        }
+        dao.guardarTodos(nuevos)
         Result.success(nuevos.size)
     } catch (e: IOException) {
-        // Sin internet o timeout
+        // Sin internet o timeout: se conserva lo que ya está en Room.
         Result.failure(e)
     } catch (e: HttpException) {
         // 404, 500, etc.
         Result.failure(e)
     }
 
-    /** Llama al endpoint de detalle y convierte el DTO en modelo de la UI. */
+    /**
+     * Detalle desde el segundo endpoint.
+     * Si no hay internet, intenta devolver el producto guardado en Room.
+     */
     override suspend fun obtenerDetalle(id: Int): Result<Item> = try {
         Result.success(api.obtenerDetalle(id).aModelo())
     } catch (e: IOException) {
-        Result.failure(e)
+        val guardado = dao.porId(id)
+        if (guardado != null) Result.success(guardado.aModelo()) else Result.failure(e)
     } catch (e: HttpException) {
-        Result.failure(e)
+        val guardado = dao.porId(id)
+        if (guardado != null) Result.success(guardado.aModelo()) else Result.failure(e)
     }
 
     override suspend fun alternarFavorito(id: Int) {
-        _items.update { lista ->
-            lista.map { item ->
-                if (item.id == id) item.copy(esFavorito = !item.esFavorito) else item
-            }
-        }
+        dao.alternarFavorito(id)
     }
 
-    override suspend fun cantidadGuardada(): Int = _items.value.size
+    override suspend fun cantidadGuardada(): Int = dao.contar()
 
-    override suspend fun cantidadFavoritos(): Int = _items.value.count { it.esFavorito }
+    override suspend fun cantidadFavoritos(): Int = dao.contarFavoritos()
 
     override suspend fun limpiarCache() {
-        _items.value = emptyList()
+        dao.borrarTodo()
     }
 }

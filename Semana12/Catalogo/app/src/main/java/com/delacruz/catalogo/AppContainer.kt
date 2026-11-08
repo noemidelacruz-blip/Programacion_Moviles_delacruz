@@ -1,5 +1,7 @@
 package com.delacruz.catalogo
 
+import android.content.Context
+import com.delacruz.catalogo.data.local.AppDatabase
 import com.delacruz.catalogo.data.remote.RetrofitClient
 import com.delacruz.catalogo.data.repository.ItemRepository
 import com.delacruz.catalogo.data.repository.ItemRepositoryImpl
@@ -10,10 +12,18 @@ import com.delacruz.catalogo.data.repository.ItemRepositoryImpl
  * Aquí se crean UNA sola vez la API, la base de datos y los repositorios.
  * Los ViewModel los reciben mediante su Factory, así no los crean por dentro.
  */
-class AppContainer {
+class AppContainer(contexto: Context) {
 
-    /** Repositorio de productos: implementación real que usa Retrofit. */
+    /** Base de datos Room (fuente única de verdad). */
+    private val baseDatos by lazy {
+        AppDatabase.obtener(contexto)
+    }
+
+    /** Repositorio de productos: Retrofit actualiza Room. */
     val itemRepository: ItemRepository by lazy {
-        ItemRepositoryImpl(api = RetrofitClient.api)
+        ItemRepositoryImpl(
+            api = RetrofitClient.api,
+            dao = baseDatos.itemDao()
+        )
     }
 }
