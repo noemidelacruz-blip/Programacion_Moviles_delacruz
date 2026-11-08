@@ -62,6 +62,13 @@ class ListaViewModel(
         }
     }
 
+    /** Marca o desmarca un producto como favorito en Room. */
+    fun alternarFavorito(id: Int) {
+        viewModelScope.launch {
+            repo.alternarFavorito(id)
+        }
+    }
+
     private fun mensajeDe(error: Throwable): String = when (error) {
         is IOException -> "No hay conexión a internet"
         is HttpException -> "El servidor respondió con error ${error.code()}"

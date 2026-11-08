@@ -11,6 +11,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.delacruz.catalogo.ui.detalle.DetalleScreen
 import com.delacruz.catalogo.ui.detalle.DetalleViewModelFactory
+import com.delacruz.catalogo.ui.favoritos.FavoritosScreen
+import com.delacruz.catalogo.ui.favoritos.FavoritosViewModelFactory
 import com.delacruz.catalogo.ui.lista.ListaScreen
 import com.delacruz.catalogo.ui.lista.ListaViewModelFactory
 import com.delacruz.catalogo.ui.theme.CatalogoTheme
@@ -24,25 +26,35 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CatalogoTheme {
-                // Hito H7: cambio simple entre lista y detalle.
+                // Hitos H7 y H10: cambio simple entre lista, detalle y favoritos.
                 // En H14 se reemplaza por la navegación (AppNav) con roles.
                 var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
-                val id = idSeleccionado
+                var verFavoritos by rememberSaveable { mutableStateOf(false) }
 
-                if (id == null) {
-                    ListaScreen(
-                        viewModel = viewModel(
-                            factory = ListaViewModelFactory(container.itemRepository)
-                        ),
-                        onItemClick = { idSeleccionado = it }
-                    )
-                } else {
-                    DetalleScreen(
+                val id = idSeleccionado
+                when {
+                    id != null -> DetalleScreen(
                         viewModel = viewModel(
                             key = "detalle-$id",
                             factory = DetalleViewModelFactory(container.itemRepository, id)
                         ),
                         onVolver = { idSeleccionado = null }
+                    )
+
+                    verFavoritos -> FavoritosScreen(
+                        viewModel = viewModel(
+                            factory = FavoritosViewModelFactory(container.itemRepository)
+                        ),
+                        onVolver = { verFavoritos = false },
+                        onItemClick = { idSeleccionado = it }
+                    )
+
+                    else -> ListaScreen(
+                        viewModel = viewModel(
+                            factory = ListaViewModelFactory(container.itemRepository)
+                        ),
+                        onItemClick = { idSeleccionado = it },
+                        onVerFavoritos = { verFavoritos = true }
                     )
                 }
             }
