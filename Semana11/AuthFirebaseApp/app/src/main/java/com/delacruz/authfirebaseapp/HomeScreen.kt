@@ -1,0 +1,53 @@
+package com.delacruz.authfirebaseapp
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
+
+@Composable
+fun HomeScreen(
+    onLogout: () -> Unit
+) {
+    val auth = FirebaseAuth.getInstance()
+    val email = auth.currentUser?.email ?: "Usuario"
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("¡Bienvenida!", style = MaterialTheme.typography.headlineMedium)
+            Spacer(Modifier.height(8.dp))
+            Text("Sesión iniciada como:\n$email", textAlign = TextAlign.Center)
+            Spacer(Modifier.height(24.dp))
+            Button(
+                onClick = {
+                    auth.signOut()
+                    onLogout()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Cerrar sesión")
+            }
+        }
+
+        // Pie de página institucional
+        Text(
+            text = "Noemí de la Cruz\nTecsup",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 8.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+}
