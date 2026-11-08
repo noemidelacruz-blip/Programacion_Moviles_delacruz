@@ -1,10 +1,14 @@
+
 package com.delacruz.catalogo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Paleta Oficial BeautyEmi
-val PeachPrimary = Color(0xFFF9C480)    // Durazno suave principal
-val CreamBackground = Color(0xFFFFF7E9) // Crema claro para superficies y fondos
-val BrownText = Color(0xFF49332F)       // Marrón oscuro para legibilidad perfecta en textos e iconos
-val CoralAccent = Color(0xFFD98578)     // Rosa coral para destacados y favoritos
-val SoftWhite = Color(0xFFFFFFFF)       // Blanco puro
+// Paleta BeautyEmi - Peach intenso
+
+val PeachPrimary = Color(0xFFF5AE91)
+val CreamBackground = Color(0xFFFFDFD0)
+val BrownText = Color(0xFF45231D)
+val CoralAccent = Color(0xFFD66D50)
+val SoftWhite = Color(0xFFFFFAF5)
+val SurfaceVariantBg = Color(0xFFF8C2AA)
+val MutedBrown = Color(0xFF765044)
