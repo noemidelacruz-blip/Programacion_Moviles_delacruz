@@ -43,6 +43,7 @@ fun ListaScreen(
     viewModel: ListaViewModel,
     onItemClick: (Int) -> Unit,
     onVerFavoritos: () -> Unit,
+    onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -52,7 +53,7 @@ fun ListaScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "BeautyEmi · Productos") },
+                title = { Text(text = "BeautyEmi") },
                 actions = {
                     TextButton(
                         onClick = onVerFavoritos,
@@ -61,6 +62,14 @@ fun ListaScreen(
                         )
                     ) {
                         Text(text = "Favoritos")
+                    }
+                    TextButton(
+                        onClick = onCerrarSesion,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(text = "Salir")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
