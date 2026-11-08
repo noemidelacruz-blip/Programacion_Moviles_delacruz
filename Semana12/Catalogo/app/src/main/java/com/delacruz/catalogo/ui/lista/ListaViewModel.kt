@@ -28,6 +28,10 @@ class ListaViewModel(
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
     val estado: StateFlow<UiState<List<Item>>> = _estado.asStateFlow()
 
+    /** Aviso de "sin conexión" cuando se muestran datos guardados. */
+    private val _aviso = MutableStateFlow<String?>(null)
+    val aviso: StateFlow<String?> = _aviso.asStateFlow()
+
     /** Evita mostrar "vacío" antes de que termine la primera descarga. */
     private var refrescoTerminado = false
 
@@ -49,14 +53,18 @@ class ListaViewModel(
             refrescoTerminado = true
             resultado
                 .onSuccess {
+                    _aviso.value = null
                     if (_estado.value is UiState.Cargando) {
                         _estado.value = UiState.Exito(emptyList())
                     }
                 }
                 .onFailure { error ->
                     // Si no hay nada guardado, se muestra el error con Reintentar.
+                    // Si hay datos en Room, se muestran con un aviso de sin conexión.
                     if (repo.cantidadGuardada() == 0) {
                         _estado.value = UiState.Error(mensajeDe(error))
+                    } else {
+                        _aviso.value = "Sin conexión: mostrando datos guardados"
                     }
                 }
         }

@@ -5,13 +5,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -43,6 +46,7 @@ fun ListaScreen(
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val aviso by viewModel.aviso.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -66,34 +70,75 @@ fun ListaScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            when (val resultado = estado) {
-                is UiState.Cargando -> Cargando()
-
-                is UiState.Error -> ErrorView(
-                    mensaje = resultado.mensaje,
+        Column(modifier = Modifier.padding(innerPadding)) {
+            aviso?.let { texto ->
+                AvisoSinConexion(
+                    texto = texto,
                     onReintentar = viewModel::refrescar
                 )
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                when (val resultado = estado) {
+                    is UiState.Cargando -> Cargando()
 
-                is UiState.Exito -> {
-                    if (resultado.datos.isEmpty()) {
-                        ListaVacia()
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(resultado.datos, key = { it.id }) { item ->
-                                TarjetaProducto(
-                                    item = item,
-                                    onClick = { onItemClick(item.id) },
-                                    onAlternarFavorito = { viewModel.alternarFavorito(item.id) }
-                                )
+                    is UiState.Error -> ErrorView(
+                        mensaje = resultado.mensaje,
+                        onReintentar = viewModel::refrescar
+                    )
+
+                    is UiState.Exito -> {
+                        if (resultado.datos.isEmpty()) {
+                            ListaVacia()
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(resultado.datos, key = { it.id }) { item ->
+                                    TarjetaProducto(
+                                        item = item,
+                                        onClick = { onItemClick(item.id) },
+                                        onAlternarFavorito = { viewModel.alternarFavorito(item.id) }
+                                    )
+                                }
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/** Aviso que aparece cuando se muestran datos guardados sin internet. */
+@Composable
+private fun AvisoSinConexion(
+    texto: String,
+    onReintentar: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "⚠ $texto",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(
+                onClick = onReintentar,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.secondary
+                )
+            ) {
+                Text(text = "Reintentar")
             }
         }
     }
