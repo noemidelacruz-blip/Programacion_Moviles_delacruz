@@ -114,7 +114,7 @@ fun LoginScreen(
 
         // PIE DE PÁGINA
         Text(
-            text = "Noemi DeLaCruz Z\uD83C\uDF80\nTecsup",
+            text = "Noemi De La Cruz Z\uD83C\uDF80\nTecsup",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier
                 .align(Alignment.BottomCenter)

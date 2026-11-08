@@ -3,6 +3,7 @@ package com.delacruz.authfirebaseapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.delacruz.authfirebaseapp.ui.theme.AuthFirebaseAppTheme
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
@@ -11,11 +12,10 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
 
         setContent {
-            // Llamamos directamente a LoginScreen sin usar AuthApp()
-            LoginScreen(
-                onNavigateToRegister = { },
-                onLoginSuccess = { }
-            )
+            // ¡AQUÍ ESTÁ LA CLAVE! Tiene que envolver la app con AuthFirebaseAppTheme
+            AuthFirebaseAppTheme {
+                AuthApp()
+            }
         }
     }
 }
