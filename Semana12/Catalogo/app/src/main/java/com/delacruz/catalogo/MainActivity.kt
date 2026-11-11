@@ -11,6 +11,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -18,8 +21,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.delacruz.catalogo.ui.MainViewModel
 import com.delacruz.catalogo.ui.MainViewModelFactory
 import com.delacruz.catalogo.ui.UiState
+import com.delacruz.catalogo.ui.bienvenida.BienvenidaScreen
 import com.delacruz.catalogo.ui.components.Cargando
 import com.delacruz.catalogo.ui.components.ErrorView
+import com.delacruz.catalogo.ui.components.FondoBeautyEmi
 import com.delacruz.catalogo.ui.login.LoginScreen
 import com.delacruz.catalogo.ui.login.LoginViewModelFactory
 import com.delacruz.catalogo.ui.navigation.AppNav
@@ -57,23 +62,39 @@ class MainActivity : ComponentActivity() {
                 )
                 val estadoSesion by mainViewModel.estado.collectAsStateWithLifecycle()
 
-                when (val resultado = estadoSesion) {
-                    is UiState.Cargando -> Cargando(mensaje = "Comprobando sesión...")
+                // Al arrancar sin sesión se muestra la bienvenida. Luego de
+                // tocar "Iniciar sesión" se va al login y, al cerrar sesión,
+                // se vuelve directo al login (PA-12).
+                var mostrarBienvenida by rememberSaveable { mutableStateOf(true) }
 
-                    is UiState.Error -> ErrorView(
-                        mensaje = resultado.mensaje,
-                        onReintentar = {}
-                    )
+                when (val resultado = estadoSesion) {
+                    is UiState.Cargando -> FondoBeautyEmi {
+                        Cargando(mensaje = "Comprobando sesión...")
+                    }
+
+                    is UiState.Error -> FondoBeautyEmi {
+                        ErrorView(
+                            mensaje = resultado.mensaje,
+                            onReintentar = {}
+                        )
+                    }
 
                     is UiState.Exito -> {
                         val sesion = resultado.datos
                         if (sesion == null) {
-                            LoginScreen(
-                                viewModel = viewModel(
-                                    factory = LoginViewModelFactory(container.authRepository)
-                                ),
-                                onLoginExitoso = mainViewModel::actualizarSesion
-                            )
+                            if (mostrarBienvenida) {
+                                BienvenidaScreen(
+                                    onIniciarSesion = { mostrarBienvenida = false }
+                                )
+                            } else {
+                                LoginScreen(
+                                    viewModel = viewModel(
+                                        factory = LoginViewModelFactory(container.authRepository)
+                                    ),
+                                    onLoginExitoso = mainViewModel::actualizarSesion,
+                                    onVolver = { mostrarBienvenida = true }
+                                )
+                            }
                         } else {
                             // El rol leído de Firestore decide qué pantallas hay.
                             AppNav(

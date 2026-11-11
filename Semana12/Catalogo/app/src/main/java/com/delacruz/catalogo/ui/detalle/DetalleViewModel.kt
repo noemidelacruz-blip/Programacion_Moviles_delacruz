@@ -7,8 +7,11 @@ import com.delacruz.catalogo.data.repository.ItemRepository
 import com.delacruz.catalogo.domain.model.Item
 import com.delacruz.catalogo.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -27,8 +30,25 @@ class DetalleViewModel(
     private val _estado = MutableStateFlow<UiState<Item>>(UiState.Cargando)
     val estado: StateFlow<UiState<Item>> = _estado.asStateFlow()
 
+    /**
+     * Indica si este producto está marcado como favorito.
+     *
+     * Sale de Room (repo.items), así que el corazón se actualiza solo aunque
+     * el favorito se marque desde otra pantalla.
+     */
+    val favorito: StateFlow<Boolean> = repo.items
+        .map { lista -> lista.firstOrNull { it.id == id }?.esFavorito == true }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
     init {
         cargar()
+    }
+
+    /** Marca o desmarca este producto como favorito (R07). */
+    fun alternarFavorito() {
+        viewModelScope.launch {
+            repo.alternarFavorito(id)
+        }
     }
 
     /** Pide el detalle del producto (también es el botón Reintentar). */
