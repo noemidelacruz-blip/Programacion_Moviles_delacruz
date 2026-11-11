@@ -5,6 +5,7 @@ import com.delacruz.catalogo.data.mapper.aEntity
 import com.delacruz.catalogo.data.mapper.aModelo
 import com.delacruz.catalogo.data.remote.ApiService
 import com.delacruz.catalogo.domain.model.Item
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
@@ -51,6 +52,13 @@ class ItemRepositoryImpl(
     } catch (e: HttpException) {
         // 404, 500, etc.
         Result.failure(e)
+    } catch (e: CancellationException) {
+        // Cancelar la corrutina no es un error: se propaga para no romper la
+        // cancelación estructurada.
+        throw e
+    } catch (e: Exception) {
+        // Cualquier otro fallo inesperado se devuelve como Result.
+        Result.failure(e)
     }
 
     /**
@@ -65,6 +73,13 @@ class ItemRepositoryImpl(
     } catch (e: HttpException) {
         val guardado = dao.porId(id)
         if (guardado != null) Result.success(guardado.aModelo()) else Result.failure(e)
+    } catch (e: CancellationException) {
+        // Cancelar la corrutina no es un error: se propaga para no romper la
+        // cancelación estructurada.
+        throw e
+    } catch (e: Exception) {
+        // Cualquier otro fallo inesperado se devuelve como Result.
+        Result.failure(e)
     }
 
     override suspend fun alternarFavorito(id: Int) {
