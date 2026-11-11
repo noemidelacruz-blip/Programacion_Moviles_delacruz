@@ -1,0 +1,111 @@
+package com.delacruz.catalogo.ui.lista
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.delacruz.catalogo.data.repository.ItemRepository
+import com.delacruz.catalogo.domain.model.Item
+import com.delacruz.catalogo.notification.Notificador
+import com.delacruz.catalogo.ui.UiState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
+
+/**
+ * ViewModel de la lista (hitos H6 y H15).
+ *
+ * Ya consume la API a través de la interface ItemRepository: el ViewModel no
+ * sabe si los datos vienen de Retrofit o de Room. Tampoco conoce Android:
+ * avisa al terminar de sincronizar mediante la interface Notificador.
+ *
+ * Regla: la pantalla solo puede leer [estado]; nadie más lo modifica.
+ */
+class ListaViewModel(
+    private val repo: ItemRepository,
+    private val notificador: Notificador
+) : ViewModel() {
+
+    private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
+    val estado: StateFlow<UiState<List<Item>>> = _estado.asStateFlow()
+
+    /** Aviso de "sin conexión" cuando se muestran datos guardados. */
+    private val _aviso = MutableStateFlow<String?>(null)
+    val aviso: StateFlow<String?> = _aviso.asStateFlow()
+
+    /** Evita mostrar "vacío" antes de que termine la primera descarga. */
+    private var refrescoTerminado = false
+
+    init {
+        viewModelScope.launch {
+            repo.items.collect { lista ->
+                if (lista.isNotEmpty() || refrescoTerminado) {
+                    _estado.value = UiState.Exito(lista)
+                }
+            }
+        }
+        refrescar()
+    }
+
+    /** Descarga la lista desde la API (también es el botón Reintentar). */
+    fun refrescar() {
+        viewModelScope.launch {
+            val resultado = repo.refrescar()
+            refrescoTerminado = true
+            resultado
+                .onSuccess { cantidad ->
+                    _aviso.value = null
+                    if (_estado.value is UiState.Cargando) {
+                        _estado.value = UiState.Exito(emptyList())
+                    }
+                    // R09: aviso local al terminar de sincronizar.
+                    notificador.mostrar(
+                        "Datos actualizados",
+                        "Se guardaron $cantidad elementos"
+                    )
+                }
+                .onFailure { error ->
+                    // Si no hay nada guardado, se muestra el error con Reintentar.
+                    // Si hay datos en Room, se muestran con un aviso de sin conexión.
+                    if (repo.cantidadGuardada() == 0) {
+                        _estado.value = UiState.Error(mensajeDe(error))
+                    } else {
+                        _aviso.value = "Sin conexión: mostrando datos guardados"
+                    }
+                }
+        }
+    }
+
+    /** Marca o desmarca un producto como favorito en Room. */
+    fun alternarFavorito(id: Int) {
+        viewModelScope.launch {
+            repo.alternarFavorito(id)
+        }
+    }
+
+    private fun mensajeDe(error: Throwable): String = when (error) {
+        is IOException -> "No hay conexión a internet"
+        is HttpException -> "El servidor respondió con error ${error.code()}"
+        else -> "Ocurrió un error inesperado"
+    }
+}
+
+/**
+ * Factory que recibe el AppContainer y construye el ViewModel.
+ * Así el ViewModel no crea el repositorio ni el notificador por su cuenta.
+ */
+class ListaViewModelFactory(
+    private val repo: ItemRepository,
+    private val notificador: Notificador
+) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ListaViewModel::class.java)) {
+            return ListaViewModel(repo, notificador) as T
+        }
+        throw IllegalArgumentException("ViewModel no soportado: ${modelClass.name}")
+    }
+}
