@@ -143,7 +143,7 @@ de Firebase. El detalle completo (proyecto, reglas y verificación) está en
    el correo y la contraseña que elijas:
 
    | Uso | Rol en Firestore |
-   |---|---|
+      |---|---|
    | Cuenta de administrador | `admin` |
    | Cuenta de usuario normal | `usuario` |
 
@@ -182,32 +182,13 @@ Con la cuenta `admin` se ven **Catálogo, Favoritos y Panel**; con la cuenta
 
 ## 6. Capturas
 
-Tomadas en un dispositivo Android 14 con la app instalada en modo depuración y
-sesión iniciada como administrador, salvo la de login.
+| Login | Lista / catálogo | Detalle |
+| :---: | :---: | :---: |
+| ![Pantalla de login con correo y contraseña](docs/capturas/01-login.png) | ![Catálogo de productos de belleza con barra inferior](docs/capturas/02-lista.png) | ![Detalle de un producto con precio, stock y botón de favorito](docs/capturas/03-detalle.png) |
 
-### Login
-
-![Pantalla de login con correo y contraseña](docs/capturas/01-login.png)
-
-### Lista / catálogo
-
-![Catálogo de productos de belleza con barra inferior](docs/capturas/02-lista.png)
-
-### Detalle
-
-![Detalle de un producto con precio, stock y botón de favorito](docs/capturas/03-detalle.png)
-
-### Favoritos
-
-![Pantalla de favoritos con los productos marcados](docs/capturas/04-favoritos.png)
-
-### Panel Admin
-
-![Panel Admin con productos guardados, favoritos, Sincronizar y Limpiar caché](docs/capturas/05-admin.png)
-
-### Notificación
-
-![Notificación local «Datos actualizados: Se guardaron 5 elementos»](docs/capturas/06-notificacion.png)
+| Favoritos | Panel Admin | Notificación |
+| :---: | :---: | :---: |
+| ![Pantalla de favoritos con los productos marcados](docs/capturas/04-favoritos.png) | ![Panel Admin con productos guardados, favoritos, Sincronizar y Limpiar caché](docs/capturas/05-admin.png) | ![Notificación local «Datos actualizados: Se guardaron 5 elementos»](docs/capturas/06-notificacion.png) |
 
 ## 7. Pruebas
 
@@ -220,12 +201,6 @@ sin Android, Room, Retrofit ni Firebase:
 2. Fallo sin datos guardados → estado `Error`.
 3. Fallo con datos guardados → estado `Exito` y aviso de sin conexión.
 
-## 8. Reparto de tareas
-
-| Tarea | Integrante |
-|---|---|
-| _(completar)_ | _(completar)_ |
-| _(completar)_ | _(completar)_ |
 
 ## 9. Documentación adicional
 
