@@ -209,3 +209,97 @@ sin Android, Room, Retrofit ni Firebase:
 
 > En el repositorio no se versionan `google-services.json`,
 > `local.properties`, `build/` ni `.idea/`.
+## 10. Preguntas de sustentación
+
+## 1. ¿Por qué el repository es una interface? ¿Qué cambiaría si no lo fuera?
+
+El Repository es una interface porque permite que el ViewModel trabaje sin depender de una implementación específica. Así, podemos cambiar la forma de obtener los datos o hacer pruebas sin utilizar una base de datos real.
+
+¿Qué cambiaría si no fuera una interface?
+
+El ViewModel dependería directamente de la clase que conecta con la base de datos y la API, haciendo que las pruebas sean más difíciles y que cambiar el origen de los datos sea más complicado.
+
+
+## 2. ¿Por qué la lista sale de Room y no directamente de Retrofit?
+
+La lista sale de Room porque es la base de datos local del celular. Así, la aplicación puede mostrar los datos incluso cuando no hay internet.
+
+Retrofit solo se encarga de traer o actualizar los datos desde internet.
+
+¿Qué pasaría si saliera directamente de Retrofit?
+
+Necesitaríamos internet para mostrar la lista y no podríamos consultar los datos guardados cuando estemos desconectados.
+
+- Room guarda y muestra los datos; Retrofit los obtiene de internet y actualiza la información.
+
+
+## 3. ¿Qué pasa con los favoritos cuando sincronizas? Muéstralo en el código.
+
+**El problema:** `@Upsert` reemplaza la fila completa. Los datos de la API no
+traen `esFavorito`, así que si se guardan tal cual, todos los favoritos vuelven
+a `false`.
+
+**La solución** está en `ItemRepositoryImpl.refrescar()`:
+
+![img.png](img.png)
+
+
+Y la consulta que lo permite, en `ItemDao.kt`:
+
+```kotlin
+@Query("SELECT id FROM items WHERE esFavorito = 1")
+suspend fun idsFavoritos(): List<Int>
+```
+
+**Orden clave:** primero se leen los ids favoritos, luego se descarga y se
+marca cada producto como favorito si su id estaba en esa lista, y recién
+después se guarda.
+---
+
+## 4. ¿Dónde se decide el rol de la persona y por qué no en la pantalla?
+
+**El rol no está escrito en la app.** Se guarda en Firestore, en
+`usuarios/{uid}`, campo `rol` (`"admin"` o `"usuario"`), y se lee después de
+iniciar sesión. Eso ocurre en `data/auth/FirebaseAuthRepository.kt`:
+
+```kotlin
+private suspend fun leerSesion(uid: String, correo: String): Sesion {
+    val documento = db.collection("usuarios").document(uid).get().await()
+    val rol = if (documento.getString("rol")?.trim() == "admin") Rol.ADMIN else Rol.USUARIO
+    return Sesion(uid = uid, correo = correo, rol = rol)
+}
+```
+Luego `AppNav` usa `sesion.rol` para decidir qué mostrar:
+
+```kotlin
+val esAdmin = sesion.rol == Rol.ADMIN
+```
+
+**Por qué no en la pantalla:** la pantalla solo dibuja. Decidir el rol es lógica
+de datos y le corresponde al repositorio de autenticación. Así la pantalla no
+conoce Firebase ni sabe de dónde sale el rol.
+
+**Detalle importante de seguridad:** validar el rol en la app solo cambia lo que
+se muestra. Lo que protege los datos de verdad son las **reglas de Firestore**
+(cada persona solo lee su propio documento y `allow write: if false`).
+
+**Si el rol siempre sale «usuario»:** casi siempre es porque el ID del
+documento en Firestore no es el UID de Authentication.
+
+---
+
+## 5. Muestra un commit tuyo y explica qué cambió.
+
+Mi commit fue 310269e. En ese cambio agregué dos controles para manejar errores en las funciones refrescar() y obtenerDetalle().
+
+Uno permite que la cancelación de una tarea continúe correctamente y el otro controla cualquier otro error inesperado.
+
+- Mejoré el manejo de errores para evitar problemas en la aplicación.
+
+## 6. ¿Qué ocurre si el permiso de notificaciones está negado?
+
+Si el permiso de notificaciones está negado, la aplicación sigue funcionando normalmente, pero no muestra notificaciones.
+
+La lista, los favoritos y la sincronización siguen funcionando igual. Además, el sistema comprueba si tiene permiso antes de mostrar una notificación.
+
+- Si el usuario no acepta las notificaciones, la aplicación funciona igual, pero sin enviar avisos.

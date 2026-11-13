@@ -59,11 +59,6 @@ private object Rutas {
 
 /**
  * Navegación de la app (hito H14) con barra inferior (rediseño visual).
- *
- * Todo vive dentro de un Scaffold con NavigationBar. El catálogo y favoritos
- * están para ambos roles; la tercera pestaña "Panel" solo aparece si el rol es
- * admin. El cierre de sesión está en la barra superior de cada pantalla. La
- * ruta admin sigue protegida aquí, no en la pantalla.
  */
 @Composable
 fun AppNav(

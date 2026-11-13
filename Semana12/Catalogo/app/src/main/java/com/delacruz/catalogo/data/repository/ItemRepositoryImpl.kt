@@ -53,11 +53,10 @@ class ItemRepositoryImpl(
         // 404, 500, etc.
         Result.failure(e)
     } catch (e: CancellationException) {
-        // Cancelar la corrutina no es un error: se propaga para no romper la
-        // cancelación estructurada.
+        // Si se cancela la tarea, dejamos que la cancelación continúe.
         throw e
     } catch (e: Exception) {
-        // Cualquier otro fallo inesperado se devuelve como Result.
+        // Si se cancela la tarea, dejamos que la cancelación continúe.
         Result.failure(e)
     }
 
@@ -74,11 +73,10 @@ class ItemRepositoryImpl(
         val guardado = dao.porId(id)
         if (guardado != null) Result.success(guardado.aModelo()) else Result.failure(e)
     } catch (e: CancellationException) {
-        // Cancelar la corrutina no es un error: se propaga para no romper la
-        // cancelación estructurada.
+        // Si se cancela la tarea, dejamos que la cancelación continúe.
         throw e
     } catch (e: Exception) {
-        // Cualquier otro fallo inesperado se devuelve como Result.
+        // Si ocurre otro error, devolvemos un resultado fallido.
         Result.failure(e)
     }
 
