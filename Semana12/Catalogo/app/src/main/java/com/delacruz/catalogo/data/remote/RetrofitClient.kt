@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
  * La baseUrl SIEMPRE termina en "/" (si falta, Retrofit lanza excepción).
  */
 object RetrofitClient {
-
+//RetrofitClient configura la conexión con la API.
     private const val BASE_URL = "https://dummyjson.com/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {

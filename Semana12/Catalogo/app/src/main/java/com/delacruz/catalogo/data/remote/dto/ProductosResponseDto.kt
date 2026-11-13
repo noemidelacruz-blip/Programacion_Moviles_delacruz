@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName
  *
  * Por eso el repositorio debe usar .products y no la respuesta completa.
  */
+//representa la respuesta que contiene la lista de productos.
 data class ProductosResponseDto(
     @SerializedName("products") val products: List<ItemDto>,
     @SerializedName("total") val total: Int = 0,

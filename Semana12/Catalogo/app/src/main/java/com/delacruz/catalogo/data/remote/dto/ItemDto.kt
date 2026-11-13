@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName
  * Los nombres en español del proyecto se mapean con @SerializedName a las
  * claves reales del JSON de dummyjson.com.
  */
+//representa los datos de un producto que llega desde la API.
 data class ItemDto(
     @SerializedName("id") val id: Int,
     @SerializedName("title") val titulo: String,

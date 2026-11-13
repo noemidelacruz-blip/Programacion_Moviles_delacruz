@@ -13,16 +13,18 @@ import retrofit2.http.Path
  *
  * La variante asignada es la categoría "beauty".
  */
+//define los endpoinst
 interface ApiService {
 
-    @GET("products/category/{slug}")
+    // aqui esta filtrando  por categoria el parametro  (@Path("slug") con el valor beauty.
+    @GET("products/category/{slug}") //Obtiene la lista de productos de la categoría beauty.
     suspend fun listar(@Path("slug") slug: String = CATEGORIA_BEAUTY): ProductosResponseDto
 
-    @GET("products/{id}")
+    @GET("products/{id}") //Obtiene la información detallada de un producto específico mediante su ID.
     suspend fun obtenerDetalle(@Path("id") id: Int): ItemDto
 
     companion object {
-        /** Variante del tema Productos asignada a este proyecto. */
+        /** Productos asignada a este proyecto. */
         const val CATEGORIA_BEAUTY = "beauty"
     }
 }

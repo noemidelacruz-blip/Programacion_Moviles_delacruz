@@ -21,6 +21,7 @@ import java.io.IOException
  * Así la app funciona sin internet y los favoritos sobreviven a la
  * sincronización.
  */
+//ItemRepositoryImpl realiza las llamadas para obtener los productos.
 class ItemRepositoryImpl(
     private val api: ApiService,
     private val dao: ItemDao
