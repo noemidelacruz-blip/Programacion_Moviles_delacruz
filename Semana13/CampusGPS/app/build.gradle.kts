@@ -1,8 +1,16 @@
+// Importa la clase Properties de Java para poder leer archivos de configuración clave=valor (como local.properties):
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
-
+// Lee el archivo local.properties de forma segura sin exponer la clave en el código
+val localProps = Properties().apply {
+    val archivo = rootProject.file("local.properties")
+    if (archivo.exists()) {
+        archivo.inputStream().use { load(it) }
+    }
+}
 android {
     namespace = "com.delacruz.campusgps"
     compileSdk {
@@ -12,6 +20,8 @@ android {
     }
 
     defaultConfig {
+        // Inyecta el valor de MAPS_API_KEY en el AndroidManifest.xml al compilar
+        manifestPlaceholders["MAPS_API_KEY"] = localProps.getProperty("MAPS_API_KEY", "")
         applicationId = "com.delacruz.campusgps"
         minSdk = 24
         targetSdk = 36
