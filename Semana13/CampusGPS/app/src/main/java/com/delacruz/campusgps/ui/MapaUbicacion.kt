@@ -2,15 +2,18 @@ package com.delacruz.campusgps.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.delacruz.campusgps.model.LugarConDistancia
 import com.delacruz.campusgps.model.UbicacionUi
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 @Composable
@@ -45,6 +48,22 @@ fun MapaUbicacion(
                 title = "Estás aquí"
             )
         }
-        // TODO Paso 4: un Marker por cada lugar
+        // Los 5 lugares del campus van en azul; el marcador propio sigue en rojo
+        lugares.forEach { item ->
+            val lugar = item.lugar
+            key(lugar.id) {
+                Marker(
+                    state = rememberMarkerState(
+                        key = lugar.id.toString(),
+                        position = LatLng(lugar.latitud, lugar.longitud)
+                    ),
+                    title = lugar.nombre,
+                    snippet = lugar.categoria,
+                    icon = BitmapDescriptorFactory.defaultMarker(
+                        BitmapDescriptorFactory.HUE_AZURE
+                    )
+                )
+            }
+        }
     }
 }
