@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +40,8 @@ fun PantallaMapa() {
     val vm: MapaViewModel = viewModel(factory = CampusViewModelFactory(contexto))
 
     val estado by vm.estado.collectAsState()
+    val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
 
     // Android dibuja el cuadro de permiso; aquí solo se pide y se lee el resultado
     val lanzador = rememberLauncherForActivityResult(
@@ -89,41 +92,53 @@ fun PantallaMapa() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(16.dp))
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
 
-            Button(
-                onClick = { alPulsar() },
-                enabled = estado !is UbicacionUi.Buscando,
-                shape = RoundedCornerShape(50)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Obtener mi ubicación")
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            when (val actual = estado) {
-                is UbicacionUi.Inicial -> Text(
-                    text = "Pulsa el botón para empezar",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                is UbicacionUi.Buscando -> Text(
-                    text = "Buscando tu ubicación...",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                is UbicacionUi.Lista -> {
-                    Text("Latitud: ${actual.posicion.latitud}")
-                    Text("Longitud: ${actual.posicion.longitud}")
+                Button(
+                    onClick = { alPulsar() },
+                    enabled = estado !is UbicacionUi.Buscando,
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text("Obtener mi ubicación")
                 }
 
-                is UbicacionUi.Error -> Text(
-                    text = actual.mensaje,
-                    color = MaterialTheme.colorScheme.error
-                )
+                Spacer(Modifier.height(8.dp))
+
+                when (val actual = estado) {
+                    is UbicacionUi.Inicial -> Text(
+                        text = "Pulsa el botón para empezar",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    is UbicacionUi.Buscando -> Text(
+                        text = "Buscando tu ubicación...",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    is UbicacionUi.Lista -> {
+                        Text("Latitud: ${actual.posicion.latitud}")
+                        Text("Longitud: ${actual.posicion.longitud}")
+                    }
+
+                    is UbicacionUi.Error -> Text(
+                        text = actual.mensaje,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }
