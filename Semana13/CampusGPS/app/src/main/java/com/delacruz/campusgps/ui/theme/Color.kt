@@ -16,3 +16,6 @@ val TextoSecundario = Color(0xFF5F6B7A)
 // Colores de error (recuadro del mensaje)
 val RojoError = Color(0xFFB3261E)
 val FondoError = Color(0xFFF9DEDC)
+
+// Verde del lugar más cercano (marcador y punto de la lista)
+val VerdeCercano = Color(0xFF2E9E4F)

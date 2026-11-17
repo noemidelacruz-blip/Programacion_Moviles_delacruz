@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.delacruz.campusgps.model.LugarConDistancia
+import com.delacruz.campusgps.ui.theme.VerdeCercano
 import com.delacruz.campusgps.util.formatearDistancia
 
 @Composable
@@ -33,7 +34,8 @@ fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     onClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    idMasCercano: Int? = null
 ) {
     LazyColumn(
         modifier = modifier,
@@ -69,7 +71,14 @@ fun ListaLugares(
                     Box(
                         modifier = Modifier
                             .size(10.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
+                            .background(
+                                color = if (item.lugar.id == idMasCercano) {
+                                    VerdeCercano
+                                } else {
+                                    MaterialTheme.colorScheme.primary
+                                },
+                                shape = CircleShape
+                            )
                     )
 
                     Spacer(Modifier.width(10.dp))
