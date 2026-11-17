@@ -8,6 +8,7 @@ import com.delacruz.campusgps.data.UbicacionRepository
 import com.delacruz.campusgps.model.Lugar
 import com.delacruz.campusgps.model.LugarConDistancia
 import com.delacruz.campusgps.model.Posicion
+import com.delacruz.campusgps.model.TipoError
 import com.delacruz.campusgps.model.UbicacionUi
 import com.delacruz.campusgps.util.distanciaMetros
 import com.delacruz.campusgps.util.formatearDistancia
@@ -41,6 +42,15 @@ class MapaViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun buscar() {
+        // El ViewModel no recibe Context: le pregunta al Repository si hay Play Services
+        if (!ubicacionRepo.playServicesDisponible()) {
+            _estado.value = UbicacionUi.Error(
+                "Este dispositivo no tiene Google Play Services.",
+                TipoError.SIN_PLAY_SERVICES
+            )
+            return
+        }
+
         _estado.value = UbicacionUi.Buscando
         viewModelScope.launch {
             ubicacionRepo.obtenerPosicion()
@@ -48,12 +58,15 @@ class MapaViewModel(
                     _estado.value = UbicacionUi.Lista(it)
                     actualizarDistancias(it)
                 }
-                .onFailure { _estado.value = UbicacionUi.Error(mensajeDe(it)) }
+                .onFailure { _estado.value = UbicacionUi.Error(mensajeDe(it), tipoDe(it)) }
         }
     }
 
     fun permisoDenegado() {
-        _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás")
+        _estado.value = UbicacionUi.Error(
+            "Sin permiso de ubicación no puedo mostrar dónde estás",
+            TipoError.SIN_PERMISO
+        )
     }
 
     fun seleccionar(id: Int?) {
@@ -73,7 +86,18 @@ class MapaViewModel(
     }
 
     private fun mensajeDe(e: Throwable): String = when (e) {
-        is SecurityException -> "Falta el permiso de ubicación"
+        is SecurityException -> "Sin permiso de ubicación no puedo mostrar dónde estás"
+        // getCurrentLocation devuelve null (GPS apagado o sin ubicación) y el Repository
+        // lo convierte en IllegalStateException
+        is IllegalStateException -> "Activa el GPS e intenta de nuevo"
         else -> e.message ?: "No se pudo obtener la ubicación"
+    }
+
+    private fun tipoDe(e: Throwable): TipoError = when (e) {
+        is SecurityException -> TipoError.SIN_PERMISO
+        // getCurrentLocation devuelve null (GPS apagado o sin ubicación) y el Repository
+        // lo convierte en IllegalStateException
+        is IllegalStateException -> TipoError.GPS_APAGADO
+        else -> TipoError.OTRO
     }
 }

@@ -51,6 +51,8 @@ fun PantallaMapa() {
     // El más cercano con su distancia, para el texto debajo del botón
     val cercano = lugares.firstOrNull { it.lugar.id == masCercano?.id }
 
+    val hayError = estado is UbicacionUi.Error
+
     // Android dibuja el cuadro de permiso; aquí solo se pide y se lee el resultado
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -101,20 +103,25 @@ fun PantallaMapa() {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            MapaUbicacion(
-                estado = estado,
-                lugares = lugares,
-                seleccionado = seleccionado,
-                masCercano = masCercano,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
+            if (!hayError) {
+                MapaUbicacion(
+                    estado = estado,
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    masCercano = masCercano,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+            }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 10.dp),
+                    .padding(
+                        horizontal = 24.dp,
+                        vertical = if (hayError) 20.dp else 10.dp
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
@@ -125,34 +132,36 @@ fun PantallaMapa() {
                     Text("Obtener mi ubicación")
                 }
 
-                Spacer(Modifier.height(8.dp))
+                if (!hayError) {
+                    Spacer(Modifier.height(8.dp))
 
-                OutlinedButton(
-                    onClick = { masCercano?.let { vm.seleccionar(it.id) } },
-                    enabled = masCercano != null,
-                    shape = RoundedCornerShape(50),
-                    border = BorderStroke(
-                        width = 1.5.dp,
-                        color = if (masCercano != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-                    ),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text("Ir al más cercano")
+                    OutlinedButton(
+                        onClick = { masCercano?.let { vm.seleccionar(it.id) } },
+                        enabled = masCercano != null,
+                        shape = RoundedCornerShape(50),
+                        border = BorderStroke(
+                            width = 1.5.dp,
+                            color = if (masCercano != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                        ),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("Ir al más cercano")
+                    }
+
+                    if (cercano != null) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = "Más cercano: ${cercano.lugar.nombre} " +
+                                "(${cercano.metros?.let { formatearDistancia(it) } ?: "Sin calcular"})",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
-                if (cercano != null) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = "Más cercano: ${cercano.lugar.nombre} " +
-                            "(${cercano.metros?.let { formatearDistancia(it) } ?: "Sin calcular"})",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(if (hayError) 14.dp else 6.dp))
 
                 when (val actual = estado) {
                     is UbicacionUi.Inicial -> Text(
@@ -180,23 +189,24 @@ fun PantallaMapa() {
                         )
                     }
 
-                    is UbicacionUi.Error -> Text(
-                        text = actual.mensaje,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
+                    is UbicacionUi.Error -> MensajeError(
+                        error = actual,
+                        onReintentar = { vm.buscar() }
                     )
                 }
             }
 
-            ListaLugares(
-                lugares = lugares,
-                seleccionado = seleccionado,
-                onClick = { vm.seleccionar(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp),
-                idMasCercano = masCercano?.id
-            )
+            if (!hayError) {
+                ListaLugares(
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    onClick = { vm.seleccionar(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    idMasCercano = masCercano?.id
+                )
+            }
         }
     }
 }
