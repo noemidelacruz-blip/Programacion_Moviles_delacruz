@@ -58,10 +58,14 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Ubicación, mapa y ViewModel con Compose
+    // Librería de Google que lee el chip GPS real del teléfono (FusedLocationProviderClient)(Saca tu ubicación real desde el GPS del celular)
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    // Hace que la app espere la respuesta del GPS sin trabarse:
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
     // 8.3.1: la 8.4.0 se compiló con Kotlin 2.4 y el compilador del proyecto es 2.2
+    // Librería de Google Maps para Jetpack Compose (Muestra el mapa de Google en pantalla (ya trae Google Maps incluido por dentro)
     implementation("com.google.maps.android:maps-compose:8.3.1")
+    // Guarda los datos de la pantalla para que no se borren al girar el celular
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 
     testImplementation(libs.junit)
