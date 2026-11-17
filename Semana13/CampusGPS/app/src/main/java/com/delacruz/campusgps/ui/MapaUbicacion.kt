@@ -39,6 +39,19 @@ fun MapaUbicacion(
         }
     }
 
+    // Al seleccionar un lugar de la lista, la cámara viaja hasta ese lugar
+    LaunchedEffect(seleccionado) {
+        val lugar = lugares.firstOrNull { it.lugar.id == seleccionado }?.lugar
+        if (lugar != null) {
+            camara.animate(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(lugar.latitud, lugar.longitud),
+                    17f
+                )
+            )
+        }
+    }
+
     GoogleMap(modifier = modifier, cameraPositionState = camara) {
         if (estado is UbicacionUi.Lista) {
             Marker(
@@ -52,11 +65,18 @@ fun MapaUbicacion(
         lugares.forEach { item ->
             val lugar = item.lugar
             key(lugar.id) {
+                val estadoMarcador = rememberMarkerState(
+                    key = lugar.id.toString(),
+                    position = LatLng(lugar.latitud, lugar.longitud)
+                )
+
+                // Si la tarjeta está seleccionada, el mapa muestra el nombre del lugar
+                if (seleccionado == lugar.id) {
+                    LaunchedEffect(seleccionado) { estadoMarcador.showInfoWindow() }
+                }
+
                 Marker(
-                    state = rememberMarkerState(
-                        key = lugar.id.toString(),
-                        position = LatLng(lugar.latitud, lugar.longitud)
-                    ),
+                    state = estadoMarcador,
                     title = lugar.nombre,
                     snippet = lugar.categoria,
                     icon = BitmapDescriptorFactory.defaultMarker(

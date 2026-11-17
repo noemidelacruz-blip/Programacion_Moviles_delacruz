@@ -47,6 +47,10 @@ class MapaViewModel(
         _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás")
     }
 
+    fun seleccionar(id: Int?) {
+        _seleccionado.value = id
+    }
+
     // Calcula la distancia a cada lugar y publica la lista del más cercano al más lejano
     private fun actualizarDistancias(pos: Posicion) {
         _lugares.value = _lugares.value
@@ -59,7 +63,6 @@ class MapaViewModel(
         )
     }
 
-    // TODO Paso 6: fun seleccionar(id: Int?)
     // TODO Paso 7: val masCercano: StateFlow<Lugar?>
 
     private fun mensajeDe(e: Throwable): String = when (e) {

@@ -105,7 +105,7 @@ fun PantallaMapa() {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .padding(horizontal = 24.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
@@ -116,30 +116,50 @@ fun PantallaMapa() {
                     Text("Obtener mi ubicación")
                 }
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(6.dp))
 
                 when (val actual = estado) {
                     is UbicacionUi.Inicial -> Text(
                         text = "Pulsa el botón para empezar",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     is UbicacionUi.Buscando -> Text(
                         text = "Buscando tu ubicación...",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     is UbicacionUi.Lista -> {
-                        Text("Latitud: ${actual.posicion.latitud}")
-                        Text("Longitud: ${actual.posicion.longitud}")
+                        Text(
+                            text = "Latitud: ${actual.posicion.latitud}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Longitud: ${actual.posicion.longitud}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
 
                     is UbicacionUi.Error -> Text(
                         text = actual.mensaje,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
             }
+
+            ListaLugares(
+                lugares = lugares,
+                seleccionado = seleccionado,
+                onClick = { vm.seleccionar(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+            )
         }
     }
 }
