@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -15,7 +17,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -23,21 +27,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.delacruz.centrotareas.model.PrimosUi
 import com.delacruz.centrotareas.viewmodel.TareasViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaTareas(viewModel: TareasViewModel) {
     var toques by rememberSaveable { mutableIntStateOf(0) }
+    var textoHasta by rememberSaveable { mutableStateOf("") }
+    var hastaContado by rememberSaveable { mutableIntStateOf(0) }
     val mensaje by viewModel.mensaje.collectAsState()
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
+    val primos by viewModel.primos.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -135,7 +146,82 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
-                    // TODO Paso 5: campo numérico, botones Contar/Cancelar y resultado.
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = textoHasta,
+                            onValueChange = { entrada ->
+                                textoHasta = entrada.filter { it.isDigit() }
+                            },
+                            label = { Text("Hasta") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = {
+                                    val hasta = textoHasta.toIntOrNull()
+                                    if (hasta != null && hasta >= 2) {
+                                        hastaContado = hasta
+                                        viewModel.contar(hasta)
+                                    }
+                                },
+                                enabled = primos !is PrimosUi.Calculando
+                            ) {
+                                Text("Contar")
+                            }
+                            OutlinedButton(
+                                onClick = { viewModel.cancelarPrimos() },
+                                enabled = primos is PrimosUi.Calculando
+                            ) {
+                                Text("Cancelar")
+                            }
+                        }
+                        val estadoPrimos = primos
+                        if (estadoPrimos is PrimosUi.Listo) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                color = Color(0xFFDDF0DA)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "Primos hasta $hastaContado: ${estadoPrimos.cantidad}",
+                                        color = Color(0xFF1B5E20),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Tiempo: ${estadoPrimos.milisegundos} ms",
+                                        color = Color(0xFF1B5E20)
+                                    )
+                                }
+                            }
+                        } else {
+                            Text(
+                                text = when (estadoPrimos) {
+                                    PrimosUi.Inicial -> "Ingresa un número mayor o igual a 2"
+                                    PrimosUi.Calculando -> "Calculando..."
+                                    PrimosUi.Cancelado -> "Cancelado"
+                                    is PrimosUi.Listo -> ""
+                                }
+                            )
+                        }
+                    }
                 }
             }
 
