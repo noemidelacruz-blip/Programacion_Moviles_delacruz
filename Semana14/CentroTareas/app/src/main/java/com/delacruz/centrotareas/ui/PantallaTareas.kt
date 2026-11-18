@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,6 +14,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,6 +37,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     var toques by rememberSaveable { mutableIntStateOf(0) }
     val mensaje by viewModel.mensaje.collectAsState()
     val progreso by viewModel.progreso.collectAsState()
+    val corriendo by viewModel.corriendo.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -89,8 +92,21 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         Button(onClick = { toques++ }) {
                             Text("Tócame: $toques")
                         }
-                        Button(onClick = { viewModel.tareaLarga() }) {
-                            Text("Iniciar")
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = { viewModel.tareaLarga() },
+                                enabled = !corriendo
+                            ) {
+                                Text("Iniciar")
+                            }
+                            OutlinedButton(
+                                onClick = { viewModel.cancelar() },
+                                enabled = corriendo
+                            ) {
+                                Text("Cancelar")
+                            }
                         }
                         LinearProgressIndicator(
                             progress = { progreso },
@@ -99,7 +115,6 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         Text(text = "${(progreso * 100).toInt()} %")
                         Text(text = mensaje)
                     }
-                    // TODO Paso 4: botones Iniciar/Cancelar y estado corriendo.
                 }
             }
 
