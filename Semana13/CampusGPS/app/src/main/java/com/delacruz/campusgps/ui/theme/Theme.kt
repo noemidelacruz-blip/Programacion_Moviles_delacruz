@@ -8,17 +8,17 @@ import androidx.compose.ui.graphics.Color
 // El diseño del laboratorio usa siempre el tema claro, por eso no se
 // usa el color dinámico ni un esquema oscuro.
 private val EsquemaClaro = lightColorScheme(
-    primary = AzulCampus,
+    primary = VinoCampus,
     onPrimary = Color.White,
-    primaryContainer = AzulSuave,
-    onPrimaryContainer = AzulOscuro,
-    secondary = AzulClaro,
+    primaryContainer = RosaSuave,
+    onPrimaryContainer = VinoOscuro,
+    secondary = RosaCampus,
     onSecondary = Color.White,
     background = FondoClaro,
     onBackground = TextoPrincipal,
     surface = Color.White,
     onSurface = TextoPrincipal,
-    surfaceVariant = AzulSuave,
+    surfaceVariant = RosaSuave,
     onSurfaceVariant = TextoSecundario,
     error = RojoError,
     onError = Color.White,

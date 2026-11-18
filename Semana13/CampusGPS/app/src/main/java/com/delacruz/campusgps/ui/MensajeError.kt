@@ -42,7 +42,7 @@ fun MensajeError(
                 .fillMaxWidth()
                 .background(
                     color = MaterialTheme.colorScheme.errorContainer,
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(16.dp)
                 )
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
@@ -83,7 +83,7 @@ fun MensajeError(
 private fun BotonError(texto: String, onClick: () -> Unit) {
     OutlinedButton(
         onClick = onClick,
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(14.dp),
         border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.primary

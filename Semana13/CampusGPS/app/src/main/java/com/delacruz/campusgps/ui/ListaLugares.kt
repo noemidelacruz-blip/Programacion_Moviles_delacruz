@@ -48,7 +48,7 @@ fun ListaLugares(
             Card(
                 onClick = { onClick(item.lugar.id) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = if (elegido) {
                         MaterialTheme.colorScheme.primaryContainer
@@ -101,12 +101,22 @@ fun ListaLugares(
                         )
                     }
 
-                    Text(
-                        text = item.metros?.let { formatearDistancia(it) } ?: "Sin calcular",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    // La distancia va en un chip con fondo lavanda
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = item.metros?.let { formatearDistancia(it) } ?: "Sin calcular",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
             }
         }
