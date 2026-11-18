@@ -10,7 +10,7 @@ class TareasRepositoryLocal : TareasRepository {
 
     override suspend fun cargarPerfil(): String {
         delay(2000)
-        return "Ana Torres (ficticia)"
+        return "Emi Zavala"
     }
 
     override suspend fun cargarPedidos(simularError: Boolean): List<String> {

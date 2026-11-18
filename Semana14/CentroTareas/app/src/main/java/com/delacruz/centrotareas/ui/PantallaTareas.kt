@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.delacruz.centrotareas.model.CargaUi
 import com.delacruz.centrotareas.model.PrimosUi
 import com.delacruz.centrotareas.viewmodel.TareasViewModel
 
@@ -49,6 +51,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
+    val carga by viewModel.carga.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -158,7 +161,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             onValueChange = { entrada ->
                                 textoHasta = entrada.filter { it.isDigit() }
                             },
-                            label = { Text("Hasta") },
+                            label = { Text("Hasta el número") },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth()
@@ -242,7 +245,72 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
-                    // TODO Paso 6: botones Una por una / A la vez y resultado.
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = { viewModel.cargarUnaPorUna() },
+                                enabled = carga !is CargaUi.Cargando
+                            ) {
+                                Text("Una por una")
+                            }
+                            Button(
+                                onClick = { viewModel.cargarALaVez() },
+                                enabled = carga !is CargaUi.Cargando
+                            ) {
+                                Text("A la vez")
+                            }
+                        }
+
+                        if (carga is CargaUi.Cargando) {
+                            CircularProgressIndicator()
+                            Text(text = "Cargando...")
+                        }
+
+                        val estadoCarga = carga
+                        if (estadoCarga is CargaUi.Exito) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                color = Color(0xFFDDF0DA)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = estadoCarga.modo,
+                                        color = Color(0xFF1B5E20),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Perfil: ${estadoCarga.perfil}",
+                                        color = Color(0xFF1B5E20)
+                                    )
+                                    Text(
+                                        text = "Pedidos: ${estadoCarga.pedidos}",
+                                        color = Color(0xFF1B5E20)
+                                    )
+                                    Text(
+                                        text = "Tiempo: ${estadoCarga.milisegundos} ms",
+                                        color = Color(0xFF1B5E20)
+                                    )
+                                }
+                            }
+                        }
+                    }
                     // TODO Paso 7: switch Simular error y botón Reintentar.
                 }
             }
