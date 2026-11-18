@@ -11,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +34,7 @@ import com.delacruz.centrotareas.viewmodel.TareasViewModel
 fun PantallaTareas(viewModel: TareasViewModel) {
     var toques by rememberSaveable { mutableIntStateOf(0) }
     val mensaje by viewModel.mensaje.collectAsState()
+    val progreso by viewModel.progreso.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -88,11 +90,15 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             Text("Tócame: $toques")
                         }
                         Button(onClick = { viewModel.tareaLarga() }) {
-                            Text("Tarea larga")
+                            Text("Iniciar")
                         }
+                        LinearProgressIndicator(
+                            progress = { progreso },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(text = "${(progreso * 100).toInt()} %")
                         Text(text = mensaje)
                     }
-                    // TODO Paso 3: barra de progreso y porcentaje.
                     // TODO Paso 4: botones Iniciar/Cancelar y estado corriendo.
                 }
             }
