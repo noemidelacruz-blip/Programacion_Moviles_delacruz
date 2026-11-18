@@ -1,31 +1,53 @@
 package com.delacruz.centrotareas.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,17 +57,37 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.delacruz.centrotareas.model.CargaUi
 import com.delacruz.centrotareas.model.PrimosUi
+import com.delacruz.centrotareas.ui.theme.CardBackground
+import com.delacruz.centrotareas.ui.theme.CardTitleColor
+import com.delacruz.centrotareas.ui.theme.IconBoxBg
+import com.delacruz.centrotareas.ui.theme.IconBoxTint
+import com.delacruz.centrotareas.ui.theme.OutlinedBtnBorder
+import com.delacruz.centrotareas.ui.theme.OutlinedBtnText
+import com.delacruz.centrotareas.ui.theme.PrimaryBtnEnd
+import com.delacruz.centrotareas.ui.theme.PrimaryBtnStart
+import com.delacruz.centrotareas.ui.theme.ProgressFill
+import com.delacruz.centrotareas.ui.theme.ProgressTrack
+import com.delacruz.centrotareas.ui.theme.ScreenBgBottom
+import com.delacruz.centrotareas.ui.theme.ScreenBgMiddle
+import com.delacruz.centrotareas.ui.theme.ScreenBgTop
+import com.delacruz.centrotareas.ui.theme.SuccessGreenBg
+import com.delacruz.centrotareas.ui.theme.SuccessGreenText
+import com.delacruz.centrotareas.ui.theme.SwitchTrackChecked
+import com.delacruz.centrotareas.ui.theme.TextPrimary
+import com.delacruz.centrotareas.ui.theme.TextSecondary
 import com.delacruz.centrotareas.viewmodel.TareasViewModel
 import com.delacruz.centrotareas.viewmodel.TiempoCarga
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaTareas(viewModel: TareasViewModel) {
     var toques by rememberSaveable { mutableIntStateOf(0) }
@@ -61,47 +103,42 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val historialTiempos by viewModel.historialTiempos.collectAsState()
     val historial by viewModel.historial.collectAsState()
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "CentroTareas",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        }
-    ) { innerPadding ->
+    val backgroundGradient = Brush.verticalGradient(
+        0.0f to ScreenBgTop,
+        0.18f to ScreenBgTop,
+        0.60f to ScreenBgMiddle,
+        1.00f to ScreenBgBottom
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundGradient)
+    ) {
+        // Ondas inferiores fijas al fondo
+        OlasFooter(
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+            // Encabezado decorativo con ondas superiores
+            OlasHeader()
+
+            // Contenido con scroll vertical y padding inferior amplio (~96dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Tarea con progreso",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                // Tarjeta 1: Tarea con progreso
+                TarjetaEstilizada {
+                    EncabezadoTarjeta(
+                        icon = Icons.Filled.RocketLaunch,
+                        titulo = "Tarea con progreso"
                     )
 
                     Column(
@@ -109,60 +146,77 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             .fillMaxWidth()
                             .padding(top = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Button(onClick = { toques++ }) {
-                            Text("Tócame: $toques")
-                        }
+                        BotonGradient(
+                            onClick = { toques++ },
+                            text = "Tócame: $toques",
+                            icon = Icons.Filled.Schedule
+                        )
+
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Button(
+                            BotonGradient(
                                 onClick = { viewModel.tareaLarga() },
-                                enabled = !corriendo
-                            ) {
-                                Text("Iniciar")
-                            }
-                            OutlinedButton(
+                                enabled = !corriendo,
+                                text = "Iniciar",
+                                icon = Icons.Filled.PlayArrow
+                            )
+                            BotonOutlinedCustom(
                                 onClick = { viewModel.cancelar() },
-                                enabled = corriendo
-                            ) {
-                                Text("Cancelar")
-                            }
+                                enabled = corriendo,
+                                text = "Cancelar",
+                                icon = Icons.Filled.Close
+                            )
                         }
+
                         LinearProgressIndicator(
                             progress = { progreso },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            color = ProgressFill,
+                            trackColor = ProgressTrack
                         )
-                        Text(text = "${(progreso * 100).toInt()} %")
-                        Text(text = mensaje)
+
+                        Text(
+                            text = "${(progreso * 100).toInt()} %",
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            if (mensaje == "Terminó") {
+                                Icon(
+                                    imageVector = Icons.Filled.CheckCircle,
+                                    contentDescription = null,
+                                    tint = SuccessGreenText,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Text(
+                                text = mensaje,
+                                color = if (mensaje == "Terminó") SuccessGreenText else TextSecondary,
+                                fontWeight = if (mensaje == "Terminó") FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
                     }
                 }
-            }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Contar números primos",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                // Tarjeta 2: Contar números primos
+                TarjetaEstilizada {
+                    EncabezadoTarjeta(
+                        icon = Icons.Filled.Calculate,
+                        titulo = "Contar números primos"
                     )
 
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         OutlinedTextField(
                             value = textoHasta,
@@ -172,12 +226,21 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             label = { Text("Hasta el número") },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = OutlinedBtnText,
+                                unfocusedBorderColor = OutlinedBtnBorder,
+                                focusedLabelColor = OutlinedBtnText,
+                                unfocusedLabelColor = TextSecondary,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
+
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Button(
+                            BotonGradient(
                                 onClick = {
                                     val hasta = textoHasta.toIntOrNull()
                                     if (hasta != null && hasta >= 2) {
@@ -185,23 +248,24 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                         viewModel.contar(hasta)
                                     }
                                 },
-                                enabled = primos !is PrimosUi.Calculando
-                            ) {
-                                Text("Contar")
-                            }
-                            OutlinedButton(
+                                enabled = primos !is PrimosUi.Calculando,
+                                text = "Contar",
+                                icon = Icons.Filled.Search
+                            )
+                            BotonOutlinedCustom(
                                 onClick = { viewModel.cancelarPrimos() },
-                                enabled = primos is PrimosUi.Calculando
-                            ) {
-                                Text("Cancelar")
-                            }
+                                enabled = primos is PrimosUi.Calculando,
+                                text = "Cancelar",
+                                icon = Icons.Filled.Close
+                            )
                         }
+
                         val estadoPrimos = primos
                         if (estadoPrimos is PrimosUi.Listo) {
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(16.dp),
-                                color = Color(0xFFDDF0DA)
+                                color = SuccessGreenBg
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -212,51 +276,45 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                 ) {
                                     Text(
                                         text = "Primos hasta $hastaContado: ${estadoPrimos.cantidad}",
-                                        color = Color(0xFF1B5E20),
+                                        color = SuccessGreenText,
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
                                         text = "Tiempo: ${estadoPrimos.milisegundos} ms",
-                                        color = Color(0xFF1B5E20)
+                                        color = SuccessGreenText
                                     )
                                 }
                             }
                         } else if (estadoPrimos is PrimosUi.Calculando) {
                             LinearProgressIndicator(
                                 progress = { progresoPrimos / 100f },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                color = ProgressFill,
+                                trackColor = ProgressTrack
                             )
-                            Text(text = "Calculando... $progresoPrimos %")
+                            Text(
+                                text = "Calculando... $progresoPrimos %",
+                                color = TextPrimary
+                            )
                         } else {
                             Text(
                                 text = when (estadoPrimos) {
                                     PrimosUi.Inicial -> "Ingresa un número mayor o igual a 2"
                                     PrimosUi.Cancelado -> "Cancelado"
                                     else -> ""
-                                }
+                                },
+                                color = TextSecondary
                             )
                         }
                     }
                 }
-            }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Dos cargas",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                // Tarjeta 3: Dos cargas
+                TarjetaEstilizada {
+                    EncabezadoTarjeta(
+                        icon = Icons.Filled.Layers,
+                        titulo = "Dos cargas"
                     )
 
                     Column(
@@ -264,7 +322,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             .fillMaxWidth()
                             .padding(top = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -273,31 +331,41 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         ) {
                             Switch(
                                 checked = simulandoError,
-                                onCheckedChange = { viewModel.cambiarSimularError(it) }
+                                onCheckedChange = { viewModel.cambiarSimularError(it) },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = SwitchTrackChecked,
+                                    uncheckedThumbColor = TextSecondary,
+                                    uncheckedTrackColor = ProgressTrack
+                                )
                             )
-                            Text(text = "Simular error")
+                            Text(
+                                text = "Simular error",
+                                color = TextPrimary
+                            )
                         }
 
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            OutlinedButton(
+                            BotonOutlinedCustom(
                                 onClick = { viewModel.cargarUnaPorUna() },
-                                enabled = carga !is CargaUi.Cargando
-                            ) {
-                                Text("Una por una")
-                            }
-                            Button(
+                                enabled = carga !is CargaUi.Cargando,
+                                text = "Una por una"
+                            )
+                            BotonGradient(
                                 onClick = { viewModel.cargarALaVez() },
-                                enabled = carga !is CargaUi.Cargando
-                            ) {
-                                Text("A la vez")
-                            }
+                                enabled = carga !is CargaUi.Cargando,
+                                text = "A la vez"
+                            )
                         }
 
                         if (carga is CargaUi.Cargando) {
-                            CircularProgressIndicator()
-                            Text(text = "Cargando...")
+                            CircularProgressIndicator(color = ProgressFill)
+                            Text(
+                                text = "Cargando...",
+                                color = TextPrimary
+                            )
                         }
 
                         val estadoCarga = carga
@@ -305,7 +373,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(16.dp),
-                                color = Color(0xFFDDF0DA)
+                                color = SuccessGreenBg
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -314,23 +382,34 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Text(
-                                        text = estadoCarga.modo,
-                                        color = Color(0xFF1B5E20),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.EmojiEvents,
+                                            contentDescription = null,
+                                            tint = SuccessGreenText,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Text(
+                                            text = estadoCarga.modo,
+                                            color = SuccessGreenText,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                     Text(
                                         text = "Perfil: ${estadoCarga.perfil}",
-                                        color = Color(0xFF1B5E20)
+                                        color = SuccessGreenText
                                     )
                                     Text(
                                         text = "Pedidos: ${estadoCarga.pedidos}",
-                                        color = Color(0xFF1B5E20)
+                                        color = SuccessGreenText
                                     )
                                     Text(
                                         text = "Tiempo: ${estadoCarga.milisegundos} ms",
-                                        color = Color(0xFF1B5E20)
+                                        color = SuccessGreenText
                                     )
                                 }
                             }
@@ -342,19 +421,33 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                 shape = RoundedCornerShape(16.dp),
                                 color = MaterialTheme.colorScheme.errorContainer
                             ) {
-                                Text(
-                                    text = estadoCarga.mensaje,
+                                Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp),
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Warning,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = estadoCarga.mensaje,
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
                             }
-                            OutlinedButton(onClick = { viewModel.cargarALaVez() }) {
-                                Text("Reintentar")
-                            }
+                            BotonOutlinedCustom(
+                                onClick = { viewModel.cargarALaVez() },
+                                text = "Reintentar",
+                                icon = Icons.Filled.Refresh
+                            )
                         }
 
                         if (historialTiempos.isNotEmpty()) {
@@ -362,24 +455,12 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         }
                     }
                 }
-            }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Historial",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                // Tarjeta 4: Historial
+                TarjetaEstilizada {
+                    EncabezadoTarjeta(
+                        icon = Icons.Filled.History,
+                        titulo = "Historial"
                     )
 
                     Column(
@@ -389,15 +470,175 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         if (historial.isEmpty()) {
-                            Text(text = "Aún no hay resultados")
+                            Text(
+                                text = "Aún no hay resultados",
+                                color = TextSecondary
+                            )
                         } else {
                             historial.forEach { item ->
-                                Text(text = item)
+                                Text(
+                                    text = item,
+                                    color = TextPrimary
+                                )
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun TarjetaEstilizada(
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(22.dp),
+                ambientColor = Color(0x336E50C2),
+                spotColor = Color(0x336E50C2)
+            ),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = CardBackground
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun EncabezadoTarjeta(
+    icon: ImageVector,
+    titulo: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(10.dp),
+            color = IconBoxBg,
+            modifier = Modifier.size(36.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = IconBoxTint,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        Text(
+            text = titulo,
+            color = CardTitleColor,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+private fun BotonGradient(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: ImageVector? = null
+) {
+    val gradientBrush = if (enabled) {
+        Brush.horizontalGradient(listOf(PrimaryBtnStart, PrimaryBtnEnd))
+    } else {
+        Brush.horizontalGradient(listOf(Color(0xFFB099D6), Color(0xFF9880BE)))
+    }
+
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent
+        ),
+        contentPadding = PaddingValues(0.dp),
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .background(brush = gradientBrush, shape = CircleShape)
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                Text(
+                    text = text,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BotonOutlinedCustom(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: ImageVector? = null
+) {
+    OutlinedButton(
+        onClick = onClick,
+        enabled = enabled,
+        shape = CircleShape,
+        border = BorderStroke(
+            1.5.dp,
+            if (enabled) OutlinedBtnBorder else OutlinedBtnBorder.copy(alpha = 0.4f)
+        ),
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = OutlinedBtnText,
+            disabledContentColor = OutlinedBtnText.copy(alpha = 0.4f)
+        ),
+        modifier = modifier
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Text(
+                text = text,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
@@ -410,7 +651,7 @@ private fun TablaComparacionTiempos(historial: List<TiempoCarga>) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant
+        color = ScreenBgMiddle
     ) {
         Column(
             modifier = Modifier
@@ -418,20 +659,31 @@ private fun TablaComparacionTiempos(historial: List<TiempoCarga>) {
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Text(
-                text = "Comparación de tiempos",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.BarChart,
+                    contentDescription = null,
+                    tint = CardTitleColor,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = "Comparación de tiempos",
+                    color = CardTitleColor,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             Text(
                 text = "Últimas ${historial.size} corridas",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = TextSecondary
             )
 
             FilaTiempos(listOf("Modo", "Veces", "Total", "Promedio"), encabezado = true)
-            HorizontalDivider()
+            HorizontalDivider(color = OutlinedBtnBorder)
             FilaTiempos(
                 listOf(
                     "Una por una",
@@ -449,12 +701,12 @@ private fun TablaComparacionTiempos(historial: List<TiempoCarga>) {
                 )
             )
 
-            HorizontalDivider()
+            HorizontalDivider(color = OutlinedBtnBorder)
             Text(
                 text = mensajeDiferencia(unaPorUna, aLaVez),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1B5E20)
+                color = SuccessGreenText
             )
         }
     }
@@ -467,10 +719,12 @@ private fun FilaTiempos(valores: List<String>, encabezado: Boolean = false) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        valores.forEachIndexed { indice, valor ->
+        for (indice in valores.indices) {
+            val valor = valores[indice]
             Text(
                 text = valor,
                 modifier = Modifier.weight(pesos[indice]),
+                color = if (encabezado) CardTitleColor else TextPrimary,
                 style = if (encabezado) {
                     MaterialTheme.typography.labelMedium
                 } else {
