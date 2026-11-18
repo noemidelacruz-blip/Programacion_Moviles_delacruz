@@ -21,6 +21,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -36,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.delacruz.centrotareas.model.CargaUi
 import com.delacruz.centrotareas.model.PrimosUi
@@ -52,6 +54,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
+    val simulandoError by viewModel.simularError.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -254,6 +257,18 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Switch(
+                                checked = simulandoError,
+                                onCheckedChange = { viewModel.cambiarSimularError(it) }
+                            )
+                            Text(text = "Simular error")
+                        }
+
+                        Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             OutlinedButton(
@@ -310,8 +325,28 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                 }
                             }
                         }
+
+                        if (estadoCarga is CargaUi.Error) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.errorContainer
+                            ) {
+                                Text(
+                                    text = estadoCarga.mensaje,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+                            OutlinedButton(onClick = { viewModel.cargarALaVez() }) {
+                                Text("Reintentar")
+                            }
+                        }
                     }
-                    // TODO Paso 7: switch Simular error y botón Reintentar.
                 }
             }
         }
