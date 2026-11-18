@@ -67,6 +67,8 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:8.3.1")
     // Guarda los datos de la pantalla para que no se borren al girar el celular
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    // Íconos de las categorías en la lista (MenuBook, Restaurant, Mic, Star)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
