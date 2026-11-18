@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+data class TiempoCarga(val modo: String, val milisegundos: Long)
+
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     // ----- Tarea con progreso (pasos 1 a 4)
@@ -99,6 +101,15 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         _simularError.value = valor
     }
 
+    // ----- Comparación de tiempos
+    private val _historialTiempos = MutableStateFlow<List<TiempoCarga>>(emptyList())
+    val historialTiempos: StateFlow<List<TiempoCarga>> = _historialTiempos.asStateFlow()
+
+    private fun registrarTiempo(modo: String, milisegundos: Long) {
+        val corridas = _historialTiempos.value + TiempoCarga(modo, milisegundos)
+        _historialTiempos.value = corridas.takeLast(MAX_CORRIDAS)
+    }
+
     fun cargarUnaPorUna() {
         if (_carga.value is CargaUi.Cargando) return
 
@@ -108,11 +119,13 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             try {
                 val perfil = repo.cargarPerfil()
                 val pedidos = repo.cargarPedidos(_simularError.value)
+                val tiempo = System.currentTimeMillis() - inicio
+                registrarTiempo("Una por una", tiempo)
                 _carga.value = CargaUi.Exito(
                     modo = "Una por una",
                     perfil = perfil,
                     pedidos = pedidos.size,
-                    milisegundos = System.currentTimeMillis() - inicio
+                    milisegundos = tiempo
                 )
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -133,16 +146,22 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     val pedidosAsync = async { repo.cargarPedidos(_simularError.value) }
                     Pair(perfilAsync.await(), pedidosAsync.await())
                 }
+                val tiempo = System.currentTimeMillis() - inicio
+                registrarTiempo("A la vez", tiempo)
                 _carga.value = CargaUi.Exito(
                     modo = "A la vez",
                     perfil = perfil,
                     pedidos = pedidos.size,
-                    milisegundos = System.currentTimeMillis() - inicio
+                    milisegundos = tiempo
                 )
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
             }
         }
+    }
+
+    private companion object {
+        const val MAX_CORRIDAS = 10
     }
 }

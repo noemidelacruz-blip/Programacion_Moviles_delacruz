@@ -15,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.delacruz.centrotareas.model.CargaUi
 import com.delacruz.centrotareas.model.PrimosUi
 import com.delacruz.centrotareas.viewmodel.TareasViewModel
+import com.delacruz.centrotareas.viewmodel.TiempoCarga
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +57,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
     val simulandoError by viewModel.simularError.collectAsState()
+    val historialTiempos by viewModel.historialTiempos.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -346,9 +349,127 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                 Text("Reintentar")
                             }
                         }
+
+                        if (historialTiempos.isNotEmpty()) {
+                            TablaComparacionTiempos(historialTiempos)
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TablaComparacionTiempos(historial: List<TiempoCarga>) {
+    val unaPorUna = historial.filter { it.modo == "Una por una" }
+    val aLaVez = historial.filter { it.modo == "A la vez" }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = "Comparación de tiempos",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Últimas ${historial.size} corridas",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            FilaTiempos(listOf("Modo", "Veces", "Total", "Promedio"), encabezado = true)
+            HorizontalDivider()
+            FilaTiempos(
+                listOf(
+                    "Una por una",
+                    unaPorUna.size.toString(),
+                    total(unaPorUna),
+                    promedio(unaPorUna)
+                )
+            )
+            FilaTiempos(
+                listOf(
+                    "A la vez",
+                    aLaVez.size.toString(),
+                    total(aLaVez),
+                    promedio(aLaVez)
+                )
+            )
+
+            HorizontalDivider()
+            Text(
+                text = mensajeDiferencia(unaPorUna, aLaVez),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF1B5E20)
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilaTiempos(valores: List<String>, encabezado: Boolean = false) {
+    val pesos = listOf(1.15f, 0.6f, 0.95f, 1.05f)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        valores.forEachIndexed { indice, valor ->
+            Text(
+                text = valor,
+                modifier = Modifier.weight(pesos[indice]),
+                style = if (encabezado) {
+                    MaterialTheme.typography.labelMedium
+                } else {
+                    MaterialTheme.typography.bodySmall
+                },
+                fontWeight = if (encabezado) FontWeight.Bold else FontWeight.Normal,
+                textAlign = if (indice == 0) TextAlign.Start else TextAlign.End,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+private fun total(lista: List<TiempoCarga>): String {
+    if (lista.isEmpty()) return "—"
+    return "${lista.sumOf { it.milisegundos }} ms"
+}
+
+private fun promedio(lista: List<TiempoCarga>): String {
+    if (lista.isEmpty()) return "—"
+    return "${lista.sumOf { it.milisegundos } / lista.size} ms"
+}
+
+private fun mensajeDiferencia(
+    unaPorUna: List<TiempoCarga>,
+    aLaVez: List<TiempoCarga>
+): String {
+    if (unaPorUna.isEmpty() || aLaVez.isEmpty()) {
+        return "Ejecuta Una por una y A la vez para ver la diferencia."
+    }
+
+    val promedioUna = unaPorUna.sumOf { it.milisegundos } / unaPorUna.size
+    val promedioVez = aLaVez.sumOf { it.milisegundos } / aLaVez.size
+    val diferencia = promedioUna - promedioVez
+
+    return when {
+        diferencia > 0 -> {
+            val porcentaje = if (promedioUna > 0) diferencia * 100 / promedioUna else 0
+            "A la vez es $diferencia ms más rápido ($porcentaje % menos)."
+        }
+        diferencia < 0 -> "Una por una es ${-diferencia} ms más rápido."
+        else -> "Ambos modos tardan lo mismo en promedio."
     }
 }
