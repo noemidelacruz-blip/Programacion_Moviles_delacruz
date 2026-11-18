@@ -15,6 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -67,17 +68,25 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _primos = MutableStateFlow<PrimosUi>(PrimosUi.Inicial)
     val primos: StateFlow<PrimosUi> = _primos.asStateFlow()
 
+    private val _progresoPrimos = MutableStateFlow(0)
+    val progresoPrimos: StateFlow<Int> = _progresoPrimos.asStateFlow()
+
     private var trabajoPrimos: Job? = null
 
     fun contar(hasta: Int) {
         if (hasta < 2) return
 
         trabajoPrimos?.cancel()
+        _progresoPrimos.value = 0
         _primos.value = PrimosUi.Calculando
         trabajoPrimos = viewModelScope.launch {
             val inicio = System.currentTimeMillis()
             try {
-                val cantidad = repo.contarPrimos(hasta)
+                var cantidad = 0
+                repo.contarPrimos(hasta).collect { avance ->
+                    cantidad = avance.cantidad
+                    _progresoPrimos.value = avance.porcentaje
+                }
                 _primos.value = PrimosUi.Listo(cantidad, System.currentTimeMillis() - inicio)
             } catch (e: CancellationException) {
                 _primos.value = PrimosUi.Cancelado

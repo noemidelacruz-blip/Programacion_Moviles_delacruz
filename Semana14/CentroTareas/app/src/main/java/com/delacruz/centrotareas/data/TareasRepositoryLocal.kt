@@ -2,9 +2,12 @@ package com.delacruz.centrotareas.data
 
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 class TareasRepositoryLocal : TareasRepository {
 
@@ -19,14 +22,26 @@ class TareasRepositoryLocal : TareasRepository {
         return listOf("Pedido 101", "Pedido 102", "Pedido 103")
     }
 
-    override suspend fun contarPrimos(hasta: Int): Int = withContext(Dispatchers.Default) {
+    override fun contarPrimos(hasta: Int): Flow<ProgresoPrimo> = flow {
         var cantidad = 0
+        val paso = (hasta / 100).coerceAtLeast(1)
+        var ultimoPorcentaje = 0
+
         for (n in 2..hasta) {
-            ensureActive()
+            currentCoroutineContext().ensureActive()
             if (esPrimo(n)) cantidad++
+
+            if (n == hasta || n % paso == 0) {
+                val porcentaje = ((n.toLong() * 100L) / hasta).toInt()
+                if (porcentaje > ultimoPorcentaje) {
+                    ultimoPorcentaje = porcentaje
+                    emit(ProgresoPrimo(porcentaje, cantidad))
+                }
+            }
         }
-        cantidad
-    }
+
+        if (ultimoPorcentaje < 100) emit(ProgresoPrimo(100, cantidad))
+    }.flowOn(Dispatchers.Default)
 
     private fun esPrimo(n: Int): Boolean {
         var d = 2

@@ -55,6 +55,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
+    val progresoPrimos by viewModel.progresoPrimos.collectAsState()
     val carga by viewModel.carga.collectAsState()
     val simulandoError by viewModel.simularError.collectAsState()
     val historialTiempos by viewModel.historialTiempos.collectAsState()
@@ -220,13 +221,18 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                     )
                                 }
                             }
+                        } else if (estadoPrimos is PrimosUi.Calculando) {
+                            LinearProgressIndicator(
+                                progress = { progresoPrimos / 100f },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Text(text = "Calculando... $progresoPrimos %")
                         } else {
                             Text(
                                 text = when (estadoPrimos) {
                                     PrimosUi.Inicial -> "Ingresa un número mayor o igual a 2"
-                                    PrimosUi.Calculando -> "Calculando..."
                                     PrimosUi.Cancelado -> "Cancelado"
-                                    is PrimosUi.Listo -> ""
+                                    else -> ""
                                 }
                             )
                         }
