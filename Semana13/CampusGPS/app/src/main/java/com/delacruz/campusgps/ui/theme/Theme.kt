@@ -1,12 +1,13 @@
 package com.delacruz.campusgps.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// El diseño del laboratorio usa siempre el tema claro, por eso no se
-// usa el color dinámico ni un esquema oscuro.
+// Tema claro: es el diseño vino que ya tenía la app
 private val EsquemaClaro = lightColorScheme(
     primary = VinoCampus,
     onPrimary = Color.White,
@@ -26,10 +27,34 @@ private val EsquemaClaro = lightColorScheme(
     onErrorContainer = RojoError
 )
 
+// Tema oscuro: mismos acentos vino, pero aclarados para que se lean sobre negro.
+// El mapa también cambia a su estilo nocturno cuando este esquema está activo.
+private val EsquemaOscuro = darkColorScheme(
+    primary = VinoClaro,
+    onPrimary = VinoOscuro,
+    primaryContainer = VinoContenedorOscuro,
+    onPrimaryContainer = RosaSuave,
+    secondary = RosaCampus,
+    onSecondary = Color.White,
+    background = FondoOscuro,
+    onBackground = TextoClaro,
+    surface = SuperficieOscura,
+    onSurface = TextoClaro,
+    surfaceVariant = SuperficieOscuraAlta,
+    onSurfaceVariant = TextoSecundarioOscuro,
+    outline = TextoSecundarioOscuro,
+    outlineVariant = BordeOscuro,
+    error = RojoErrorClaro,
+    onError = VinoOscuro,
+    errorContainer = FondoErrorOscuro,
+    onErrorContainer = RojoErrorClaro
+)
+
+// La app sigue la configuración del sistema: claro u oscuro
 @Composable
 fun CampusGPSTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = EsquemaClaro,
+        colorScheme = if (isSystemInDarkTheme()) EsquemaOscuro else EsquemaClaro,
         typography = Typography,
         content = content
     )

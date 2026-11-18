@@ -1,9 +1,14 @@
 package com.delacruz.campusgps.ui
 
+import android.content.Context
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.delacruz.campusgps.R
 import com.delacruz.campusgps.model.Lugar
 import com.delacruz.campusgps.model.LugarConDistancia
 import com.delacruz.campusgps.model.UbicacionUi
@@ -11,7 +16,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
@@ -27,6 +34,13 @@ fun MapaUbicacion(
 ) {
     val camara = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f)
+    }
+
+    // Estilo nocturno del mapa: solo se aplica cuando la app está en tema oscuro
+    val contexto = LocalContext.current
+    val oscuro = isSystemInDarkTheme()
+    val estiloMapa = remember(oscuro) {
+        if (oscuro) cargarEstiloOscuro(contexto) else null
     }
 
     // Cuando llega la ubicación, la cámara viaja hasta la posición del usuario
@@ -54,7 +68,12 @@ fun MapaUbicacion(
         }
     }
 
-    GoogleMap(modifier = modifier, cameraPositionState = camara) {
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = camara,
+        // Con estilo nulo el mapa vuelve a su aspecto normal (tema claro)
+        properties = MapProperties(mapStyleOptions = estiloMapa)
+    ) {
         if (estado is UbicacionUi.Lista) {
             Marker(
                 state = rememberUpdatedMarkerState(
@@ -93,3 +112,12 @@ fun MapaUbicacion(
         }
     }
 }
+
+// Lee el JSON de estilo nocturno (res/raw/mapa_oscuro.json) y lo prepara para el mapa.
+// Si el archivo faltara o el JSON no fuera válido, el mapa sigue con su estilo normal.
+private fun cargarEstiloOscuro(contexto: Context): MapStyleOptions? =
+    runCatching {
+        contexto.resources.openRawResource(R.raw.mapa_oscuro).use { entrada ->
+            MapStyleOptions(entrada.bufferedReader().readText())
+        }
+    }.getOrNull()

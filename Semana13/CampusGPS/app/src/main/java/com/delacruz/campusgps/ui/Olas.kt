@@ -33,6 +33,14 @@ import com.delacruz.campusgps.ui.theme.OlaBaja5
 import com.delacruz.campusgps.ui.theme.OlaBaja6
 import com.delacruz.campusgps.ui.theme.OlaBaja7
 import com.delacruz.campusgps.ui.theme.OlaBaja8
+import com.delacruz.campusgps.ui.theme.OlaOscura1
+import com.delacruz.campusgps.ui.theme.OlaOscura2
+import com.delacruz.campusgps.ui.theme.OlaOscura3
+import com.delacruz.campusgps.ui.theme.OlaOscura4
+import com.delacruz.campusgps.ui.theme.OlaOscura5
+import com.delacruz.campusgps.ui.theme.OlaOscura6
+import com.delacruz.campusgps.ui.theme.OlaOscura7
+import com.delacruz.campusgps.ui.theme.OlaOscura8
 import com.delacruz.campusgps.ui.theme.OlaRosa16
 import com.delacruz.campusgps.ui.theme.OlaRosa28
 import com.delacruz.campusgps.ui.theme.OlaVinoFondo1
@@ -70,17 +78,19 @@ fun OlasSuperiores(
 }
 
 // Panel inferior decorativo: cinco capas de olas de claro a oscuro.
+// En tema oscuro usa tonos vino apagados para no deslumbrar.
 @Composable
 fun OlasInferiores(
     modifier: Modifier = Modifier,
-    altura: Dp = 200.dp
+    altura: Dp = 200.dp,
+    oscuro: Boolean = false
 ) {
     Canvas(
         modifier = modifier
             .fillMaxWidth()
             .height(altura)
     ) {
-        dibujarOlasInferiores()
+        dibujarOlasInferiores(oscuro)
     }
 }
 
@@ -149,25 +159,32 @@ private fun DrawScope.dibujarOlasSuperiores() {
     )
 }
 
-private fun DrawScope.dibujarOlasInferiores() {
+private fun DrawScope.dibujarOlasInferiores(oscuro: Boolean) {
     val ancho = size.width
     val alto = size.height
+
+    // Colores de cada capa según el tema
+    val capa1 = if (oscuro) OlaOscura1 else OlaBaja1
+    val capa2 = if (oscuro) OlaOscura2 else OlaBaja2
+    val capa3 = if (oscuro) listOf(OlaOscura3, OlaOscura4) else listOf(OlaBaja3, OlaBaja4)
+    val capa4 = if (oscuro) listOf(OlaOscura5, OlaOscura6) else listOf(OlaBaja5, OlaBaja6)
+    val capa5 = if (oscuro) listOf(OlaOscura7, OlaOscura8) else listOf(OlaBaja7, OlaBaja8)
 
     // Capa 1: la más clara, más arriba
     drawPath(
         path = olaRellena(alto * 0.06f, alto * 0.10f, ancho, alto),
-        color = OlaBaja1
+        color = capa1
     )
     // Capa 2
     drawPath(
         path = olaRellena(alto * 0.24f, alto * 0.09f, ancho, alto),
-        color = OlaBaja2
+        color = capa2
     )
     // Capa 3: degradado suave
     drawPath(
         path = olaRellena(alto * 0.42f, alto * 0.08f, ancho, alto),
         brush = Brush.linearGradient(
-            colors = listOf(OlaBaja3, OlaBaja4),
+            colors = capa3,
             start = Offset(0f, alto * 0.42f),
             end = Offset(ancho, alto)
         )
@@ -176,7 +193,7 @@ private fun DrawScope.dibujarOlasInferiores() {
     drawPath(
         path = olaRellena(alto * 0.60f, alto * 0.07f, ancho, alto),
         brush = Brush.linearGradient(
-            colors = listOf(OlaBaja5, OlaBaja6),
+            colors = capa4,
             start = Offset(ancho, alto * 0.60f),
             end = Offset(0f, alto)
         )
@@ -185,7 +202,7 @@ private fun DrawScope.dibujarOlasInferiores() {
     drawPath(
         path = olaRellena(alto * 0.78f, alto * 0.06f, ancho, alto),
         brush = Brush.linearGradient(
-            colors = listOf(OlaBaja7, OlaBaja8),
+            colors = capa5,
             start = Offset(0f, alto * 0.78f),
             end = Offset(ancho, alto)
         )

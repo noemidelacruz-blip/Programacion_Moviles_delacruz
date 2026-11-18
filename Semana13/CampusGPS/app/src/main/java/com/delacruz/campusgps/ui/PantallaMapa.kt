@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -52,6 +53,9 @@ fun PantallaMapa() {
     val cercano = lugares.firstOrNull { it.lugar.id == masCercano?.id }
 
     val hayError = estado is UbicacionUi.Error
+
+    // Las olas decorativas cambian de tono con el tema oscuro
+    val oscuro = isSystemInDarkTheme()
 
     // Android dibuja el cuadro de permiso; aquí solo se pide y se lee el resultado
     val lanzador = rememberLauncherForActivityResult(
@@ -126,7 +130,7 @@ fun PantallaMapa() {
                     onReintentar = { vm.buscar() }
                 )
                 Spacer(Modifier.weight(1f))
-                OlasInferiores(altura = 200.dp)
+                OlasInferiores(altura = 200.dp, oscuro = oscuro)
             } else {
                 MapaUbicacion(
                     estado = estado,
@@ -148,7 +152,8 @@ fun PantallaMapa() {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         OlasInferiores(
                             modifier = Modifier.align(Alignment.BottomCenter),
-                            altura = 200.dp
+                            altura = 200.dp,
+                            oscuro = oscuro
                         )
 
                         Column(
