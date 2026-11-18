@@ -8,4 +8,6 @@ interface TareasRepository {
     fun contarPrimos(hasta: Int): Flow<ProgresoPrimo>
     suspend fun cargarPerfil(): String
     suspend fun cargarPedidos(simularError: Boolean): List<String>
+    val historial: Flow<List<String>>
+    suspend fun guardarResultado(resultado: String)
 }

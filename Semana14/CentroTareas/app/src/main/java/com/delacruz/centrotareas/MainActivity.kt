@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CentroTareasTheme {
                 val vm: TareasViewModel = viewModel(
-                    factory = TareasViewModelFactory(TareasRepositoryLocal())
+                    factory = TareasViewModelFactory(TareasRepositoryLocal(applicationContext))
                 )
                 PantallaTareas(vm)
             }

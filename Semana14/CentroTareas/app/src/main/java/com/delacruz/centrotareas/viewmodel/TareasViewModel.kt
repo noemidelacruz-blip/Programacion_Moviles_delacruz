@@ -13,15 +13,24 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 data class TiempoCarga(val modo: String, val milisegundos: Long)
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
+
+    // ----- Historial de resultados (DataStore)
+    val historial: StateFlow<List<String>> = repo.historial
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     // ----- Tarea con progreso (pasos 1 a 4)
     private val _mensaje = MutableStateFlow("Listo")
@@ -87,7 +96,11 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     cantidad = avance.cantidad
                     _progresoPrimos.value = avance.porcentaje
                 }
-                _primos.value = PrimosUi.Listo(cantidad, System.currentTimeMillis() - inicio)
+                val tiempo = System.currentTimeMillis() - inicio
+                _primos.value = PrimosUi.Listo(cantidad, tiempo)
+                viewModelScope.launch {
+                    repo.guardarResultado("Primos hasta $hasta: $cantidad ($tiempo ms)")
+                }
             } catch (e: CancellationException) {
                 _primos.value = PrimosUi.Cancelado
                 throw e
@@ -136,6 +149,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     pedidos = pedidos.size,
                     milisegundos = tiempo
                 )
+                viewModelScope.launch {
+                    repo.guardarResultado("Una por una: ${pedidos.size} pedidos ($tiempo ms)")
+                }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
@@ -163,6 +179,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     pedidos = pedidos.size,
                     milisegundos = tiempo
                 )
+                viewModelScope.launch {
+                    repo.guardarResultado("A la vez: ${pedidos.size} pedidos ($tiempo ms)")
+                }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")

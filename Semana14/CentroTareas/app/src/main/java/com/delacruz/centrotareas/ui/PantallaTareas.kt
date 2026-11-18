@@ -2,9 +2,9 @@ package com.delacruz.centrotareas.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,6 +59,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val carga by viewModel.carga.collectAsState()
     val simulandoError by viewModel.simularError.collectAsState()
     val historialTiempos by viewModel.historialTiempos.collectAsState()
+    val historial by viewModel.historial.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -358,6 +359,41 @@ fun PantallaTareas(viewModel: TareasViewModel) {
 
                         if (historialTiempos.isNotEmpty()) {
                             TablaComparacionTiempos(historialTiempos)
+                        }
+                    }
+                }
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Historial",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (historial.isEmpty()) {
+                            Text(text = "Aún no hay resultados")
+                        } else {
+                            historial.forEach { item ->
+                                Text(text = item)
+                            }
                         }
                     }
                 }
