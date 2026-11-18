@@ -1,7 +1,7 @@
 # CampusGPS
 
 **Curso:** Programación en Dispositivos Móviles
-**Estudiante:** Noemí De La Cruz
+**Estudiante:** Noemi De La Cruz
 **Laboratorio:** Semana 13 — Google Maps, ubicación y arquitectura MVVM + Repository
 **Framework UI:** Jetpack Compose (Material 3)
 
@@ -20,6 +20,7 @@
 9. [Cómo ejecutar](#cómo-ejecutar)
 10. [Pruebas de aceptación](#pruebas-de-aceptación)
 11. [Para pensar](#para-pensar)
+12. [Mejoras con IA](#mejoras-con-ia)
 
 ---
 
@@ -52,6 +53,16 @@ el dispositivo no tiene Google Play Services. Nunca se cierra por un error.
   ubicación.
 - **Estados de error**: permiso denegado, GPS apagado y sin Google Play
   Services, cada uno con el botón que corresponde.
+- **Tema oscuro y mapa nocturno** *(Fase 2)*: la app sigue la configuración del
+  sistema. En oscuro el mapa cambia con `MapStyleOptions` y el estilo de
+  `res/raw/mapa_oscuro.json`.
+- **Filtro por categoría** *(Fase 2)*: chips de Estudio, Comida, Eventos y
+  Servicios que filtran el mapa y la lista a la vez; tocar el chip activo quita
+  el filtro.
+- **Seguimiento en vivo** *(Fase 2)*: el botón **Seguir en vivo** convierte los
+  callbacks del GPS en un `Flow` con `callbackFlow` y actualiza la posición, las
+  distancias y el lugar más cercano mientras caminas; **Detener** corta las
+  actualizaciones.
 
 ## Tecnologías
 
@@ -114,12 +125,18 @@ com.delacruz.campusgps/
 │   ├── MapaViewModel.kt                 [G]
 │   └── CampusViewModelFactory.kt        [E]
 └── ui/
-    ├── PantallaMapa.kt                  [G]
-    ├── MapaUbicacion.kt                 [G]
+    ├── PantallaMapa.kt                  [G]  cabecera, panel, chips y estados
+    ├── MapaUbicacion.kt                 [G]  mapa, marcadores y estilo nocturno
+    ├── BotonUbicacion.kt                [A]  botón principal con degradado
+    ├── ChipsCategoria.kt                [A]  filtros de categoría
+    ├── Olas.kt                          [A]  olas decorativas con Canvas
     ├── ListaLugares.kt                  [A]
     ├── MensajeError.kt                  [A]
     └── theme/                           [E]  Color.kt, Theme.kt, Type.kt
 ```
+
+Además, `res/raw/mapa_oscuro.json` guarda el estilo nocturno del mapa y
+`res/values-night/` el tema oscuro de la ventana.
 
 Los niveles de la guía son `[E]` = estructura dada, `[G]` = guiado en clase y
 `[A]` = autónomo.
@@ -160,8 +177,9 @@ Inicial ──(pulsar)──> Buscando ──(éxito)──> Lista(posicion)
                                           └── OTRO             -> Reintentar
 ```
 
-`MapaViewModel` publica `estado`, `lugares`, `seleccionado` y `masCercano` como
-`StateFlow`; la pantalla solo los observa y delega los eventos.
+`MapaViewModel` publica `estado`, `lugares`, `seleccionado`, `masCercano`,
+`categoria` y `siguiendo` como `StateFlow`; la pantalla solo los observa y
+delega los eventos.
 
 ## Capturas
 
@@ -181,6 +199,18 @@ quedan en metros.
 | Error: permiso denegado | Error: GPS apagado |
 | :---: | :---: |
 | ![Error de permiso](docs/capturas/05-error-permiso.png) | ![Error de GPS](docs/capturas/06-error-gps.png) |
+
+| Tema oscuro: mapa nocturno | Tema oscuro: estado de error |
+| :---: | :---: |
+| ![Modo oscuro](docs/capturas/07-modo-oscuro.png) | ![Error en oscuro](docs/capturas/08-error-oscuro.png) |
+
+| Filtro por categoría: Comida | Filtro por categoría: Estudio |
+| :---: | :---: |
+| ![Filtro Comida](docs/capturas/09-filtro-comida.png) | ![Filtro Estudio](docs/capturas/10-filtro-estudio.png) |
+
+| Filtro en tema oscuro | Seguimiento en vivo |
+| :---: | :---: |
+| ![Filtro en oscuro](docs/capturas/11-filtro-oscuro.png) | ![Seguimiento en vivo](docs/capturas/12-seguimiento-vivo.png) |
 
 ## Datos de prueba
 
@@ -219,6 +249,11 @@ base **-12.0464, -77.0428** (Lima):
 | Ir al más cercano | La cámara va al lugar verde; el botón está deshabilitado antes de buscar | ✔ |
 | Cambiar la ubicación y buscar otra vez | Las distancias, el orden y el lugar verde se actualizan | ✔ |
 | Ubicación apagada | Mensaje de GPS con **Reintentar** | ✔ |
+| Activar el tema oscuro del sistema | La app, el panel y el mapa usan el estilo nocturno | ✔ |
+| Tocar un chip de categoría | El mapa y la lista muestran solo esa categoría | ✔ |
+| Tocar otra vez el chip activo | Vuelven los 5 lugares y el más cercano global | ✔ |
+| Pulsar **Seguir en vivo** | Latitud, longitud, distancias y lugar verde se actualizan cada ~3 s | ✔ |
+| Pulsar **Detener** | Las actualizaciones paran y el botón vuelve a **Seguir en vivo** | ✔ |
 | Rotar la pantalla | No se pierden la ubicación ni la lista | ✔ |
 | Revisar el repositorio | `git grep "tu_clave"` no encuentra nada y `local.properties` no está subido | ✔ |
 
@@ -229,10 +264,11 @@ el ViewModel?**
 
 Porque el ViewModel debe desconocer Android y Google Play Services, y sobre todo
 no puede recibir un `Context`. El Repository esconde ese detalle detrás de la
-interfaz `UbicacionRepository`, que solo expone `obtenerPosicion(): Result<Posicion>`
-y `playServicesDisponible(): Boolean`. Así el ViewModel se puede probar con un
-fake del Repository, y si mañana se cambia de proveedor de ubicación (o se usa
-el `LocationManager` del sistema) la capa de presentación no se toca.
+interfaz `UbicacionRepository`, que solo expone `obtenerPosicion(): Result<Posicion>`,
+`observarUbicacion(): Flow<Posicion>` y `playServicesDisponible(): Boolean`. Así el
+ViewModel se puede probar con un fake del Repository, y si mañana se cambia de
+proveedor de ubicación (o se usa el `LocationManager` del sistema) la capa de
+presentación no se toca.
 
 **2. ¿Qué diferencia hay entre el permiso de ubicación y la clave de API de
 Maps? ¿Qué pasa si falta cada uno?**
@@ -277,3 +313,14 @@ queda en `false` (negado de forma permanente). La app no se cierra: publica
 `Settings.ACTION_APPLICATION_DETAILS_SETTINGS`. Cuando el usuario concede el
 permiso allí y vuelve, basta pulsar otra vez "Obtener mi ubicación" para que
 `tienePermiso()` sea verdadero y la búsqueda continúe.
+
+## Mejoras con IA (Fase 2)
+
+Las tres mejoras de la segunda fase están en la rama `con-ia` y los prompts que
+se usaron están en [`PROMPTS.md`](PROMPTS.md).
+
+| Mejora | Capas | Cómo quedó |
+| --- | --- | --- |
+| Mapa en modo oscuro | View | `MapStyleOptions` con `res/raw/mapa_oscuro.json` cuando `isSystemInDarkTheme()` es verdadero; `darkColorScheme` y `values-night/` |
+| Filtrar por categoría | ViewModel + View | `_categoria` + `lugares = combine(_todos, _categoria)` y chips de Estudio, Comida, Eventos y Servicios |
+| Seguimiento en vivo | Repository + ViewModel + View | `observarUbicacion()` con `callbackFlow` sobre `requestLocationUpdates`, botón **Seguir en vivo / Detener** y `Job` que se cancela al detener |
