@@ -48,6 +48,7 @@ fun PantallaMapa() {
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val categoria by vm.categoria.collectAsState()
 
     // El más cercano con su distancia, para el texto debajo del botón
     val cercano = lugares.firstOrNull { it.lugar.id == masCercano?.id }
@@ -169,6 +170,16 @@ fun PantallaMapa() {
                                 onIrAlMasCercano = { masCercano?.let { vm.seleccionar(it.id) } },
                                 onReintentar = { vm.buscar() }
                             )
+
+                            // Chips que filtran el mapa y la lista
+                            ChipsCategoria(
+                                categorias = vm.categorias,
+                                seleccionada = categoria,
+                                onSeleccionar = { vm.filtrarPorCategoria(it) },
+                                modifier = Modifier.padding(horizontal = 24.dp)
+                            )
+
+                            Spacer(Modifier.height(6.dp))
 
                             ListaLugares(
                                 lugares = lugares,

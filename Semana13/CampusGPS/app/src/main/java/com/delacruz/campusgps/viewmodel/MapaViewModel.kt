@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -28,15 +29,29 @@ class MapaViewModel(
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
     val estado: StateFlow<UbicacionUi> = _estado.asStateFlow()
 
-    private val _lugares = MutableStateFlow(
+    // Lista completa: se ordena por distancia cuando llega la ubicación
+    private val _todos = MutableStateFlow(
         lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) }
     )
-    val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
+
+    // Categorías disponibles, en el orden en que aparecen en el repositorio
+    // (Estudio, Comida, Eventos, Servicios)
+    val categorias: List<String> = _todos.value.map { it.lugar.categoria }.distinct()
+
+    // null = sin filtro; con una categoría solo se muestran esos lugares
+    private val _categoria = MutableStateFlow<String?>(null)
+    val categoria: StateFlow<String?> = _categoria.asStateFlow()
+
+    // Lo que ve la pantalla: el mapa y la lista usan esta misma lista filtrada
+    val lugares: StateFlow<List<LugarConDistancia>> =
+        combine(_todos, _categoria) { lista, filtro ->
+            if (filtro == null) lista else lista.filter { it.lugar.categoria == filtro }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _todos.value)
 
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
-    // El primer lugar de la lista ordenada que ya tiene distancia calculada
+    // El primer lugar de la lista filtrada y ordenada que ya tiene distancia calculada
     val masCercano: StateFlow<Lugar?> = lugares
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -73,15 +88,29 @@ class MapaViewModel(
         _seleccionado.value = id
     }
 
-    // Calcula la distancia a cada lugar y publica la lista del más cercano al más lejano
+    // Un chip activo filtra el mapa y la lista; al tocarlo de nuevo se muestran todos
+    fun filtrarPorCategoria(categoria: String?) {
+        val filtro = if (_categoria.value == categoria) null else categoria
+        _categoria.value = filtro
+
+        // Si el lugar seleccionado deja de verse con el filtro, se limpia la selección
+        val id = _seleccionado.value
+        if (id != null && filtro != null &&
+            _todos.value.none { it.lugar.id == id && it.lugar.categoria == filtro }
+        ) {
+            _seleccionado.value = null
+        }
+    }
+
+    // Calcula la distancia a cada lugar y ordena la lista completa del más cercano al más lejano
     private fun actualizarDistancias(pos: Posicion) {
-        _lugares.value = _lugares.value
+        _todos.value = _todos.value
             .map { LugarConDistancia(it.lugar, distanciaMetros(pos, it.lugar)) }
             .sortedBy { it.metros }
 
         Log.d(
             "CampusGPS",
-            "Lugares ordenados: " + _lugares.value.joinToString { "${it.lugar.nombre} (${formatearDistancia(it.metros ?: 0f)})" }
+            "Lugares ordenados: " + _todos.value.joinToString { "${it.lugar.nombre} (${formatearDistancia(it.metros ?: 0f)})" }
         )
     }
 
