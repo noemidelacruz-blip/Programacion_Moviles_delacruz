@@ -12,10 +12,13 @@ import com.delacruz.campusgps.model.TipoError
 import com.delacruz.campusgps.model.UbicacionUi
 import com.delacruz.campusgps.util.distanciaMetros
 import com.delacruz.campusgps.util.formatearDistancia
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -51,12 +54,21 @@ class MapaViewModel(
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
+    // Seguimiento en vivo: guarda el trabajo activo para poder detenerlo
+    private var trabajoSeguimiento: Job? = null
+
+    private val _siguiendo = MutableStateFlow(false)
+    val siguiendo: StateFlow<Boolean> = _siguiendo.asStateFlow()
+
     // El primer lugar de la lista filtrada y ordenada que ya tiene distancia calculada
     val masCercano: StateFlow<Lugar?> = lugares
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun buscar() {
+        // Una búsqueda puntual reemplaza al seguimiento en vivo
+        detenerSeguimiento()
+
         // El ViewModel no recibe Context: le pregunta al Repository si hay Play Services
         if (!ubicacionRepo.playServicesDisponible()) {
             _estado.value = UbicacionUi.Error(
@@ -86,6 +98,55 @@ class MapaViewModel(
 
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+    }
+
+    // Botón Iniciar/Detener del seguimiento en vivo
+    fun alternarSeguimiento() {
+        if (_siguiendo.value) detenerSeguimiento() else iniciarSeguimiento()
+    }
+
+    // Recibe la ubicación cada vez que el usuario se mueve y refresca la pantalla
+    private fun iniciarSeguimiento() {
+        if (_siguiendo.value) return
+
+        if (!ubicacionRepo.playServicesDisponible()) {
+            _estado.value = UbicacionUi.Error(
+                "Este dispositivo no tiene Google Play Services.",
+                TipoError.SIN_PLAY_SERVICES
+            )
+            return
+        }
+
+        _estado.value = UbicacionUi.Buscando
+        _siguiendo.value = true
+
+        val trabajo = viewModelScope.launch {
+            try {
+                ubicacionRepo.observarUbicacion().collect { posicion ->
+                    _estado.value = UbicacionUi.Lista(posicion)
+                    actualizarDistancias(posicion)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _estado.value = UbicacionUi.Error(mensajeDe(e), tipoDe(e))
+            }
+        }
+
+        trabajoSeguimiento = trabajo
+        // Al terminar (por error o por "Detener") se apaga el botón
+        trabajo.invokeOnCompletion {
+            if (trabajoSeguimiento === trabajo) {
+                trabajoSeguimiento = null
+                _siguiendo.value = false
+            }
+        }
+    }
+
+    fun detenerSeguimiento() {
+        trabajoSeguimiento?.cancel()
+        trabajoSeguimiento = null
+        _siguiendo.value = false
     }
 
     // Un chip activo filtra el mapa y la lista; al tocarlo de nuevo se muestran todos

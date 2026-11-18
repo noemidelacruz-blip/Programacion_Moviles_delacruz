@@ -6,8 +6,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,6 +52,7 @@ fun PantallaMapa() {
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val categoria by vm.categoria.collectAsState()
+    val siguiendo by vm.siguiendo.collectAsState()
 
     // El más cercano con su distancia, para el texto debajo del botón
     val cercano = lugares.firstOrNull { it.lugar.id == masCercano?.id }
@@ -126,8 +130,10 @@ fun PantallaMapa() {
                     estado = estado,
                     cercano = cercano,
                     hayError = true,
+                    siguiendo = siguiendo,
                     onPulsar = { alPulsar() },
                     onIrAlMasCercano = { masCercano?.let { vm.seleccionar(it.id) } },
+                    onAlternarSeguimiento = { vm.alternarSeguimiento() },
                     onReintentar = { vm.buscar() }
                 )
                 Spacer(Modifier.weight(1f))
@@ -166,8 +172,10 @@ fun PantallaMapa() {
                                 estado = estado,
                                 cercano = cercano,
                                 hayError = false,
+                                siguiendo = siguiendo,
                                 onPulsar = { alPulsar() },
                                 onIrAlMasCercano = { masCercano?.let { vm.seleccionar(it.id) } },
+                                onAlternarSeguimiento = { vm.alternarSeguimiento() },
                                 onReintentar = { vm.buscar() }
                             )
 
@@ -205,8 +213,10 @@ private fun BloqueControles(
     estado: UbicacionUi,
     cercano: LugarConDistancia?,
     hayError: Boolean,
+    siguiendo: Boolean,
     onPulsar: () -> Unit,
     onIrAlMasCercano: () -> Unit,
+    onAlternarSeguimiento: () -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -227,19 +237,47 @@ private fun BloqueControles(
         if (!hayError) {
             Spacer(Modifier.height(10.dp))
 
-            OutlinedButton(
-                onClick = onIrAlMasCercano,
-                enabled = cercano != null,
-                shape = RoundedCornerShape(14.dp),
-                border = BorderStroke(
-                    width = 1.5.dp,
-                    color = if (cercano != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-                ),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Ir al más cercano")
+                OutlinedButton(
+                    onClick = onIrAlMasCercano,
+                    enabled = cercano != null,
+                    shape = RoundedCornerShape(14.dp),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                    border = BorderStroke(
+                        width = 1.5.dp,
+                        color = if (cercano != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text("Ir al más cercano", maxLines = 1)
+                }
+
+                // Iniciar/Detener el seguimiento en vivo
+                OutlinedButton(
+                    onClick = onAlternarSeguimiento,
+                    shape = RoundedCornerShape(14.dp),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = if (siguiendo) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            Color.Transparent
+                        },
+                        contentColor = if (siguiendo) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
+                    )
+                ) {
+                    Text(if (siguiendo) "Detener" else "Seguir en vivo", maxLines = 1)
+                }
             }
 
             if (cercano != null) {
@@ -279,6 +317,13 @@ private fun BloqueControles(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (siguiendo) {
+                    Text(
+                        text = "Seguimiento en vivo: actualizando cada 3 s",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
 
             is UbicacionUi.Error -> MensajeError(
