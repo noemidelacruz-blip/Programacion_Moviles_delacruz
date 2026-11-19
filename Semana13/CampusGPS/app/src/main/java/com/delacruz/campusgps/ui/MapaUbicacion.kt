@@ -12,15 +12,13 @@ import com.delacruz.campusgps.R
 import com.delacruz.campusgps.model.Lugar
 import com.delacruz.campusgps.model.LugarConDistancia
 import com.delacruz.campusgps.model.UbicacionUi
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
@@ -30,42 +28,14 @@ fun MapaUbicacion(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercano: Lugar?,
+    camara: CameraPositionState,
     modifier: Modifier = Modifier
 ) {
-    val camara = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f)
-    }
-
     // Estilo nocturno del mapa: solo se aplica cuando la app está en tema oscuro
     val contexto = LocalContext.current
     val oscuro = isSystemInDarkTheme()
     val estiloMapa = remember(oscuro) {
         if (oscuro) cargarEstiloOscuro(contexto) else null
-    }
-
-    // Cuando llega la ubicación, la cámara viaja hasta la posición del usuario
-    LaunchedEffect(estado) {
-        if (estado is UbicacionUi.Lista) {
-            camara.animate(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(estado.posicion.latitud, estado.posicion.longitud),
-                    16f
-                )
-            )
-        }
-    }
-
-    // Al seleccionar un lugar de la lista, la cámara viaja hasta ese lugar
-    LaunchedEffect(seleccionado) {
-        val lugar = lugares.firstOrNull { it.lugar.id == seleccionado }?.lugar
-        if (lugar != null) {
-            camara.animate(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(lugar.latitud, lugar.longitud),
-                    17f
-                )
-            )
-        }
     }
 
     GoogleMap(

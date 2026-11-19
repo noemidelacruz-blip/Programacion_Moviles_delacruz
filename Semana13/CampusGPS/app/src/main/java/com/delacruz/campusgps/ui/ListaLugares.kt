@@ -167,7 +167,7 @@ fun ListaLugares(
 }
 
 // Un ícono por categoría; si mañana aparece una nueva, se usa el marcador normal
-private fun iconoDeCategoria(categoria: String): ImageVector = when (categoria) {
+internal fun iconoDeCategoria(categoria: String): ImageVector = when (categoria) {
     "Estudio" -> Icons.AutoMirrored.Filled.MenuBook
     "Comida" -> Icons.Filled.Restaurant
     "Eventos" -> Icons.Filled.Mic

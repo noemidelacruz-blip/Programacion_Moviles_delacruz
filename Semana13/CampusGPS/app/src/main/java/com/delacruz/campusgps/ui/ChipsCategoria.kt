@@ -2,7 +2,8 @@ package com.delacruz.campusgps.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -16,7 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 // Chips de categoría: filtran el mapa y la lista a la vez.
-// Tocar el chip activo otra vez quita el filtro y vuelven los 5 lugares.
+// "Todos" quita el filtro; tocar el chip activo también lo quita.
+// Si no caben en una línea, pasan a la siguiente en vez de quedar cortados.
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChipsCategoria(
     categorias: List<String>,
@@ -24,36 +27,54 @@ fun ChipsCategoria(
     onSeleccionar: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    FlowRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        categorias.forEach { categoria ->
-            val activo = categoria == seleccionada
+        ChipCategoria(
+            texto = "Todos",
+            activo = seleccionada == null,
+            onClick = { onSeleccionar(null) }
+        )
 
-            Surface(
-                onClick = { onSeleccionar(if (activo) null else categoria) },
-                shape = CircleShape,
-                color = if (activo) MaterialTheme.colorScheme.primary else Color.Transparent,
-                contentColor = if (activo) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                border = if (activo) {
-                    null
-                } else {
-                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-                }
-            ) {
-                Text(
-                    text = categoria,
-                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = if (activo) FontWeight.Bold else FontWeight.Medium,
-                    maxLines = 1
-                )
-            }
+        categorias.forEach { categoria ->
+            ChipCategoria(
+                texto = categoria,
+                activo = categoria == seleccionada,
+                onClick = { onSeleccionar(categoria) }
+            )
         }
+    }
+}
+
+@Composable
+private fun ChipCategoria(
+    texto: String,
+    activo: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = if (activo) MaterialTheme.colorScheme.primary else Color.Transparent,
+        contentColor = if (activo) {
+            MaterialTheme.colorScheme.onPrimary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        border = if (activo) {
+            null
+        } else {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        }
+    ) {
+        Text(
+            text = texto,
+            modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (activo) FontWeight.Bold else FontWeight.Medium,
+            maxLines = 1
+        )
     }
 }
