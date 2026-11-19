@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,13 +24,11 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RocketLaunch
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -134,50 +133,162 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Tarjeta 1: Tarea con progreso
+                // Tarjeta 1: Toques + Tarea con progreso
                 TarjetaEstilizada {
-                    EncabezadoTarjeta(
-                        icon = Icons.Filled.RocketLaunch,
-                        titulo = "Tarea con progreso"
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(16.dp),
+                            color = IconBoxBg
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Text(
+                                    text = "Toques",
+                                    color = TextSecondary,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                                Text(
+                                    text = "$toques",
+                                    color = CardTitleColor,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                        BotonGradient(
+                            onClick = { toques++ },
+                            text = "Tócame",
+                            icon = Icons.Filled.PlayArrow
+                        )
+                    }
+                }
+
+                TarjetaEstilizada {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = CircleShape,
+                        color = IconBoxBg
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(
+                                start = 4.dp,
+                                end = 16.dp,
+                                top = 4.dp,
+                                bottom = 4.dp
+                            ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(36.dp),
+                                shape = RoundedCornerShape(50),
+                                color = CardBackground
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Filled.RocketLaunch,
+                                        contentDescription = null,
+                                        tint = IconBoxTint,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                            Text(
+                                text = "Tarea con progreso",
+                                color = CardTitleColor,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { viewModel.tareaLarga() },
+                            enabled = !corriendo,
+                            shape = CircleShape,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = IconBoxBg,
+                                contentColor = OutlinedBtnText,
+                                disabledContainerColor = IconBoxBg.copy(alpha = 0.5f),
+                                disabledContentColor = OutlinedBtnText.copy(alpha = 0.4f)
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.PlayArrow,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = "Iniciar", fontWeight = FontWeight.SemiBold)
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .width(1.dp)
+                                .height(32.dp)
+                                .background(OutlinedBtnBorder)
+                        )
+
+                        OutlinedButton(
+                            onClick = { viewModel.cancelar() },
+                            enabled = corriendo,
+                            shape = CircleShape,
+                            border = BorderStroke(
+                                1.5.dp,
+                                if (corriendo) OutlinedBtnBorder else OutlinedBtnBorder.copy(alpha = 0.4f)
+                            ),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = IconBoxBg,
+                                contentColor = OutlinedBtnText,
+                                disabledContainerColor = IconBoxBg.copy(alpha = 0.5f),
+                                disabledContentColor = OutlinedBtnText.copy(alpha = 0.4f)
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = "Cancelar", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+
+                    LinearProgressIndicator(
+                        progress = { progreso },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        color = ProgressFill,
+                        trackColor = ProgressTrack
                     )
 
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 12.dp),
+                            .padding(top = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        BotonGradient(
-                            onClick = { toques++ },
-                            text = "Tócame: $toques",
-                            icon = Icons.Filled.Schedule
-                        )
-
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            BotonGradient(
-                                onClick = { viewModel.tareaLarga() },
-                                enabled = !corriendo,
-                                text = "Iniciar",
-                                icon = Icons.Filled.PlayArrow
-                            )
-                            BotonOutlinedCustom(
-                                onClick = { viewModel.cancelar() },
-                                enabled = corriendo,
-                                text = "Cancelar",
-                                icon = Icons.Filled.Close
-                            )
-                        }
-
-                        LinearProgressIndicator(
-                            progress = { progreso },
-                            modifier = Modifier.fillMaxWidth(),
-                            color = ProgressFill,
-                            trackColor = ProgressTrack
-                        )
-
                         Text(
                             text = "${(progreso * 100).toInt()} %",
                             color = TextPrimary,
@@ -372,45 +483,46 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         if (estadoCarga is CargaUi.Exito) {
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
+                                shape = RoundedCornerShape(24.dp),
                                 color = SuccessGreenBg
                             ) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        .padding(20.dp)
                                 ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.EmojiEvents,
-                                            contentDescription = null,
-                                            tint = SuccessGreenText,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                        Text(
-                                            text = estadoCarga.modo,
-                                            color = SuccessGreenText,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    val filas = listOf(
+                                        "Modo:" to estadoCarga.modo,
+                                        "Perfil:" to estadoCarga.perfil,
+                                        "Pedidos:" to estadoCarga.pedidos.toString(),
+                                        "Tiempo:" to "${estadoCarga.milisegundos} ms"
+                                    )
+
+                                    filas.forEachIndexed { indice, (etiqueta, valor) ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = etiqueta,
+                                                modifier = Modifier.weight(1f),
+                                                color = CardTitleColor,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(
+                                                text = valor,
+                                                textAlign = TextAlign.End,
+                                                color = if (indice == 0) SuccessGreenText else TextPrimary
+                                            )
+                                        }
+
+                                        if (indice < filas.lastIndex) {
+                                            HorizontalDivider(
+                                                modifier = Modifier.padding(vertical = 6.dp),
+                                                color = SuccessGreenText.copy(alpha = 0.18f)
+                                            )
+                                        }
                                     }
-                                    Text(
-                                        text = "Perfil: ${estadoCarga.perfil}",
-                                        color = SuccessGreenText
-                                    )
-                                    Text(
-                                        text = "Pedidos: ${estadoCarga.pedidos}",
-                                        color = SuccessGreenText
-                                    )
-                                    Text(
-                                        text = "Tiempo: ${estadoCarga.milisegundos} ms",
-                                        color = SuccessGreenText
-                                    )
                                 }
                             }
                         }
@@ -466,8 +578,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(top = 12.dp)
                     ) {
                         if (historial.isEmpty()) {
                             Text(
@@ -475,11 +586,21 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                 color = TextSecondary
                             )
                         } else {
-                            historial.forEach { item ->
+                            historial.forEachIndexed { indice, item ->
                                 Text(
                                     text = item,
-                                    color = TextPrimary
+                                    color = TextPrimary,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
                                 )
+
+                                if (indice < historial.lastIndex) {
+                                    HorizontalDivider(
+                                        thickness = 1.dp,
+                                        color = IconBoxBg
+                                    )
+                                }
                             }
                         }
                     }
