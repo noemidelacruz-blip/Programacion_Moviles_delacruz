@@ -1,4 +1,4 @@
-package com.delacruz.centrotareas.ui
+package com.delacruz.centrotareas.ui.componentes
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

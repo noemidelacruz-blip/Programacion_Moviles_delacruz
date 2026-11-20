@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -33,8 +31,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -56,24 +52,27 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.delacruz.centrotareas.model.CargaUi
 import com.delacruz.centrotareas.model.PrimosUi
+import com.delacruz.centrotareas.ui.componentes.BotonGradient
+import com.delacruz.centrotareas.ui.componentes.BotonOutlinedCustom
+import com.delacruz.centrotareas.ui.componentes.EncabezadoTarjeta
+import com.delacruz.centrotareas.ui.componentes.OlasFooter
+import com.delacruz.centrotareas.ui.componentes.OlasHeader
+import com.delacruz.centrotareas.ui.componentes.TablaComparacionTiempos
+import com.delacruz.centrotareas.ui.componentes.TarjetaEstilizada
 import com.delacruz.centrotareas.ui.theme.CardBackground
 import com.delacruz.centrotareas.ui.theme.CardTitleColor
 import com.delacruz.centrotareas.ui.theme.IconBoxBg
 import com.delacruz.centrotareas.ui.theme.IconBoxTint
 import com.delacruz.centrotareas.ui.theme.OutlinedBtnBorder
 import com.delacruz.centrotareas.ui.theme.OutlinedBtnText
-import com.delacruz.centrotareas.ui.theme.PrimaryBtnEnd
-import com.delacruz.centrotareas.ui.theme.PrimaryBtnStart
 import com.delacruz.centrotareas.ui.theme.ProgressFill
 import com.delacruz.centrotareas.ui.theme.ProgressTrack
 import com.delacruz.centrotareas.ui.theme.ScreenBgBottom
@@ -85,12 +84,11 @@ import com.delacruz.centrotareas.ui.theme.SwitchTrackChecked
 import com.delacruz.centrotareas.ui.theme.TextPrimary
 import com.delacruz.centrotareas.ui.theme.TextSecondary
 import com.delacruz.centrotareas.viewmodel.TareasViewModel
-import com.delacruz.centrotareas.viewmodel.TiempoCarga
 
 @Composable
 fun PantallaTareas(viewModel: TareasViewModel) {
     var toques by rememberSaveable { mutableIntStateOf(0) }
-    var textoHasta by rememberSaveable { mutableStateOf("") }
+    var textoHasta by rememberSaveable { mutableStateOf("500000") }
     var hastaContado by rememberSaveable { mutableIntStateOf(0) }
     val mensaje by viewModel.mensaje.collectAsState()
     val progreso by viewModel.progreso.collectAsState()
@@ -610,283 +608,3 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     }
 }
 
-@Composable
-private fun TarjetaEstilizada(
-    content: @Composable () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 6.dp,
-                shape = RoundedCornerShape(22.dp),
-                ambientColor = Color(0x336E50C2),
-                spotColor = Color(0x336E50C2)
-            ),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = CardBackground
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            content()
-        }
-    }
-}
-
-@Composable
-private fun EncabezadoTarjeta(
-    icon: ImageVector,
-    titulo: String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(10.dp),
-            color = IconBoxBg,
-            modifier = Modifier.size(36.dp)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = IconBoxTint,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
-        Text(
-            text = titulo,
-            color = CardTitleColor,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
-
-@Composable
-private fun BotonGradient(
-    onClick: () -> Unit,
-    text: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: ImageVector? = null
-) {
-    val gradientBrush = if (enabled) {
-        Brush.horizontalGradient(listOf(PrimaryBtnStart, PrimaryBtnEnd))
-    } else {
-        Brush.horizontalGradient(listOf(Color(0xFFB099D6), Color(0xFF9880BE)))
-    }
-
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        shape = CircleShape,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent
-        ),
-        contentPadding = PaddingValues(0.dp),
-        modifier = modifier
-    ) {
-        Box(
-            modifier = Modifier
-                .background(brush = gradientBrush, shape = CircleShape)
-                .padding(horizontal = 20.dp, vertical = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                if (icon != null) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-                Text(
-                    text = text,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BotonOutlinedCustom(
-    onClick: () -> Unit,
-    text: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: ImageVector? = null
-) {
-    OutlinedButton(
-        onClick = onClick,
-        enabled = enabled,
-        shape = CircleShape,
-        border = BorderStroke(
-            1.5.dp,
-            if (enabled) OutlinedBtnBorder else OutlinedBtnBorder.copy(alpha = 0.4f)
-        ),
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = OutlinedBtnText,
-            disabledContentColor = OutlinedBtnText.copy(alpha = 0.4f)
-        ),
-        modifier = modifier
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            if (icon != null) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-            Text(
-                text = text,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
-
-@Composable
-private fun TablaComparacionTiempos(historial: List<TiempoCarga>) {
-    val unaPorUna = historial.filter { it.modo == "Una por una" }
-    val aLaVez = historial.filter { it.modo == "A la vez" }
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = ScreenBgMiddle
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.BarChart,
-                    contentDescription = null,
-                    tint = CardTitleColor,
-                    modifier = Modifier.size(18.dp)
-                )
-                Text(
-                    text = "Comparación de tiempos",
-                    color = CardTitleColor,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            Text(
-                text = "Últimas ${historial.size} corridas",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
-            )
-
-            FilaTiempos(listOf("Modo", "Veces", "Total", "Promedio"), encabezado = true)
-            HorizontalDivider(color = OutlinedBtnBorder)
-            FilaTiempos(
-                listOf(
-                    "Una por una",
-                    unaPorUna.size.toString(),
-                    total(unaPorUna),
-                    promedio(unaPorUna)
-                )
-            )
-            FilaTiempos(
-                listOf(
-                    "A la vez",
-                    aLaVez.size.toString(),
-                    total(aLaVez),
-                    promedio(aLaVez)
-                )
-            )
-
-            HorizontalDivider(color = OutlinedBtnBorder)
-            Text(
-                text = mensajeDiferencia(unaPorUna, aLaVez),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = SuccessGreenText
-            )
-        }
-    }
-}
-
-@Composable
-private fun FilaTiempos(valores: List<String>, encabezado: Boolean = false) {
-    val pesos = listOf(1.15f, 0.6f, 0.95f, 1.05f)
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        for (indice in valores.indices) {
-            val valor = valores[indice]
-            Text(
-                text = valor,
-                modifier = Modifier.weight(pesos[indice]),
-                color = if (encabezado) CardTitleColor else TextPrimary,
-                style = if (encabezado) {
-                    MaterialTheme.typography.labelMedium
-                } else {
-                    MaterialTheme.typography.bodySmall
-                },
-                fontWeight = if (encabezado) FontWeight.Bold else FontWeight.Normal,
-                textAlign = if (indice == 0) TextAlign.Start else TextAlign.End,
-                maxLines = 1
-            )
-        }
-    }
-}
-
-private fun total(lista: List<TiempoCarga>): String {
-    if (lista.isEmpty()) return "—"
-    return "${lista.sumOf { it.milisegundos }} ms"
-}
-
-private fun promedio(lista: List<TiempoCarga>): String {
-    if (lista.isEmpty()) return "—"
-    return "${lista.sumOf { it.milisegundos } / lista.size} ms"
-}
-
-private fun mensajeDiferencia(
-    unaPorUna: List<TiempoCarga>,
-    aLaVez: List<TiempoCarga>
-): String {
-    if (unaPorUna.isEmpty() || aLaVez.isEmpty()) {
-        return "Ejecuta Una por una y A la vez para ver la diferencia."
-    }
-
-    val promedioUna = unaPorUna.sumOf { it.milisegundos } / unaPorUna.size
-    val promedioVez = aLaVez.sumOf { it.milisegundos } / aLaVez.size
-    val diferencia = promedioUna - promedioVez
-
-    return when {
-        diferencia > 0 -> {
-            val porcentaje = if (promedioUna > 0) diferencia * 100 / promedioUna else 0
-            "A la vez es $diferencia ms más rápido ($porcentaje % menos)."
-        }
-        diferencia < 0 -> "Una por una es ${-diferencia} ms más rápido."
-        else -> "Ambos modos tardan lo mismo en promedio."
-    }
-}
