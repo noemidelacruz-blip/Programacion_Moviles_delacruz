@@ -4,13 +4,10 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -23,21 +20,15 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -60,7 +51,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.delacruz.campusgps.model.Lugar
 import com.delacruz.campusgps.model.LugarConDistancia
 import com.delacruz.campusgps.model.UbicacionUi
-import com.delacruz.campusgps.util.formatearDistancia
+import com.delacruz.campusgps.ui.componentes.BotonSecundario
+import com.delacruz.campusgps.ui.componentes.BotonUbicacion
+import com.delacruz.campusgps.ui.componentes.ChipsCategoria
+import com.delacruz.campusgps.ui.componentes.ListaLugares
+import com.delacruz.campusgps.ui.componentes.MensajeError
+import com.delacruz.campusgps.ui.componentes.OlasInferiores
+import com.delacruz.campusgps.ui.componentes.OlasSuperiores
+import com.delacruz.campusgps.ui.componentes.TarjetaMasCercano
 import com.delacruz.campusgps.viewmodel.CampusViewModelFactory
 import com.delacruz.campusgps.viewmodel.MapaViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -566,121 +564,6 @@ private fun ContenidoError(
                 error = estado,
                 onReintentar = onReintentar
             )
-        }
-    }
-}
-
-// Botón de contorno que se usa en la fila de acciones del mapa
-@Composable
-private fun BotonSecundario(
-    texto: String,
-    habilitado: Boolean,
-    resaltado: Boolean,
-    onClick: () -> Unit
-) {
-    OutlinedButton(
-        onClick = onClick,
-        enabled = habilitado,
-        shape = RoundedCornerShape(14.dp),
-        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-        border = BorderStroke(
-            width = 1.5.dp,
-            color = when {
-                !habilitado -> MaterialTheme.colorScheme.outlineVariant
-                else -> MaterialTheme.colorScheme.primary
-            }
-        ),
-        colors = ButtonDefaults.outlinedButtonColors(
-            // Fondo opaco: los botones quedan encima de las olas y así el texto se lee
-            containerColor = if (resaltado) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surface
-            },
-            disabledContainerColor = MaterialTheme.colorScheme.surface,
-            contentColor = if (resaltado) {
-                MaterialTheme.colorScheme.onPrimaryContainer
-            } else {
-                MaterialTheme.colorScheme.primary
-            }
-        )
-    ) {
-        Text(texto, maxLines = 1)
-    }
-}
-
-// Tarjeta con el lugar más cercano y su distancia
-@Composable
-private fun TarjetaMasCercano(
-    cercano: LugarConDistancia
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = iconoDeCategoria(cercano.lugar.categoria),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-
-            Spacer(Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "MÁS CERCANO",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = cercano.lugar.nombre,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(Modifier.width(8.dp))
-            val metros = cercano.metros
-            if (metros != null) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = formatearDistancia(metros),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
         }
     }
 }

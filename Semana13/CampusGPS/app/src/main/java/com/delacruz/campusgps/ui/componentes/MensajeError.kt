@@ -1,4 +1,4 @@
-package com.delacruz.campusgps.ui
+package com.delacruz.campusgps.ui.componentes
 
 import android.content.Intent
 import android.net.Uri

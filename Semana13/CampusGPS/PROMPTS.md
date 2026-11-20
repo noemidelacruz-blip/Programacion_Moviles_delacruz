@@ -142,3 +142,15 @@ D CampusGPS: Lugares ordenados: Laboratorio de Cómputo (9.9 km), ...   <- 3 s d
 Todo se probó en un teléfono físico (Huawei WDY-LX3, Android 14) con el GPS real,
 por eso las distancias rondan los 10 km: el equipo está lejos del punto base del
 campus.
+
+---
+
+## Nota sobre el rediseño posterior
+
+Después de cerrar estas tres mejoras se reorganizó la interfaz en dos pestañas
+(**Mapa** y **Categorías**), la barra inferior quedó en 56 dp, las olas pasaron a
+ser un solo `OlasInferiores` compartido y los chips ganaron la opción **Todos** en
+un `FlowRow`. Las capturas de `docs/capturas/` se volvieron a tomar con ese
+diseño, así que algunos detalles del texto de arriba (el panel blanco, la línea
+"Seguimiento en vivo: actualizando cada 3 s" o la ausencia del chip **Todos**)
+describen cómo estaba la pantalla al cerrar cada commit, no la pantalla final.

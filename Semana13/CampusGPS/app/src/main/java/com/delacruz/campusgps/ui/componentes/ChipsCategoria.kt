@@ -1,4 +1,4 @@
-package com.delacruz.campusgps.ui
+package com.delacruz.campusgps.ui.componentes
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
