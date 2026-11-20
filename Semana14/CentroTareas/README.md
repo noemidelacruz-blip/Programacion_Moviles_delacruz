@@ -47,7 +47,7 @@ app/src/main/java/com/delacruz/centrotareas/
 | Tarea con progreso | Primos con progreso | Dos cargas y comparación de tiempos | Historial persistente |
 | :---: | :---: | :---: | :---: |
 | ![Tarea con progreso](docs/capturas/01-tarea-progreso.png) | ![Primos con progreso](docs/capturas/04-primos-progreso.png) | ![Dos cargas y comparación de tiempos](docs/capturas/05-cargas.png) | ![Historial persistente](docs/capturas/07-historial.png) |
-
+   
 
 ## Prompts y ejecución
 
