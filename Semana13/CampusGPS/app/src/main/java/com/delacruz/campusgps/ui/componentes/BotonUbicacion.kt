@@ -34,6 +34,7 @@ fun BotonUbicacion(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    //aqui se cambia los  colores de ese boton.
     val degradado = if (habilitado) {
         Brush.linearGradient(listOf(RosaCampus, VinoCampus, VinoOscuro))
     } else {

@@ -3,6 +3,7 @@ package com.delacruz.campusgps.util
 import java.util.Locale
 import kotlin.math.roundToInt
 
+//Convierte la distancia texto fácil de leer: metros si es corto, kilómetros si es largo.
 fun formatearDistancia(metros: Float): String {
     return if (metros < 1000f) {
         "${metros.roundToInt()} m"

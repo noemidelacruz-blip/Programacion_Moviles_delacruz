@@ -2,6 +2,7 @@ package com.delacruz.campusgps.data
 
 import com.delacruz.campusgps.model.Lugar
 
+//Flujo completo: 1. LugaresRepositoryLocal.kt contiene los lugares y sus categorías. 2. MapaViewModel.kt obtiene esos lugares con obtenerLugares() y extrae las categorías. 3. PantallaMapa.kt recibe vm.categorias. 4. ChipsCategoria.kt muestra cada categoría como botón de filtro
 class LugaresRepositoryLocal : LugaresRepository {
 
     override fun obtenerLugares(): List<Lugar> = listOf(
@@ -12,3 +13,5 @@ class LugaresRepositoryLocal : LugaresRepository {
         Lugar(5, "Estacionamiento Norte", "Servicios", -12.0440, -77.0430)
     )
 }
+
+

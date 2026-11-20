@@ -22,6 +22,12 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberMarkerState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
+
+/*Muestra el mapa de Google Maps.
+Muestra la ubicacion actual del usuario en el mapa.
+Coloca los cinco marcadores de los lugares del campus.
+Resalta el lugar más cercano a tu ubicación.
+Permite mostrar el mapa con un estilo oscuro.*/
 @Composable
 fun MapaUbicacion(
     estado: UbicacionUi,

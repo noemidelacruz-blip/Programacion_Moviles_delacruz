@@ -3,9 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Permisos para obtener la ubicación aproximada (red) y precisa (GPS) del dispositivo: -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />  <!-- ubicación aproximada (calculada mediante antenas de telefonía y redes Wi-Fi) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />  <!--Ubicación precisa (calculada directamente con el chip satelital GPS del teléfono)-->
 
+    <!-- son el nombre y el ícono que aparecen en el cajón de aplicaciones del celular, la linea 14 a 16 -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -16,9 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CampusGPS">
         <!-- Clave de API de Google Maps inyectada desde local.properties para no exponerla en el código: -->
+        <!-- Para dibujar el mapa base con las calles y avenidas, el SDK de Google Maps lee automáticamente el <meta-data> com.google.android.geo.API_KEY -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
+        <!--  En la linea 25 declaras tu pantalla principal a main MainActivity-->
         <activity
             android:name=".MainActivity"
             android:exported="true"

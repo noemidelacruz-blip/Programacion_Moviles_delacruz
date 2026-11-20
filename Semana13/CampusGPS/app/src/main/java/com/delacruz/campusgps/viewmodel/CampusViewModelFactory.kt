@@ -11,6 +11,7 @@ class CampusViewModelFactory(private val context: Context) : ViewModelProvider.F
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MapaViewModel::class.java)) {
+            //crea las intancias para de mapaviewmodel para darle la ubicacion y los repositorios.
             return MapaViewModel(
                 ubicacionRepo = UbicacionRepositoryGoogle(context.applicationContext),
                 lugaresRepo = LugaresRepositoryLocal()

@@ -1,7 +1,7 @@
 package com.delacruz.campusgps.model
 
 data class Posicion(val latitud: Double, val longitud: Double)
-
+//Model guarda los datos y las estructuras de datos de la app
 data class Lugar(
     val id: Int,
     val nombre: String,

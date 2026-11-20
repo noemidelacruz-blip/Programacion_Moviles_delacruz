@@ -56,7 +56,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
+//Las dependencias se ponen para agregar herramientas que nos ayudan a que nuestra aplicación funcione
     // Ubicación, mapa y ViewModel con Compose
     // Librería de Google que lee el chip GPS real del teléfono (FusedLocationProviderClient)(Saca tu ubicación real desde el GPS del celular)
     implementation("com.google.android.gms:play-services-location:21.3.0")
