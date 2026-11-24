@@ -11,6 +11,9 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
  * Cliente Retrofit creado una sola vez para toda la aplicación.
  * El registro BODY de OkHttp es solo para desarrollo: permite ver la petición
  * y la respuesta en Logcat (filtro OkHttp).
+ *
+ * El interceptor del encabezado va primero para que el registro muestre ya el
+ * Accept: application/json que viaja en todas las peticiones.
  */
 object RetrofitClient {
 
@@ -19,6 +22,7 @@ object RetrofitClient {
     private val json = Json { ignoreUnknownKeys = true }
 
     private val cliente = OkHttpClient.Builder()
+        .addInterceptor(EncabezadoInterceptor())
         .addInterceptor(
             HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
