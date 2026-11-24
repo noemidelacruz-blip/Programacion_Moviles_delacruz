@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -24,8 +28,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.delacruz.murocampus.data.PostRepositoryRemote
 import com.delacruz.murocampus.data.remote.RetrofitClient
 import com.delacruz.murocampus.model.Post
+import com.delacruz.murocampus.ui.PantallaDetalle
 import com.delacruz.murocampus.ui.PantallaLista
 import com.delacruz.murocampus.ui.theme.MuroCampusTheme
+import com.delacruz.murocampus.viewmodel.DetalleUi
 import com.delacruz.murocampus.viewmodel.PostsViewModel
 import com.delacruz.murocampus.viewmodel.PostsViewModelFactory
 import com.delacruz.murocampus.viewmodel.UiState
@@ -47,11 +53,14 @@ class MainActivity : ComponentActivity() {
                 val vm: PostsViewModel = viewModel(
                     factory = PostsViewModelFactory(repository)
                 )
-                val estado by vm.lista.collectAsStateWithLifecycle()
+                val estadoLista by vm.lista.collectAsStateWithLifecycle()
+                val estadoDetalle by vm.detalle.collectAsStateWithLifecycle()
 
                 MuroCampusApp(
-                    estado = estado,
-                    onReintentar = vm::cargar
+                    estadoLista = estadoLista,
+                    onReintentarLista = vm::cargar,
+                    estadoDetalle = estadoDetalle,
+                    onAbrirPublicacion = vm::abrir
                 )
             }
         }
@@ -59,15 +68,20 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Contenedor principal de MuroCampus: barra superior y contenido.
- * La pantalla observa el estado del ViewModel y lo dibuja con un when.
+ * Contenedor principal de MuroCampus: barra superior, lista y detalle.
+ * La navegación usa idSeleccionado: con null se ve la lista y con un id se ve
+ * el detalle; el botón Atrás del sistema vuelve a la lista.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MuroCampusApp(
-    estado: UiState<List<Post>>,
-    onReintentar: () -> Unit
+    estadoLista: UiState<List<Post>>,
+    onReintentarLista: () -> Unit,
+    estadoDetalle: UiState<DetalleUi>,
+    onAbrirPublicacion: (Int) -> Unit
 ) {
+    var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -90,10 +104,26 @@ fun MuroCampusApp(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            PantallaLista(
-                estado = estado,
-                onReintentar = onReintentar
-            )
+            if (idSeleccionado == null) {
+                PantallaLista(
+                    estado = estadoLista,
+                    onReintentar = onReintentarLista,
+                    onAbrir = { id ->
+                        idSeleccionado = id
+                        onAbrirPublicacion(id)
+                    }
+                )
+            } else {
+                BackHandler {
+                    idSeleccionado = null
+                }
+                PantallaDetalle(
+                    estado = estadoDetalle,
+                    onReintentar = {
+                        idSeleccionado?.let(onAbrirPublicacion)
+                    }
+                )
+            }
         }
     }
 }
