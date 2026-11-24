@@ -17,8 +17,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.delacruz.murocampus.model.Post
+import com.delacruz.murocampus.ui.theme.FormaPildora
+import com.delacruz.murocampus.ui.theme.MoradoPrincipal
+import com.delacruz.murocampus.ui.theme.SuperficieBlanca
+import com.delacruz.murocampus.ui.theme.TextoCuerpo
 import com.delacruz.murocampus.viewmodel.UiState
 
 /**
@@ -36,6 +42,8 @@ fun PantallaLista(
     onAbrir: (Int) -> Unit = {}
 ) {
     Column(modifier = modifier.fillMaxSize()) {
+        CabeceraMuro()
+
         FilaFiltros(
             usuarioFiltro = usuarioFiltro,
             onFiltrar = onFiltrar
@@ -58,14 +66,19 @@ fun PantallaLista(
                         Text(
                             text = "Sin publicaciones",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = TextoCuerpo
                         )
                     }
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 4.dp,
+                            bottom = 96.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(items = estado.datos, key = { post -> post.id }) { post ->
                             TarjetaPost(
@@ -89,7 +102,7 @@ private fun FilaFiltros(
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
@@ -119,12 +132,18 @@ private fun ChipFiltro(
     FilterChip(
         selected = seleccionado,
         onClick = onClick,
-        label = { Text(text = texto) },
+        shape = FormaPildora,
+        label = {
+            Text(
+                text = texto,
+                fontWeight = if (seleccionado) FontWeight.Bold else FontWeight.Medium
+            )
+        },
         colors = FilterChipDefaults.filterChipColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            labelColor = MaterialTheme.colorScheme.primary,
-            selectedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = SuperficieBlanca,
+            labelColor = MoradoPrincipal,
+            selectedContainerColor = MoradoPrincipal,
+            selectedLabelColor = Color.White
         )
     )
 }
