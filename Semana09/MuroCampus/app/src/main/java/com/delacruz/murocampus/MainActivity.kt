@@ -16,9 +16,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.delacruz.murocampus.data.PostRepositoryRemote
+import com.delacruz.murocampus.data.remote.RetrofitClient
+import com.delacruz.murocampus.model.Post
+import com.delacruz.murocampus.ui.PantallaLista
 import com.delacruz.murocampus.ui.theme.MuroCampusTheme
+import com.delacruz.murocampus.viewmodel.PostsViewModel
+import com.delacruz.murocampus.viewmodel.PostsViewModelFactory
+import com.delacruz.murocampus.viewmodel.UiState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,23 +39,35 @@ class MainActivity : ComponentActivity() {
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
         )
+
+        val repository = PostRepositoryRemote(RetrofitClient.api)
+
         setContent {
             MuroCampusTheme {
-                MuroCampusApp()
+                val vm: PostsViewModel = viewModel(
+                    factory = PostsViewModelFactory(repository)
+                )
+                val estado by vm.lista.collectAsStateWithLifecycle()
+
+                MuroCampusApp(
+                    estado = estado,
+                    onReintentar = vm::cargar
+                )
             }
         }
     }
 }
 
 /**
- * Contenedor principal de MuroCampus.
- *
- * En el proyecto base solo se dibuja la barra superior sobre el contenido vacío; las
- * pantallas de lista, detalle y creación se agregan en los pasos siguientes.
+ * Contenedor principal de MuroCampus: barra superior y contenido.
+ * La pantalla observa el estado del ViewModel y lo dibuja con un when.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MuroCampusApp() {
+fun MuroCampusApp(
+    estado: UiState<List<Post>>,
+    onReintentar: () -> Unit
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -67,6 +89,11 @@ fun MuroCampusApp() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-        )
+        ) {
+            PantallaLista(
+                estado = estado,
+                onReintentar = onReintentar
+            )
+        }
     }
 }
