@@ -9,8 +9,11 @@ import com.delacruz.murocampus.model.Post
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** Datos que necesita la pantalla de detalle: la publicación y sus comentarios. */
@@ -32,6 +35,19 @@ class PostsViewModel(
 
     private val _usuarioFiltro = MutableStateFlow<Int?>(null)
     val usuarioFiltro: StateFlow<Int?> = _usuarioFiltro.asStateFlow()
+
+    /** Texto que escribe el usuario en el buscador del muro. */
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
+    /**
+     * Lista que ve la pantalla: lo descargado por filtrar() pasado por el texto
+     * del buscador. Se recalcula sola cuando cambia cualquiera de los dos, así
+     * la vista no tiene que filtrar nada.
+     */
+    val listaVisible: StateFlow<UiState<List<Post>>> =
+        combine(_lista, _busqueda) { estado, texto -> estado.conBusqueda(texto) }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, _lista.value)
 
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
@@ -70,6 +86,11 @@ class PostsViewModel(
                 .onSuccess { posts -> _lista.value = UiState.Exito(posts) }
                 .onFailure { error -> _lista.value = UiState.Error(mensajeDe(error)) }
         }
+    }
+
+    /** Guarda el texto del buscador. El filtrado ocurre en listaVisible. */
+    fun buscar(texto: String) {
+        _busqueda.value = texto
     }
 
     /**
@@ -154,4 +175,18 @@ class PostsViewModel(
     fun limpiarEliminacion() {
         _eliminacion.value = null
     }
+}
+
+/**
+ * Deja solo las publicaciones cuyo título contiene el texto, sin distinguir
+ * mayúsculas. Se aplica sobre lo que ya está descargado: no vuelve a llamar a
+ * la API para buscar.
+ */
+private fun UiState<List<Post>>.conBusqueda(texto: String): UiState<List<Post>> {
+    if (this !is UiState.Exito) return this
+    val limpio = texto.trim()
+    if (limpio.isEmpty()) return this
+    return UiState.Exito(
+        datos.filter { post -> post.title.contains(limpio, ignoreCase = true) }
+    )
 }

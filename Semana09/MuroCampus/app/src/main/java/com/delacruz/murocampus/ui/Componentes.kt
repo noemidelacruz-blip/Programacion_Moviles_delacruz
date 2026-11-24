@@ -604,3 +604,61 @@ fun IconoBurbuja(
         drawPath(path = burbuja, color = color)
     }
 }
+
+/** Lupa del campo de búsqueda: círculo y mango. */
+@Composable
+fun IconoBuscar(
+    color: Color,
+    modifier: Modifier = Modifier,
+    tamano: Dp = 20.dp
+) {
+    Canvas(modifier = modifier.size(tamano)) {
+        val ancho = size.width
+        val alto = size.height
+        val grosor = 2.dp.toPx()
+        val centro = Offset(ancho * 0.42f, alto * 0.42f)
+
+        drawCircle(
+            color = color,
+            radius = ancho * 0.27f,
+            center = centro,
+            style = Stroke(width = grosor)
+        )
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.62f, alto * 0.62f),
+            end = Offset(ancho * 0.88f, alto * 0.88f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
+/** Aspa para borrar el texto del buscador. */
+@Composable
+fun IconoCerrar(
+    color: Color,
+    modifier: Modifier = Modifier,
+    tamano: Dp = 16.dp
+) {
+    Canvas(modifier = modifier.size(tamano)) {
+        val ancho = size.width
+        val alto = size.height
+        val grosor = 2.dp.toPx()
+
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.22f, alto * 0.22f),
+            end = Offset(ancho * 0.78f, alto * 0.78f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.78f, alto * 0.22f),
+            end = Offset(ancho * 0.22f, alto * 0.78f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+    }
+}

@@ -28,9 +28,10 @@ import com.delacruz.murocampus.viewmodel.UiState
  */
 @Composable
 fun MuroCampusApp(vm: PostsViewModel) {
-    val estadoLista by vm.lista.collectAsStateWithLifecycle()
+    val estadoLista by vm.listaVisible.collectAsStateWithLifecycle()
     val estadoDetalle by vm.detalle.collectAsStateWithLifecycle()
     val usuarioFiltro by vm.usuarioFiltro.collectAsStateWithLifecycle()
+    val busqueda by vm.busqueda.collectAsStateWithLifecycle()
     val estadoCreacion by vm.creacion.collectAsStateWithLifecycle()
     val estadoEliminacion by vm.eliminacion.collectAsStateWithLifecycle()
 
@@ -82,6 +83,8 @@ fun MuroCampusApp(vm: PostsViewModel) {
                     onReintentar = vm::cargar,
                     usuarioFiltro = usuarioFiltro,
                     onFiltrar = vm::filtrar,
+                    busqueda = busqueda,
+                    onBuscar = vm::buscar,
                     onAbrir = { id ->
                         vm.limpiarEliminacion()
                         idSeleccionado = id
