@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.delacruz.murocampus.data.PostRepository
 import com.delacruz.murocampus.model.Comentario
+import com.delacruz.murocampus.model.NuevoPost
 import com.delacruz.murocampus.model.Post
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -34,6 +35,10 @@ class PostsViewModel(
 
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
+
+    /** null significa que todavía no se ha enviado ninguna publicación. */
+    private val _creacion = MutableStateFlow<UiState<Post>?>(null)
+    val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
     init {
         cargar()
@@ -99,5 +104,23 @@ class PostsViewModel(
                 .onSuccess { detalle -> _detalle.value = UiState.Exito(detalle) }
                 .onFailure { error -> _detalle.value = UiState.Error(mensajeDe(error)) }
         }
+    }
+
+    /**
+     * Envía una publicación nueva con POST. El servidor de práctica no la guarda,
+     * pero responde con la publicación creada y un id nuevo.
+     */
+    fun publicar(titulo: String, texto: String) {
+        viewModelScope.launch {
+            _creacion.value = UiState.Cargando
+            repo.crear(NuevoPost(userId = 1, title = titulo, body = texto))
+                .onSuccess { creado -> _creacion.value = UiState.Exito(creado) }
+                .onFailure { error -> _creacion.value = UiState.Error(mensajeDe(error)) }
+        }
+    }
+
+    /** Vuelve la pantalla de crear a su estado inicial (aún no se envió nada). */
+    fun limpiarCreacion() {
+        _creacion.value = null
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.delacruz.murocampus.data.PostRepositoryRemote
 import com.delacruz.murocampus.data.remote.RetrofitClient
 import com.delacruz.murocampus.model.Post
+import com.delacruz.murocampus.ui.PantallaCrear
 import com.delacruz.murocampus.ui.PantallaDetalle
 import com.delacruz.murocampus.ui.PantallaLista
 import com.delacruz.murocampus.ui.theme.MuroCampusTheme
@@ -56,6 +58,7 @@ class MainActivity : ComponentActivity() {
                 val estadoLista by vm.lista.collectAsStateWithLifecycle()
                 val estadoDetalle by vm.detalle.collectAsStateWithLifecycle()
                 val usuarioFiltro by vm.usuarioFiltro.collectAsStateWithLifecycle()
+                val estadoCreacion by vm.creacion.collectAsStateWithLifecycle()
 
                 MuroCampusApp(
                     estadoLista = estadoLista,
@@ -63,7 +66,10 @@ class MainActivity : ComponentActivity() {
                     estadoDetalle = estadoDetalle,
                     onAbrirPublicacion = vm::abrir,
                     usuarioFiltro = usuarioFiltro,
-                    onFiltrar = vm::filtrar
+                    onFiltrar = vm::filtrar,
+                    estadoCreacion = estadoCreacion,
+                    onPublicar = vm::publicar,
+                    onLimpiarCreacion = vm::limpiarCreacion
                 )
             }
         }
@@ -71,9 +77,9 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Contenedor principal de MuroCampus: barra superior, lista y detalle.
- * La navegación usa idSeleccionado: con null se ve la lista y con un id se ve
- * el detalle; el botón Atrás del sistema vuelve a la lista.
+ * Contenedor principal de MuroCampus: barra superior, lista, detalle y creación.
+ * La navegación usa dos estados guardables: idSeleccionado para el detalle y
+ * creando para el formulario; el botón Atrás del sistema siempre vuelve a la lista.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,9 +89,13 @@ fun MuroCampusApp(
     estadoDetalle: UiState<DetalleUi>,
     onAbrirPublicacion: (Int) -> Unit,
     usuarioFiltro: Int?,
-    onFiltrar: (Int?) -> Unit
+    onFiltrar: (Int?) -> Unit,
+    estadoCreacion: UiState<Post>?,
+    onPublicar: (String, String) -> Unit,
+    onLimpiarCreacion: () -> Unit
 ) {
     var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+    var creando by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -102,6 +112,21 @@ fun MuroCampusApp(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
+        },
+        floatingActionButton = {
+            if (!creando && idSeleccionado == null) {
+                FloatingActionButton(
+                    onClick = {
+                        onLimpiarCreacion()
+                        creando = true
+                    }
+                ) {
+                    Text(
+                        text = "+",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Box(
@@ -109,8 +134,16 @@ fun MuroCampusApp(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (idSeleccionado == null) {
-                PantallaLista(
+            when {
+                creando -> {
+                    BackHandler { creando = false }
+                    PantallaCrear(
+                        estado = estadoCreacion,
+                        onPublicar = onPublicar
+                    )
+                }
+
+                idSeleccionado == null -> PantallaLista(
                     estado = estadoLista,
                     onReintentar = onReintentarLista,
                     usuarioFiltro = usuarioFiltro,
@@ -120,16 +153,16 @@ fun MuroCampusApp(
                         onAbrirPublicacion(id)
                     }
                 )
-            } else {
-                BackHandler {
-                    idSeleccionado = null
+
+                else -> {
+                    BackHandler { idSeleccionado = null }
+                    PantallaDetalle(
+                        estado = estadoDetalle,
+                        onReintentar = {
+                            idSeleccionado?.let(onAbrirPublicacion)
+                        }
+                    )
                 }
-                PantallaDetalle(
-                    estado = estadoDetalle,
-                    onReintentar = {
-                        idSeleccionado?.let(onAbrirPublicacion)
-                    }
-                )
             }
         }
     }
