@@ -496,6 +496,89 @@ fun IconoRecargar(
     }
 }
 
+/** Bote de basura del botón Eliminar. */
+@Composable
+fun IconoEliminar(
+    color: Color,
+    modifier: Modifier = Modifier,
+    tamano: Dp = 18.dp
+) {
+    Canvas(modifier = modifier.size(tamano)) {
+        val ancho = size.width
+        val alto = size.height
+        val grosor = 1.8.dp.toPx()
+
+        // Tapa y asa.
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.16f, alto * 0.28f),
+            end = Offset(ancho * 0.84f, alto * 0.28f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.40f, alto * 0.28f),
+            end = Offset(ancho * 0.42f, alto * 0.14f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.42f, alto * 0.14f),
+            end = Offset(ancho * 0.58f, alto * 0.14f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.58f, alto * 0.14f),
+            end = Offset(ancho * 0.60f, alto * 0.28f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+
+        // Cuerpo del bote.
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.26f, alto * 0.36f),
+            end = Offset(ancho * 0.31f, alto * 0.86f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.74f, alto * 0.36f),
+            end = Offset(ancho * 0.69f, alto * 0.86f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.31f, alto * 0.86f),
+            end = Offset(ancho * 0.69f, alto * 0.86f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+
+        // Dos rayas interiores.
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.43f, alto * 0.44f),
+            end = Offset(ancho * 0.44f, alto * 0.74f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(ancho * 0.57f, alto * 0.44f),
+            end = Offset(ancho * 0.56f, alto * 0.74f),
+            strokeWidth = grosor,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
 /** Burbuja de diálogo junto al título de comentarios. */
 @Composable
 fun IconoBurbuja(

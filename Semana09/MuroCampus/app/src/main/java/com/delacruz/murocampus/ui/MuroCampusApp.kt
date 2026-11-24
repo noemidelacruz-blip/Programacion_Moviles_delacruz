@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.delacruz.murocampus.ui.theme.FondoCrema
 import com.delacruz.murocampus.viewmodel.PostsViewModel
+import com.delacruz.murocampus.viewmodel.UiState
 
 /**
  * Contenedor de MuroCampus: recoge los estados del ViewModel y decide qué
@@ -30,9 +32,18 @@ fun MuroCampusApp(vm: PostsViewModel) {
     val estadoDetalle by vm.detalle.collectAsStateWithLifecycle()
     val usuarioFiltro by vm.usuarioFiltro.collectAsStateWithLifecycle()
     val estadoCreacion by vm.creacion.collectAsStateWithLifecycle()
+    val estadoEliminacion by vm.eliminacion.collectAsStateWithLifecycle()
 
     var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
     var creando by rememberSaveable { mutableStateOf(false) }
+
+    // Cuando el servidor confirma el DELETE, se vuelve al muro.
+    LaunchedEffect(estadoEliminacion) {
+        if (estadoEliminacion is UiState.Exito) {
+            idSeleccionado = null
+            vm.limpiarEliminacion()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -72,19 +83,28 @@ fun MuroCampusApp(vm: PostsViewModel) {
                     usuarioFiltro = usuarioFiltro,
                     onFiltrar = vm::filtrar,
                     onAbrir = { id ->
+                        vm.limpiarEliminacion()
                         idSeleccionado = id
                         vm.abrir(id)
                     }
                 )
 
                 else -> {
-                    BackHandler { idSeleccionado = null }
+                    BackHandler {
+                        idSeleccionado = null
+                        vm.limpiarEliminacion()
+                    }
                     PantallaDetalle(
                         estado = estadoDetalle,
                         onReintentar = {
                             idSeleccionado?.let(vm::abrir)
                         },
-                        onVolver = { idSeleccionado = null }
+                        onVolver = {
+                            idSeleccionado = null
+                            vm.limpiarEliminacion()
+                        },
+                        eliminacion = estadoEliminacion,
+                        onEliminar = vm::eliminar
                     )
                 }
             }

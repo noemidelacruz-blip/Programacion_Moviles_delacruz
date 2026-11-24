@@ -40,6 +40,10 @@ class PostsViewModel(
     private val _creacion = MutableStateFlow<UiState<Post>?>(null)
     val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
+    /** null significa que todavía no se intentó borrar ninguna publicación. */
+    private val _eliminacion = MutableStateFlow<UiState<Unit>?>(null)
+    val eliminacion: StateFlow<UiState<Unit>?> = _eliminacion.asStateFlow()
+
     init {
         cargar()
     }
@@ -122,5 +126,32 @@ class PostsViewModel(
     /** Vuelve la pantalla de crear a su estado inicial (aún no se envió nada). */
     fun limpiarCreacion() {
         _creacion.value = null
+    }
+
+    /**
+     * Borra una publicación con DELETE. El servidor de práctica responde 200
+     * pero no guarda el borrado, así que además se quita de la lista en memoria
+     * para que el muro lo refleje hasta que se recargue.
+     */
+    fun eliminar(id: Int) {
+        viewModelScope.launch {
+            _eliminacion.value = UiState.Cargando
+            repo.eliminar(id)
+                .onSuccess {
+                    val actual = _lista.value
+                    if (actual is UiState.Exito) {
+                        _lista.value = UiState.Exito(
+                            actual.datos.filterNot { post -> post.id == id }
+                        )
+                    }
+                    _eliminacion.value = UiState.Exito(Unit)
+                }
+                .onFailure { error -> _eliminacion.value = UiState.Error(mensajeDe(error)) }
+        }
+    }
+
+    /** Deja la eliminación en su estado inicial al salir del detalle. */
+    fun limpiarEliminacion() {
+        _eliminacion.value = null
     }
 }

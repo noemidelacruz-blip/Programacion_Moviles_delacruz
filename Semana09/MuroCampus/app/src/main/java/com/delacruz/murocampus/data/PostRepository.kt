@@ -5,6 +5,7 @@ import com.delacruz.murocampus.model.Comentario
 import com.delacruz.murocampus.model.NuevoPost
 import com.delacruz.murocampus.model.Post
 import kotlinx.coroutines.CancellationException
+import retrofit2.HttpException
 
 /**
  * Contrato de acceso a las publicaciones. El ViewModel solo conoce esta interface
@@ -21,6 +22,12 @@ interface PostRepository {
     suspend fun porUsuario(userId: Int): Result<List<Post>>
 
     suspend fun crear(nuevo: NuevoPost): Result<Post>
+
+    /**
+     * Pide borrar la publicación y revisa el código de respuesta: si el servidor
+     * contesta algo distinto de 2xx, el Result llega como failure.
+     */
+    suspend fun eliminar(id: Int): Result<Unit>
 }
 
 /**
@@ -42,6 +49,13 @@ class PostRepositoryRemote(
         llamar { api.porUsuario(userId) }
 
     override suspend fun crear(nuevo: NuevoPost): Result<Post> = llamar { api.crear(nuevo) }
+
+    override suspend fun eliminar(id: Int): Result<Unit> = llamar {
+        val respuesta = api.eliminar(id)
+        if (!respuesta.isSuccessful) {
+            throw HttpException(respuesta)
+        }
+    }
 
     private suspend fun <T> llamar(bloque: suspend () -> T): Result<T> =
         try {

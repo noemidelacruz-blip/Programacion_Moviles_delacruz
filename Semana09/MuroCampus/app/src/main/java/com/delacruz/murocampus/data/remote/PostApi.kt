@@ -3,7 +3,9 @@ package com.delacruz.murocampus.data.remote
 import com.delacruz.murocampus.model.Comentario
 import com.delacruz.murocampus.model.NuevoPost
 import com.delacruz.murocampus.model.Post
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -34,4 +36,11 @@ interface PostApi {
     /** POST posts: crea una publicación y devuelve la respuesta del servidor. */
     @POST("posts")
     suspend fun crear(@Body nuevo: NuevoPost): Post
+
+    /**
+     * DELETE posts/{id}: pide borrar una publicación. Devuelve la respuesta
+     * completa (Response<Unit>) para poder revisar el código HTTP.
+     */
+    @DELETE("posts/{id}")
+    suspend fun eliminar(@Path("id") id: Int): Response<Unit>
 }
