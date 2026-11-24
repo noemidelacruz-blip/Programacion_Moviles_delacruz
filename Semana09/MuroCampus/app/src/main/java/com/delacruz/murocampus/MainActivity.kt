@@ -55,12 +55,15 @@ class MainActivity : ComponentActivity() {
                 )
                 val estadoLista by vm.lista.collectAsStateWithLifecycle()
                 val estadoDetalle by vm.detalle.collectAsStateWithLifecycle()
+                val usuarioFiltro by vm.usuarioFiltro.collectAsStateWithLifecycle()
 
                 MuroCampusApp(
                     estadoLista = estadoLista,
                     onReintentarLista = vm::cargar,
                     estadoDetalle = estadoDetalle,
-                    onAbrirPublicacion = vm::abrir
+                    onAbrirPublicacion = vm::abrir,
+                    usuarioFiltro = usuarioFiltro,
+                    onFiltrar = vm::filtrar
                 )
             }
         }
@@ -78,7 +81,9 @@ fun MuroCampusApp(
     estadoLista: UiState<List<Post>>,
     onReintentarLista: () -> Unit,
     estadoDetalle: UiState<DetalleUi>,
-    onAbrirPublicacion: (Int) -> Unit
+    onAbrirPublicacion: (Int) -> Unit,
+    usuarioFiltro: Int?,
+    onFiltrar: (Int?) -> Unit
 ) {
     var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
 
@@ -108,6 +113,8 @@ fun MuroCampusApp(
                 PantallaLista(
                     estado = estadoLista,
                     onReintentar = onReintentarLista,
+                    usuarioFiltro = usuarioFiltro,
+                    onFiltrar = onFiltrar,
                     onAbrir = { id ->
                         idSeleccionado = id
                         onAbrirPublicacion(id)

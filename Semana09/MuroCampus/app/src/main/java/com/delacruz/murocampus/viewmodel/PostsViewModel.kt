@@ -29,6 +29,9 @@ class PostsViewModel(
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista: StateFlow<UiState<List<Post>>> = _lista.asStateFlow()
 
+    private val _usuarioFiltro = MutableStateFlow<Int?>(null)
+    val usuarioFiltro: StateFlow<Int?> = _usuarioFiltro.asStateFlow()
+
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
 
@@ -38,9 +41,23 @@ class PostsViewModel(
 
     /** Pone Cargando, pide la lista y la convierte en Exito o Error. */
     fun cargar() {
+        filtrar(_usuarioFiltro.value)
+    }
+
+    /**
+     * Guarda el filtro elegido y recarga: null significa Todos.
+     * Con un usuario usa porUsuario(userId), es decir GET posts?userId=N.
+     */
+    fun filtrar(userId: Int?) {
+        _usuarioFiltro.value = userId
         viewModelScope.launch {
             _lista.value = UiState.Cargando
-            repo.listar()
+            val resultado = if (userId == null) {
+                repo.listar()
+            } else {
+                repo.porUsuario(userId)
+            }
+            resultado
                 .onSuccess { posts -> _lista.value = UiState.Exito(posts) }
                 .onFailure { error -> _lista.value = UiState.Error(mensajeDe(error)) }
         }
