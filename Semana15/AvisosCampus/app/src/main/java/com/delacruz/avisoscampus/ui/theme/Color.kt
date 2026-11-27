@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 val AzulCampus = Color(0xFF1A6FA8)
 val FondoClaro = Color(0xFFFAFAFD)
 val Blanco = Color(0xFFFFFFFF)
+val TextoSecundario = Color(0xFF6B7280)
 
 // Etiqueta del estado del permiso
 val FondoSinPedir = Color(0xFFE4E7EB)

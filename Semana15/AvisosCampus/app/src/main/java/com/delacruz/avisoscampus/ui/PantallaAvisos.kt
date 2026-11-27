@@ -1,6 +1,8 @@
 package com.delacruz.avisoscampus.ui
 
 import android.Manifest
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,10 +24,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,13 +38,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.delacruz.avisoscampus.model.PermisoUi
 import com.delacruz.avisoscampus.notificacion.Notificador
+import com.delacruz.avisoscampus.receiver.ModoAvionReceiver
 import com.delacruz.avisoscampus.ui.theme.FondoDenegado
 import com.delacruz.avisoscampus.ui.theme.FondoPermitido
 import com.delacruz.avisoscampus.ui.theme.FondoSinPedir
 import com.delacruz.avisoscampus.ui.theme.TextoDenegado
 import com.delacruz.avisoscampus.ui.theme.TextoPermitido
+import com.delacruz.avisoscampus.ui.theme.TextoSecundario
 import com.delacruz.avisoscampus.ui.theme.TextoSinPedir
 import com.delacruz.avisoscampus.viewmodel.AvisosViewModel
 
@@ -50,6 +57,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
+    val escuchando by vm.escuchandoAvion.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
@@ -67,6 +75,22 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     LaunchedEffect(Unit) {
         if (Notificador.tienePermiso(contexto)) {
             vm.permisoRespondido(true)
+        }
+    }
+
+    // El receptor se registra al activar el switch y siempre se quita en onDispose.
+    DisposableEffect(escuchando) {
+        if (escuchando) {
+            val receptor = ModoAvionReceiver { activo -> vm.alCambiarModoAvion(activo) }
+            ContextCompat.registerReceiver(
+                contexto,
+                receptor,
+                IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { contexto.unregisterReceiver(receptor) }
+        } else {
+            onDispose { }
         }
     }
 
@@ -151,7 +175,23 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             }
 
             TarjetaFuncion("Receptor de anuncios") {
-                // TODO Paso 6: Switch "Escuchar el modo avión" y DisposableEffect
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Escuchar el modo avión")
+                    Switch(
+                        checked = escuchando,
+                        onCheckedChange = { vm.cambiarEscucha(it) }
+                    )
+                }
+                Text(
+                    text = "Activa o desactiva el modo avión del celular",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextoSecundario
+                )
             }
 
             TarjetaFuncion("Historial") {
