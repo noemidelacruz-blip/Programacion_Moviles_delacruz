@@ -19,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,6 +49,7 @@ import com.delacruz.avisoscampus.viewmodel.AvisosViewModel
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
+    val faltan by vm.faltan.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
@@ -122,7 +124,30 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             }
 
             TarjetaFuncion("Recordatorio") {
-                // TODO Paso 5: botones "Recordar en 10 s", "Cancelar" y texto "Faltan N s"
+                Row(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { vm.recordarEn(10) },
+                        enabled = faltan == null
+                    ) {
+                        Text("Recordar en 10 s")
+                    }
+                    OutlinedButton(
+                        onClick = { vm.cancelarRecordatorio() },
+                        enabled = faltan != null
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+                faltan?.let { segundos ->
+                    Text(
+                        text = "Faltan $segundos s",
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             TarjetaFuncion("Receptor de anuncios") {
