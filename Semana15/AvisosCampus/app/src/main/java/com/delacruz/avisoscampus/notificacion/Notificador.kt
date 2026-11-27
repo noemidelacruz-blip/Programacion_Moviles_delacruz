@@ -1,12 +1,16 @@
 package com.delacruz.avisoscampus.notificacion
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.delacruz.avisoscampus.R
 import com.delacruz.avisoscampus.model.Aviso
 
 object Notificador {
@@ -36,11 +40,22 @@ object Notificador {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    // El permiso ya se comprueba con tienePermiso antes de llamar a notify.
+    @SuppressLint("MissingPermission")
     fun mostrar(context: Context, aviso: Aviso): Boolean {
-        // TODO Paso 3:
-        // 1: si no tienePermiso(context) -> return false
-        // 2: construir la notificación con NotificationCompat.Builder
-        // 3: NotificationManagerCompat.from(context).notify(aviso.id, ...)
+        if (!tienePermiso(context)) return false
+
+        val notificacion = NotificationCompat.Builder(context, CANAL)
+            .setSmallIcon(R.drawable.ic_notificacion)
+            .setContentTitle(aviso.titulo)
+            .setContentText(aviso.texto)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        // El id del aviso es distinto cada vez: así no se reemplazan entre sí.
+        NotificationManagerCompat.from(context).notify(aviso.id, notificacion)
+
         // TODO Paso 4: abrir la app al tocar la notificación con un PendingIntent
         return true
     }
