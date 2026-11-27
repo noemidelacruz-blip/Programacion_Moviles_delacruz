@@ -7,6 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -26,6 +27,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -36,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +47,8 @@ import androidx.core.content.ContextCompat
 import com.delacruz.avisoscampus.model.PermisoUi
 import com.delacruz.avisoscampus.notificacion.Notificador
 import com.delacruz.avisoscampus.receiver.ModoAvionReceiver
+import com.delacruz.avisoscampus.ui.theme.Blanco
+import com.delacruz.avisoscampus.ui.theme.BordeError
 import com.delacruz.avisoscampus.ui.theme.FondoDenegado
 import com.delacruz.avisoscampus.ui.theme.FondoPermitido
 import com.delacruz.avisoscampus.ui.theme.FondoSinPedir
@@ -51,6 +56,7 @@ import com.delacruz.avisoscampus.ui.theme.TextoDenegado
 import com.delacruz.avisoscampus.ui.theme.TextoPermitido
 import com.delacruz.avisoscampus.ui.theme.TextoSecundario
 import com.delacruz.avisoscampus.ui.theme.TextoSinPedir
+import com.delacruz.avisoscampus.ui.theme.TituloTarjeta
 import com.delacruz.avisoscampus.viewmodel.AvisosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -200,7 +206,14 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     Text("Escuchar el modo avión")
                     Switch(
                         checked = escuchando,
-                        onCheckedChange = { vm.cambiarEscucha(it) }
+                        onCheckedChange = { vm.cambiarEscucha(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Blanco,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary,
+                            uncheckedThumbColor = Color(0xFF8F7279),
+                            uncheckedTrackColor = Color(0xFFF3E2E6),
+                            uncheckedBorderColor = Color(0xFF8F7279)
+                        )
                     )
                 }
                 Text(
@@ -222,6 +235,7 @@ private fun MensajeError(texto: String) {
         modifier = Modifier.fillMaxWidth(),
         color = FondoDenegado,
         contentColor = TextoDenegado,
+        border = BorderStroke(1.dp, BordeError),
         shape = RoundedCornerShape(12.dp)
     ) {
         Text(
@@ -272,7 +286,7 @@ internal fun TarjetaFuncion(
             Text(
                 text = titulo,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = TituloTarjeta,
                 fontWeight = FontWeight.Bold
             )
             contenido()

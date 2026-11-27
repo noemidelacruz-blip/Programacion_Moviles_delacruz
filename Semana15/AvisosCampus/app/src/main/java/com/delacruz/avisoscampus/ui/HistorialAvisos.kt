@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -13,15 +14,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.delacruz.avisoscampus.model.Aviso
 import com.delacruz.avisoscampus.model.Origen
-import com.delacruz.avisoscampus.ui.theme.Blanco
 import com.delacruz.avisoscampus.ui.theme.EtiquetaBoton
 import com.delacruz.avisoscampus.ui.theme.EtiquetaModoAvion
 import com.delacruz.avisoscampus.ui.theme.EtiquetaRecordatorio
 import com.delacruz.avisoscampus.ui.theme.FondoFila
-import com.delacruz.avisoscampus.ui.theme.TextoEtiquetaOscuro
+import com.delacruz.avisoscampus.ui.theme.TextoEtiquetaBoton
+import com.delacruz.avisoscampus.ui.theme.TextoEtiquetaModoAvion
+import com.delacruz.avisoscampus.ui.theme.TextoEtiquetaRecordatorio
 import com.delacruz.avisoscampus.ui.theme.TextoSecundario
 
 // Solo recibe la lista: no conoce el ViewModel.
@@ -70,20 +73,24 @@ private fun FilaAviso(aviso: Aviso) {
 @Composable
 private fun EtiquetaOrigen(origen: Origen) {
     val (colorFondo, colorTexto) = when (origen) {
-        Origen.BOTON -> EtiquetaBoton to Blanco
-        Origen.RECORDATORIO -> EtiquetaRecordatorio to TextoEtiquetaOscuro
-        Origen.MODO_AVION -> EtiquetaModoAvion to Blanco
+        Origen.BOTON -> EtiquetaBoton to TextoEtiquetaBoton
+        Origen.RECORDATORIO -> EtiquetaRecordatorio to TextoEtiquetaRecordatorio
+        Origen.MODO_AVION -> EtiquetaModoAvion to TextoEtiquetaModoAvion
     }
     Surface(
+        modifier = Modifier.width(92.dp),
         color = colorFondo,
         contentColor = colorTexto,
-        shape = RoundedCornerShape(50)
+        shape = RoundedCornerShape(8.dp)
     ) {
         Text(
             text = origen.texto,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
             style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }

@@ -6,9 +6,10 @@ import androidx.compose.runtime.Composable
 
 private val EsquemaCampus = lightColorScheme(
     primary = AzulCampus,
-    onPrimary = Blanco,
+    onPrimary = TextoSobreRosa,
     background = FondoClaro,
-    surface = Blanco
+    surface = Blanco,
+    outline = BordeSuave
 )
 
 @Composable
