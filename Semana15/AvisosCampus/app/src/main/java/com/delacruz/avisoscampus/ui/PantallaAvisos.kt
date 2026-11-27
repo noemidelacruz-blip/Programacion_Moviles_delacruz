@@ -1,34 +1,53 @@
 package com.delacruz.avisoscampus.ui
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.delacruz.avisoscampus.model.PermisoUi
 import com.delacruz.avisoscampus.notificacion.Notificador
+import com.delacruz.avisoscampus.ui.theme.FondoDenegado
+import com.delacruz.avisoscampus.ui.theme.FondoPermitido
+import com.delacruz.avisoscampus.ui.theme.FondoSinPedir
+import com.delacruz.avisoscampus.ui.theme.TextoDenegado
+import com.delacruz.avisoscampus.ui.theme.TextoPermitido
+import com.delacruz.avisoscampus.ui.theme.TextoSinPedir
 import com.delacruz.avisoscampus.viewmodel.AvisosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    val permiso by vm.permiso.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
@@ -37,7 +56,17 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
 
-    // TODO Paso 2: lanzador del permiso y consulta de tienePermiso al iniciar
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        vm.permisoRespondido(concedido)
+    }
+
+    LaunchedEffect(Unit) {
+        if (Notificador.tienePermiso(contexto)) {
+            vm.permisoRespondido(true)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -59,7 +88,26 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             TarjetaFuncion("Permiso de notificaciones") {
-                // TODO Paso 2: etiqueta del estado y botón "Permitir notificaciones"
+                Row(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Estado:")
+                    EtiquetaPermiso(permiso)
+                }
+                Button(
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            vm.permisoRespondido(true)
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Permitir notificaciones")
+                }
             }
 
             // TODO Paso 8: recuadro de error y botón "Abrir ajustes"
@@ -80,6 +128,27 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 // TODO Paso 7: reemplazar esta tarjeta por HistorialAvisos(avisos)
             }
         }
+    }
+}
+
+@Composable
+private fun EtiquetaPermiso(permiso: PermisoUi) {
+    val (texto, colorFondo, colorTexto) = when (permiso) {
+        PermisoUi.SinPedir -> Triple("Sin pedir", FondoSinPedir, TextoSinPedir)
+        PermisoUi.Concedido -> Triple("Permitido", FondoPermitido, TextoPermitido)
+        PermisoUi.Denegado -> Triple("Denegado", FondoDenegado, TextoDenegado)
+    }
+    Surface(
+        color = colorFondo,
+        contentColor = colorTexto,
+        shape = RoundedCornerShape(50)
+    ) {
+        Text(
+            text = texto,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
