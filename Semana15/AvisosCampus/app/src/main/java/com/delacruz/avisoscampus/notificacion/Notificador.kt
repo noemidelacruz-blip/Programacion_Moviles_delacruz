@@ -15,9 +15,11 @@ import androidx.core.content.ContextCompat
 import com.delacruz.avisoscampus.MainActivity
 import com.delacruz.avisoscampus.R
 import com.delacruz.avisoscampus.model.Aviso
+import com.delacruz.avisoscampus.model.Origen
 
 object Notificador {
     const val CANAL = "avisos"
+    const val CANAL_URGENTES = "urgentes"
 
     fun crearCanal(context: Context) {
         // Los canales existen desde Android 8 (API 26).
@@ -29,8 +31,16 @@ object Notificador {
             ).apply {
                 description = "Notificaciones de la app"
             }
+            val canalUrgentes = NotificationChannel(
+                CANAL_URGENTES,
+                "Urgentes",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notificaciones urgentes de la app"
+            }
             val manager = context.getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(canal)
+            manager.createNotificationChannel(canalUrgentes)
         }
     }
 
@@ -57,11 +67,16 @@ object Notificador {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notificacion = NotificationCompat.Builder(context, CANAL)
+        val (canalId, prioridad) = when (aviso.origen) {
+            Origen.RECORDATORIO -> CANAL_URGENTES to NotificationCompat.PRIORITY_HIGH
+            else -> CANAL to NotificationCompat.PRIORITY_DEFAULT
+        }
+
+        val notificacion = NotificationCompat.Builder(context, canalId)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(prioridad)
             .setContentIntent(pendiente)
             .setAutoCancel(true)
             .build()
