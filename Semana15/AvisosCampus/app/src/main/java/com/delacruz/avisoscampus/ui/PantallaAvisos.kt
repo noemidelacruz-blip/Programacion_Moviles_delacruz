@@ -55,6 +55,7 @@ import com.delacruz.avisoscampus.viewmodel.AvisosViewModel
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    val avisos by vm.avisos.collectAsState()
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
@@ -194,9 +195,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 )
             }
 
-            TarjetaFuncion("Historial") {
-                // TODO Paso 7: reemplazar esta tarjeta por HistorialAvisos(avisos)
-            }
+            HistorialAvisos(avisos)
         }
     }
 }
@@ -223,7 +222,7 @@ private fun EtiquetaPermiso(permiso: PermisoUi) {
 }
 
 @Composable
-private fun TarjetaFuncion(
+internal fun TarjetaFuncion(
     titulo: String,
     contenido: @Composable ColumnScope.() -> Unit
 ) {
