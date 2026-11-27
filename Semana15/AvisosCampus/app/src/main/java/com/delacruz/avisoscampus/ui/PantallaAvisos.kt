@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.delacruz.avisoscampus.model.PermisoUi
 import com.delacruz.avisoscampus.notificacion.Notificador
+import com.delacruz.avisoscampus.receiver.CargadorReceiver
 import com.delacruz.avisoscampus.receiver.ModoAvionReceiver
 import com.delacruz.avisoscampus.ui.theme.Blanco
 import com.delacruz.avisoscampus.ui.theme.BordeError
@@ -68,6 +69,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val mensaje by vm.mensaje.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val escuchandoCargador by vm.escuchandoCargador.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
@@ -96,6 +98,25 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 contexto,
                 receptor,
                 IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { contexto.unregisterReceiver(receptor) }
+        } else {
+            onDispose { }
+        }
+    }
+
+    DisposableEffect(escuchandoCargador) {
+        if (escuchandoCargador) {
+            val receptor = CargadorReceiver { conectado -> vm.alCambiarCargador(conectado) }
+            val filtro = IntentFilter().apply {
+                addAction(Intent.ACTION_POWER_CONNECTED)
+                addAction(Intent.ACTION_POWER_DISCONNECTED)
+            }
+            ContextCompat.registerReceiver(
+                contexto,
+                receptor,
+                filtro,
                 ContextCompat.RECEIVER_NOT_EXPORTED
             )
             onDispose { contexto.unregisterReceiver(receptor) }
@@ -222,6 +243,24 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     style = MaterialTheme.typography.bodySmall,
                     color = TextoSecundario
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Escuchar el cargador")
+                    Switch(
+                        checked = escuchandoCargador,
+                        onCheckedChange = { vm.cambiarEscuchaCargador(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Blanco,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary,
+                            uncheckedThumbColor = Color(0xFF8F7279),
+                            uncheckedTrackColor = Color(0xFFF3E2E6),
+                            uncheckedBorderColor = Color(0xFF8F7279)
+                        )
+                    )
+                }
             }
 
             HistorialAvisos(avisos)

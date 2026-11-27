@@ -12,6 +12,7 @@ val FondoFila = Color(0xFFFCE8EC)
 val EtiquetaBoton = Color(0xFFFBEFC4)
 val EtiquetaRecordatorio = Color(0xFFFFE0C8)
 val EtiquetaModoAvion = Color(0xFFD6EEF0)
+val EtiquetaCargador = Color(0xFFE4EEC9)
 val TextoEtiquetaOscuro = Color(0xFF2B1D00)
 
 // Etiqueta del estado del permiso
@@ -30,3 +31,4 @@ val BordeError = Color(0xFFD64545)
 val TextoEtiquetaBoton = Color(0xFF6B4F00)
 val TextoEtiquetaRecordatorio = Color(0xFF8A4A12)
 val TextoEtiquetaModoAvion = Color(0xFF0B5560)
+val TextoEtiquetaCargador = Color(0xFF3F5A12)

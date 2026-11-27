@@ -19,10 +19,12 @@ import androidx.compose.ui.unit.dp
 import com.delacruz.avisoscampus.model.Aviso
 import com.delacruz.avisoscampus.model.Origen
 import com.delacruz.avisoscampus.ui.theme.EtiquetaBoton
+import com.delacruz.avisoscampus.ui.theme.EtiquetaCargador
 import com.delacruz.avisoscampus.ui.theme.EtiquetaModoAvion
 import com.delacruz.avisoscampus.ui.theme.EtiquetaRecordatorio
 import com.delacruz.avisoscampus.ui.theme.FondoFila
 import com.delacruz.avisoscampus.ui.theme.TextoEtiquetaBoton
+import com.delacruz.avisoscampus.ui.theme.TextoEtiquetaCargador
 import com.delacruz.avisoscampus.ui.theme.TextoEtiquetaModoAvion
 import com.delacruz.avisoscampus.ui.theme.TextoEtiquetaRecordatorio
 import com.delacruz.avisoscampus.ui.theme.TextoSecundario
@@ -76,6 +78,7 @@ private fun EtiquetaOrigen(origen: Origen) {
         Origen.BOTON -> EtiquetaBoton to TextoEtiquetaBoton
         Origen.RECORDATORIO -> EtiquetaRecordatorio to TextoEtiquetaRecordatorio
         Origen.MODO_AVION -> EtiquetaModoAvion to TextoEtiquetaModoAvion
+        Origen.CARGADOR -> EtiquetaCargador to TextoEtiquetaCargador
     }
     Surface(
         modifier = Modifier.width(92.dp),
